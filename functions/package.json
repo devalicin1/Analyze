@@ -1,0 +1,24 @@
+{
+  "name": "analyzer-functions",
+  "type": "commonjs",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "tsc",
+    "serve": "tsc --watch",
+    "deploy": "firebase deploy --only functions"
+  },
+  "engines": {
+    "node": "20"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.6.0",
+    "firebase-functions": "^5.0.1",
+    "papaparse": "^5.4.3",
+    "exceljs": "^4.4.0"
+  },
+  "devDependencies": {
+    "@types/papaparse": "^5.5.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}

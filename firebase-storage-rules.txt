@@ -1,0 +1,24 @@
+// Firebase Storage Security Rules
+// Copy these rules to Firebase Console > Storage > Rules
+
+// DEVELOPMENT RULES (Temporary - for testing only)
+// ⚠️ WARNING: These rules allow public read/write access!
+// Only use these for development. Update before production.
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Allow public read/write for development
+    // TODO: Replace with proper auth-based rules before production
+    match /tenants/{tenantId}/workspaces/{workspaceId}/uploads/{fileName} {
+      allow read, write: if true;
+    }
+    
+    // Production rules (uncomment when Firebase Auth is implemented):
+    // match /tenants/{tenantId}/workspaces/{workspaceId}/uploads/{fileName} {
+    //   allow read, write: if request.auth != null 
+    //     && request.auth.uid != null;
+    // }
+  }
+}
+
