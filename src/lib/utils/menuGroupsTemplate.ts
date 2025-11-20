@@ -22,8 +22,8 @@ export async function downloadMenuGroupsTemplate(menuGroups: MenuGroup[]): Promi
 
   // Add example rows
   if (menuGroups.length > 0) {
-    const firstGroup = menuGroups[0]
-    const firstSubGroup = firstGroup.subGroups[0]
+
+
 
     // Example: Group with subgroups
     worksheet.addRow({

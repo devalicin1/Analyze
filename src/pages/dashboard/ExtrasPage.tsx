@@ -3,6 +3,7 @@ import { DataTable, type TableColumn } from '../../components/tables/DataTable'
 import { fetchExtrasAnalytics } from '../../lib/api/analytics'
 import type { ProductPerformance } from '../../lib/types'
 import { useWorkspace } from '../../context/WorkspaceContext'
+import { formatCurrency } from '../../lib/utils/formatting'
 
 export function ExtrasPage() {
   const workspace = useWorkspace()
@@ -37,14 +38,12 @@ export function ExtrasPage() {
     },
     {
       header: 'Amount',
-      accessor: (row) =>
-        `${workspace.currency} ${row.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+      accessor: (row) => formatCurrency(workspace.currency, row.amount),
       align: 'right',
     },
     {
       header: 'Avg price',
-      accessor: (row) =>
-        `${workspace.currency} ${row.avgPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}`,
+      accessor: (row) => formatCurrency(workspace.currency, row.avgPrice),
       align: 'right',
     },
     {
@@ -73,7 +72,7 @@ export function ExtrasPage() {
           <p className="text-sm text-gray-500">Total Extras Amount</p>
           <p className="mt-2 text-3xl font-semibold text-gray-900">
             {extras
-              ? `${workspace.currency} ${extras.totalAmount.toLocaleString()}`
+              ? formatCurrency(workspace.currency, extras.totalAmount)
               : '—'}
           </p>
         </div>

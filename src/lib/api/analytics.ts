@@ -53,7 +53,7 @@ function getPeriodKeysFromDateRange(start: Date, end: Date): string[] {
 // Fetch salesLines from Firestore
 export async function fetchSalesLines(
   scope: WorkspaceScope,
-  options?: { 
+  options?: {
     periodKey?: string
     periodKeys?: string[]
     dateRange?: { start: Date; end: Date }
@@ -66,22 +66,22 @@ export async function fetchSalesLines(
     path: salesLinesPath,
     options: options
       ? {
-          periodKey: options.periodKey,
-          periodKeys: options.periodKeys,
-          dateRange: options.dateRange
-            ? {
-                start: options.dateRange.start.toISOString(),
-                end: options.dateRange.end.toISOString(),
-              }
-            : undefined,
-          includeExtras: options.includeExtras,
-          reportId: options.reportId,
-        }
+        periodKey: options.periodKey,
+        periodKeys: options.periodKeys,
+        dateRange: options.dateRange
+          ? {
+            start: options.dateRange.start.toISOString(),
+            end: options.dateRange.end.toISOString(),
+          }
+          : undefined,
+        includeExtras: options.includeExtras,
+        reportId: options.reportId,
+      }
       : 'no options',
   })
 
   const constraints: QueryConstraint[] = []
-  
+
   // Handle periodKey filtering
   if (options?.periodKey) {
     console.log('[fetchSalesLines] Filtering by periodKey:', options.periodKey)
@@ -111,7 +111,7 @@ export async function fetchSalesLines(
   } else {
     console.log('[fetchSalesLines] No periodKey filtering - fetching all sales lines')
   }
-  
+
   if (options?.includeExtras === false) {
     console.log('[fetchSalesLines] Excluding extras')
     constraints.push(where('isExtraAtSale', '==', false))
@@ -124,14 +124,14 @@ export async function fetchSalesLines(
 
   console.log('[fetchSalesLines] Query constraints count:', constraints.length)
 
-  const q = constraints.length > 0 
+  const q = constraints.length > 0
     ? query(collection(db, salesLinesPath), ...constraints)
     : collection(db, salesLinesPath)
-    
+
   console.log('[fetchSalesLines] Executing Firestore query...')
   const snapshot = await getDocs(q)
   console.log('[fetchSalesLines] Firestore query returned', snapshot.docs.length, 'documents')
-  
+
   // Debug: Check what periodKeys exist in Firestore (if no results)
   if (snapshot.docs.length === 0) {
     console.log('[fetchSalesLines] No documents found with filter. Checking all documents in collection...')
@@ -145,7 +145,7 @@ export async function fetchSalesLines(
     })
     console.log('[fetchSalesLines] All periodKeys in Firestore:', Array.from(allPeriodKeys).sort())
     console.log('[fetchSalesLines] Total documents in collection:', allSnapshot.docs.length)
-    
+
     if (allSnapshot.docs.length > 0) {
       console.log('[fetchSalesLines] Sample document:', {
         id: allSnapshot.docs[0].id,
@@ -153,7 +153,7 @@ export async function fetchSalesLines(
       })
     }
   }
-  
+
   let lines = snapshot.docs.map((docSnap) => {
     const data = docSnap.data() as Omit<SalesLine, 'id'>
     return {
@@ -187,13 +187,13 @@ export async function fetchSalesLines(
   // This prevents double counting when the same sales line appears multiple times in Firestore
   const beforeDedup = lines.length
   const seenKeys = new Set<string>()
-  const deduplicatedLines: SalesLine[] = []
-  
+  const deduplicatedLines: typeof lines = []
+
   lines.forEach((line) => {
     // Create a unique key from all identifying fields
     // If all these match exactly, it's likely a duplicate
     const key = `${line.reportId}_${line.productId}_${line.quantity}_${line.amount}_${line.productNameRaw}`
-    
+
     if (!seenKeys.has(key)) {
       seenKeys.add(key)
       deduplicatedLines.push(line)
@@ -207,9 +207,9 @@ export async function fetchSalesLines(
       })
     }
   })
-  
+
   lines = deduplicatedLines
-  
+
   if (beforeDedup !== lines.length) {
     console.log('[fetchSalesLines] Removed duplicates:', {
       before: beforeDedup,
@@ -242,9 +242,9 @@ export async function fetchOverview(
     scope,
     dateRange: dateRange
       ? {
-          start: dateRange.start.toISOString(),
-          end: dateRange.end.toISOString(),
-        }
+        start: dateRange.start.toISOString(),
+        end: dateRange.end.toISOString(),
+      }
       : 'no date range',
   })
 
@@ -273,13 +273,13 @@ export async function fetchOverview(
   // This prevents double counting issues when reports and salesLines contain overlapping data
   const totalAmount = salesLines.reduce((sum, line) => sum + line.amount, 0)
   const totalQuantity = salesLines.reduce((sum, line) => sum + line.quantity, 0)
-  
+
   console.log('[fetchOverview] Calculated from salesLines:', {
     salesLinesCount: salesLines.length,
     totalAmount,
     totalQuantity,
   })
-  
+
   const averageSellingPrice = totalQuantity > 0 ? totalAmount / totalQuantity : 0
 
   console.log('[fetchOverview] Final calculated metrics:', {
@@ -288,7 +288,7 @@ export async function fetchOverview(
     averageSellingPrice,
     source: 'salesLines',
   })
-  
+
   if (salesLines.length > 0) {
     console.log('[fetchOverview] Sample sales lines (first 3):', salesLines.slice(0, 3).map((line) => ({
       id: line.id,
@@ -392,13 +392,13 @@ export async function fetchProductTrends(
   if (USE_MOCK_DATA) {
     return buildTrendSeries(productIds)
   }
-  
+
   // Fetch sales lines for the date range
   const salesLines = await fetchSalesLines(scope, dateRange ? { dateRange } : undefined)
-  
+
   // Filter by product IDs and aggregate by period
   const trendMap = new Map<string, { quantity: number; amount: number }>()
-  
+
   salesLines
     .filter((line) => productIds.includes(line.productId))
     .forEach((line) => {
@@ -408,7 +408,7 @@ export async function fetchProductTrends(
       existing.amount += line.amount
       trendMap.set(key, existing)
     })
-  
+
   return Array.from(trendMap.entries()).map(([periodKey, data]) => ({
     periodKey,
     label: formatPeriod(periodKey),
@@ -445,13 +445,13 @@ export async function fetchCategoryTrends(
       label: formatPeriod(entry.periodKey),
     }))
   }
-  
+
   // Fetch sales lines for the date range
   const salesLines = await fetchSalesLines(scope, dateRange ? { dateRange } : undefined)
-  
+
   // Aggregate by period and menu group
   const aggregates = new Map<string, { periodKey: string; menuGroup: string; amount: number; quantity: number }>()
-  
+
   salesLines.forEach((line) => {
     const key = `${line.periodKey}_${line.menuGroupAtSale}`
     const existing = aggregates.get(key) ?? {
@@ -464,7 +464,7 @@ export async function fetchCategoryTrends(
     existing.quantity += line.quantity
     aggregates.set(key, existing)
   })
-  
+
   return Array.from(aggregates.values()).map((entry) => ({
     ...entry,
     label: formatPeriod(entry.periodKey),
@@ -488,27 +488,27 @@ export async function fetchSubcategoryTrends(
 ): Promise<SubcategoryTrendPoint[]> {
   // Fetch sales lines for the date range
   const salesLines = await fetchSalesLines(scope, dateRange ? { dateRange } : undefined)
-  
+
   // Filter by category and subcategory if provided
   let filteredLines = salesLines.filter((line) => line.menuSubGroupAtSale)
-  
+
   if (categoryId) {
     filteredLines = filteredLines.filter((line) => line.menuGroupAtSale === categoryId)
   }
-  
+
   if (subcategoryId) {
     filteredLines = filteredLines.filter((line) => line.menuSubGroupAtSale === subcategoryId)
   }
-  
+
   // Aggregate by period, menu group, and subcategory
-  const aggregates = new Map<string, { 
+  const aggregates = new Map<string, {
     periodKey: string
     menuGroup: string
     menuSubGroup: string
     amount: number
     quantity: number
   }>()
-  
+
   filteredLines.forEach((line) => {
     if (!line.menuSubGroupAtSale) return
     const key = `${line.periodKey}_${line.menuGroupAtSale}_${line.menuSubGroupAtSale}`
@@ -523,7 +523,7 @@ export async function fetchSubcategoryTrends(
     existing.quantity += line.quantity
     aggregates.set(key, existing)
   })
-  
+
   return Array.from(aggregates.values()).map((entry) => ({
     ...entry,
     label: formatPeriod(entry.periodKey),
@@ -575,15 +575,15 @@ export async function fetchExtrasAnalytics(
       perProduct,
     }
   }
-  
+
   // Fetch all sales lines for the date range
   const allSalesLines = await fetchSalesLines(scope, dateRange ? { dateRange } : undefined)
   const extras = allSalesLines.filter((line) => line.isExtraAtSale)
-  
+
   const totalAmount = extras.reduce((sum, line) => sum + line.amount, 0)
   const totalQuantity = extras.reduce((sum, line) => sum + line.quantity, 0)
   const totalSalesAmount = allSalesLines.reduce((sum, line) => sum + line.amount, 0)
-  
+
   const groups = extras.reduce<Record<string, ProductPerformance>>((acc, line) => {
     const key = line.productId
     if (!acc[key]) {
@@ -601,15 +601,15 @@ export async function fetchExtrasAnalytics(
     acc[key].amount += line.amount
     return acc
   }, {})
-  
+
   const perProduct = Object.values(groups).map((item) => ({
     ...item,
     avgPrice: item.quantity ? item.amount / item.quantity : 0,
     percentOfTotal: totalAmount ? item.amount / totalAmount : 0,
   }))
-  
+
   const shareOfSales = totalSalesAmount > 0 ? totalAmount / totalSalesAmount : 0
-  
+
   return {
     totalQuantity,
     totalAmount,
@@ -621,7 +621,7 @@ export async function fetchExtrasAnalytics(
 export async function fetchLifecycleInsights(
   scope: WorkspaceScope,
   months = 3,
-  dateRange?: { start: Date; end: Date },
+  _dateRange?: { start: Date; end: Date },
 ) {
   if (USE_MOCK_DATA) {
     const cutoff = new Date()
@@ -678,10 +678,10 @@ export async function fetchLifecycleInsights(
   // Fetch all sales lines (lifecycle needs full history, not just date range)
   const salesLines = await fetchSalesLines(scope)
   const products = await listProducts(scope)
-  
+
   const cutoff = new Date()
   cutoff.setMonth(cutoff.getMonth() - months)
-  
+
   const productLines = salesLines.reduce<Record<string, { first: Date; last: Date; qty: number; amount: number; windowQty: number }>>((acc, line) => {
     if (!acc[line.productId]) {
       acc[line.productId] = {

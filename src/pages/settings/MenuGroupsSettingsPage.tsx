@@ -61,12 +61,12 @@ export function MenuGroupsSettingsPage() {
       prev.map((group, index) =>
         index === groupIndex
           ? {
-              ...group,
-              subGroups: [
-                ...group.subGroups,
-                { id: `${group.id}_sub_${group.subGroups.length + 1}`, label: 'New subgroup' },
-              ],
-            }
+            ...group,
+            subGroups: [
+              ...group.subGroups,
+              { id: `${group.id}_sub_${group.subGroups.length + 1}`, label: 'New subgroup' },
+            ],
+          }
           : group,
       ),
     )
@@ -101,14 +101,14 @@ export function MenuGroupsSettingsPage() {
       <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="page-title">Menu groups</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             Organize menu groups and subgroups for analytics.
           </p>
         </div>
         <button
           type="button"
           onClick={() => setBulkUploadOpen(true)}
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+          className="btn-secondary"
         >
           <Upload className="h-4 w-4" />
           Bulk Upload
@@ -123,29 +123,31 @@ export function MenuGroupsSettingsPage() {
                 type="color"
                 value={group.color}
                 onChange={(event) => handleGroupChange(groupIndex, { color: event.target.value })}
-                className="h-10 w-10 rounded-xl border border-gray-200"
+                className="h-10 w-10 cursor-pointer rounded-xl border border-slate-200 p-1"
                 aria-label="Group color"
               />
               <input
                 type="text"
                 value={group.label}
                 onChange={(event) => handleGroupChange(groupIndex, { label: event.target.value })}
-                className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-900"
+                className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Group name"
               />
               <button
                 type="button"
                 onClick={() => removeGroup(groupIndex)}
-                className="rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-600 transition hover:bg-gray-50"
+                className="rounded-xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-50 hover:text-red-600"
+                title="Remove group"
               >
                 <Trash2 className="h-4 w-4" />
               </button>
             </div>
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">
+            <div className="space-y-2 pl-14">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
                 Subgroups
               </p>
               {group.subGroups.length === 0 && (
-                <p className="text-xs text-gray-500">No subgroups defined.</p>
+                <p className="text-xs text-slate-400 italic">No subgroups defined.</p>
               )}
               {group.subGroups.map((subGroup, subIndex) => (
                 <div key={subGroup.id} className="flex items-center gap-2">
@@ -155,21 +157,23 @@ export function MenuGroupsSettingsPage() {
                     onChange={(event) =>
                       handleSubGroupChange(groupIndex, subIndex, event.target.value)
                     }
-                    className="flex-1 rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900"
+                    className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                    placeholder="Subgroup name"
                   />
                   <button
                     type="button"
                     onClick={() => removeSubGroup(groupIndex, subIndex)}
-                    className="rounded-xl border border-gray-200 px-3 py-2"
+                    className="rounded-xl border border-slate-200 px-3 py-2 text-slate-400 transition hover:bg-slate-50 hover:text-red-600"
+                    title="Remove subgroup"
                   >
-                    <Trash2 className="h-4 w-4 text-gray-500" />
+                    <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
               ))}
               <button
                 type="button"
                 onClick={() => addSubGroup(groupIndex)}
-                className="inline-flex items-center gap-2 rounded-xl border border-dashed border-gray-300 px-3 py-2 text-xs font-semibold text-gray-600"
+                className="inline-flex items-center gap-2 rounded-xl border border-dashed border-slate-300 px-3 py-2 text-xs font-semibold text-slate-600 hover:border-slate-400 hover:text-slate-700"
               >
                 <Plus className="h-4 w-4" />
                 Add subgroup
@@ -179,11 +183,11 @@ export function MenuGroupsSettingsPage() {
         ))}
       </div>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-wrap gap-3 border-t border-slate-200 pt-6">
         <button
           type="button"
           onClick={addGroup}
-          className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700"
+          className="btn-secondary"
         >
           <Plus className="h-4 w-4" />
           Add group
@@ -192,12 +196,16 @@ export function MenuGroupsSettingsPage() {
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm disabled:opacity-50"
+          className="btn-primary ml-auto"
         >
           {saving ? 'Saving...' : 'Save menu groups'}
         </button>
       </div>
-      {feedback && <p className="text-sm text-gray-600">{feedback}</p>}
+      {feedback && (
+        <div className="rounded-lg bg-slate-50 px-4 py-3 text-sm text-slate-600">
+          {feedback}
+        </div>
+      )}
 
       <MenuGroupsBulkUploadModal
         isOpen={bulkUploadOpen}

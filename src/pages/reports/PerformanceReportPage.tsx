@@ -47,18 +47,7 @@ type ProductPeriodData = {
   }>
 }
 
-const formatCurrency = (currency: string, value: number) => {
-  const decimals = value >= 1000 ? 0 : 2
-  return `${currency} ${value.toLocaleString(undefined, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })}`
-}
-
-const formatPercent = (value: number) => {
-  const sign = value >= 0 ? '+' : ''
-  return `${sign}${value.toFixed(1)}%`
-}
+import { formatCurrency, formatPercent } from '../../lib/utils/formatting'
 
 export function PerformanceReportPage() {
   const workspace = useWorkspace()
@@ -68,7 +57,7 @@ export function PerformanceReportPage() {
   const [categoryId, setCategoryId] = useState<string>('')
   const [subcategoryId, setSubcategoryId] = useState<string>('')
   const [productId, setProductId] = useState<string>('')
-  
+
   const [menuGroups, setMenuGroups] = useState<MenuGroup[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [trendData, setTrendData] = useState<TrendPoint[] | CategoryTrendPoint[] | SubcategoryTrendPoint[]>([])
@@ -95,11 +84,11 @@ export function PerformanceReportPage() {
   // Fetch trend data based on report type
   useEffect(() => {
     setLoading(true)
-    
+
     const fetchData = async () => {
       try {
         let data: TrendPoint[] | CategoryTrendPoint[] | SubcategoryTrendPoint[]
-        
+
         if (reportType === 'product' && productId) {
           data = await fetchProductTrends(workspace, [productId], {
             start: dateRange.start,
@@ -121,45 +110,45 @@ export function PerformanceReportPage() {
             start: dateRange.start,
             end: dateRange.end,
           })
-          
+
           if (categoryId) {
             data = categoryTrends.filter((t) => t.menuGroup === categoryId)
           } else {
             data = categoryTrends
           }
         }
-        
+
         setTrendData(data)
-        
+
         // Calculate metrics
         if (data.length > 0) {
-          const sortedData = [...data].sort((a, b) => 
+          const sortedData = [...data].sort((a, b) =>
             a.periodKey.localeCompare(b.periodKey)
           )
-          
+
           const firstPeriod = sortedData[0]
           const lastPeriod = sortedData[sortedData.length - 1]
-          
+
           const totalAmount = sortedData.reduce((sum, item) => sum + item.amount, 0)
           const totalQuantity = sortedData.reduce((sum, item) => sum + item.quantity, 0)
           const averagePrice = totalQuantity > 0 ? totalAmount / totalQuantity : 0
-          
+
           const firstPeriodAmount = firstPeriod.amount
           const firstPeriodQuantity = firstPeriod.quantity
           const lastPeriodAmount = lastPeriod.amount
           const lastPeriodQuantity = lastPeriod.quantity
-          
+
           const amountChangePercent = firstPeriodAmount > 0
             ? ((lastPeriodAmount - firstPeriodAmount) / firstPeriodAmount) * 100
             : 0
           const quantityChangePercent = firstPeriodQuantity > 0
             ? ((lastPeriodQuantity - firstPeriodQuantity) / firstPeriodQuantity) * 100
             : 0
-          
+
           let trendDirection: 'up' | 'down' | 'stable' = 'stable'
           if (amountChangePercent > 5) trendDirection = 'up'
           else if (amountChangePercent < -5) trendDirection = 'down'
-          
+
           setMetrics({
             totalAmount,
             totalQuantity,
@@ -307,7 +296,7 @@ export function PerformanceReportPage() {
         setLoading(false)
       }
     }
-    
+
     fetchData()
   }, [workspace, reportType, dateRange, categoryId, subcategoryId, productId, products])
 
@@ -336,16 +325,16 @@ export function PerformanceReportPage() {
   // Prepare chart data
   const chartData = useMemo(() => {
     if (trendData.length === 0) return []
-    
+
     // Sort by periodKey to ensure chronological order
-    const sortedData = [...trendData].sort((a, b) => 
+    const sortedData = [...trendData].sort((a, b) =>
       a.periodKey.localeCompare(b.periodKey)
     )
-    
+
     if (reportType === 'category') {
       const categoryTrends = sortedData as CategoryTrendPoint[]
       const periodMap = new Map<string, Record<string, unknown>>()
-      
+
       categoryTrends.forEach((entry) => {
         if (!periodMap.has(entry.periodKey)) {
           periodMap.set(entry.periodKey, {
@@ -356,7 +345,7 @@ export function PerformanceReportPage() {
         const row = periodMap.get(entry.periodKey)!
         row[entry.menuGroup] = entry.amount
       })
-      
+
       // Convert to array and sort by periodKey to ensure chronological order
       return Array.from(periodMap.values()).sort((a, b) => {
         const aKey = (a.periodKey as string) || ''
@@ -366,7 +355,7 @@ export function PerformanceReportPage() {
     } else if (reportType === 'subcategory') {
       const subcategoryTrends = sortedData as SubcategoryTrendPoint[]
       const periodMap = new Map<string, Record<string, unknown>>()
-      
+
       subcategoryTrends.forEach((entry) => {
         const key = `${entry.menuGroup}_${entry.menuSubGroup}`
         if (!periodMap.has(entry.periodKey)) {
@@ -378,7 +367,7 @@ export function PerformanceReportPage() {
         const row = periodMap.get(entry.periodKey)!
         row[key] = entry.amount
       })
-      
+
       // Convert to array and sort by periodKey to ensure chronological order
       return Array.from(periodMap.values()).sort((a, b) => {
         const aKey = (a.periodKey as string) || ''
@@ -416,7 +405,7 @@ export function PerformanceReportPage() {
       const categoryTrends = trendData as CategoryTrendPoint[]
       const uniqueCategories = Array.from(new Set(categoryTrends.map((t) => t.menuGroup)))
       const colors = ['#2563eb', '#7c3aed', '#16a34a', '#f97316', '#dc2626', '#8b5cf6']
-      
+
       return uniqueCategories.map((categoryId, index) => {
         const category = menuGroups.find((g) => g.id === categoryId)
         return {
@@ -432,7 +421,7 @@ export function PerformanceReportPage() {
         new Set(subcategoryTrends.map((t) => `${t.menuGroup}_${t.menuSubGroup}`))
       )
       const colors = ['#2563eb', '#7c3aed', '#16a34a', '#f97316', '#dc2626', '#8b5cf6']
-      
+
       return uniqueSubcategories.map((key, index) => {
         const [menuGroupId, menuSubGroupId] = key.split('_')
         const category = menuGroups.find((g) => g.id === menuGroupId)
@@ -475,6 +464,7 @@ export function PerformanceReportPage() {
     try {
       await exportPerformanceReportToPDF({
         workspace,
+        currency: workspace.currency,
         reportType,
         selectedLabel: getSelectedLabel(),
         dateRange,
@@ -545,33 +535,30 @@ export function PerformanceReportPage() {
                   <button
                     type="button"
                     onClick={() => handleReportTypeChange('category')}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                      reportType === 'category'
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${reportType === 'category'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
                   >
                     Category
                   </button>
                   <button
                     type="button"
                     onClick={() => handleReportTypeChange('subcategory')}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                      reportType === 'subcategory'
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${reportType === 'subcategory'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
                   >
                     Subcategory
                   </button>
                   <button
                     type="button"
                     onClick={() => handleReportTypeChange('product')}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                      reportType === 'product'
-                        ? 'bg-blue-600 text-white shadow-md'
-                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                    }`}
+                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${reportType === 'product'
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                      }`}
                   >
                     Product
                   </button>
@@ -700,11 +687,10 @@ export function PerformanceReportPage() {
                         </p>
                         <div className="flex items-center gap-2">
                           <p
-                            className={`text-2xl font-bold ${
-                              metrics.amountChangePercent >= 0
-                                ? 'text-emerald-600'
-                                : 'text-red-600'
-                            }`}
+                            className={`text-2xl font-bold ${metrics.amountChangePercent >= 0
+                              ? 'text-emerald-600'
+                              : 'text-red-600'
+                              }`}
                           >
                             {formatPercent(metrics.amountChangePercent)}
                           </p>
@@ -736,11 +722,10 @@ export function PerformanceReportPage() {
                         </p>
                         <div className="flex items-center gap-2">
                           <p
-                            className={`text-2xl font-bold ${
-                              metrics.quantityChangePercent >= 0
-                                ? 'text-emerald-600'
-                                : 'text-red-600'
-                            }`}
+                            className={`text-2xl font-bold ${metrics.quantityChangePercent >= 0
+                              ? 'text-emerald-600'
+                              : 'text-red-600'
+                              }`}
                           >
                             {formatPercent(metrics.quantityChangePercent)}
                           </p>
@@ -883,11 +868,10 @@ export function PerformanceReportPage() {
                                               <TrendingDown className="h-3 w-3 text-red-600" />
                                             )}
                                             <span
-                                              className={`text-xs font-medium ${
-                                                period.amountChange >= 0
-                                                  ? 'text-emerald-600'
-                                                  : 'text-red-600'
-                                              }`}
+                                              className={`text-xs font-medium ${period.amountChange >= 0
+                                                ? 'text-emerald-600'
+                                                : 'text-red-600'
+                                                }`}
                                             >
                                               {formatPercent(period.amountChange)} revenue
                                             </span>
@@ -901,11 +885,10 @@ export function PerformanceReportPage() {
                                               <TrendingDown className="h-3 w-3 text-red-600" />
                                             )}
                                             <span
-                                              className={`text-xs font-medium ${
-                                                period.quantityChange >= 0
-                                                  ? 'text-emerald-600'
-                                                  : 'text-red-600'
-                                              }`}
+                                              className={`text-xs font-medium ${period.quantityChange >= 0
+                                                ? 'text-emerald-600'
+                                                : 'text-red-600'
+                                                }`}
                                             >
                                               {formatPercent(period.quantityChange)} units
                                             </span>

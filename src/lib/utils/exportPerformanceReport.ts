@@ -34,26 +34,16 @@ type ExportOptions = {
   reportType: 'category' | 'subcategory' | 'product'
   selectedLabel: string
   dateRange: { start: Date; end: Date }
+  currency: string
   metrics: PerformanceMetrics | null
   productBreakdown: ProductPeriodData[]
   chartElement?: HTMLElement | null
 }
 
-const formatCurrency = (currency: string, value: number) => {
-  const decimals = value >= 1000 ? 0 : 2
-  return `${currency} ${value.toLocaleString(undefined, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })}`
-}
-
-const formatPercent = (value: number) => {
-  const sign = value >= 0 ? '+' : ''
-  return `${sign}${value.toFixed(1)}%`
-}
+import { formatCurrency, formatPercent } from './formatting'
 
 export async function exportPerformanceReportToPDF(options: ExportOptions): Promise<void> {
-  const { workspace, reportType, selectedLabel, dateRange, metrics, productBreakdown, chartElement } = options
+  const { workspace: _workspace, currency, reportType, selectedLabel, dateRange, metrics, productBreakdown, chartElement } = options
 
   const doc = new jsPDF('p', 'mm', 'a4')
   const pageWidth = doc.internal.pageSize.getWidth()
@@ -83,16 +73,16 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
   // Header
   doc.setFillColor(59, 130, 246) // blue-500
   doc.rect(0, 0, pageWidth, 35, 'F')
-  
+
   doc.setTextColor(255, 255, 255)
   doc.setFontSize(24)
   doc.setFont('helvetica', 'bold')
   doc.text('Performance Report', margin, 20)
-  
+
   doc.setFontSize(12)
   doc.setFont('helvetica', 'normal')
   doc.text(selectedLabel, margin, 28)
-  
+
   doc.setTextColor(0, 0, 0)
   currentY = 45
 
@@ -100,15 +90,15 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
   doc.setTextColor(100, 100, 100)
-  
+
   const reportTypeText = reportType.charAt(0).toUpperCase() + reportType.slice(1)
   doc.text(`Report Type: ${reportTypeText}`, margin, currentY)
   currentY += 5
-  
+
   const dateRangeText = `${format(dateRange.start, 'MMM d, yyyy')} – ${format(dateRange.end, 'MMM d, yyyy')}`
   doc.text(`Date Range: ${dateRangeText}`, margin, currentY)
   currentY += 5
-  
+
   const generatedAt = format(new Date(), 'MMM d, yyyy HH:mm')
   doc.text(`Generated: ${generatedAt}`, margin, currentY)
   currentY += 10
@@ -119,7 +109,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
   // Metrics Section
   if (metrics) {
     checkNewPage(60)
-    
+
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(0, 0, 0)
@@ -133,15 +123,15 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
     const metricsPerRow = 2
     const metricWidth = contentWidth / metricsPerRow
     const metricsData = [
-      { label: 'Total Revenue', value: formatCurrency(workspace.currency, metrics.totalAmount), sub: `Qty: ${metrics.totalQuantity.toLocaleString()}` },
-      { label: 'Avg. Price', value: formatCurrency(workspace.currency, metrics.averagePrice), sub: 'per item' },
+      { label: 'Total Revenue', value: formatCurrency(currency, metrics.totalAmount), sub: `Qty: ${metrics.totalQuantity.toLocaleString()}` },
+      { label: 'Avg. Price', value: formatCurrency(currency, metrics.averagePrice), sub: 'per item' },
       { label: 'Revenue Change', value: formatPercent(metrics.amountChangePercent), sub: 'First vs Last period' },
       { label: 'Quantity Change', value: formatPercent(metrics.quantityChangePercent), sub: 'First vs Last period' },
     ]
 
     for (let i = 0; i < metricsData.length; i += metricsPerRow) {
       checkNewPage(25)
-      
+
       for (let j = 0; j < metricsPerRow && i + j < metricsData.length; j++) {
         const metric = metricsData[i + j]
         const x = margin + j * metricWidth
@@ -166,7 +156,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
           doc.text(metric.sub, x + 3, currentY + 7)
         }
       }
-      
+
       currentY += 25
     }
 
@@ -176,7 +166,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
 
     // Period Comparison
     checkNewPage(30)
-    
+
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(0, 0, 0)
@@ -204,7 +194,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(12)
       doc.setTextColor(0, 0, 0)
-      doc.text(formatCurrency(workspace.currency, period.amount), x + 5, currentY + 7)
+      doc.text(formatCurrency(currency, period.amount), x + 5, currentY + 7)
 
       doc.setFont('helvetica', 'normal')
       doc.setFontSize(9)
@@ -221,7 +211,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
   // Chart Image
   if (chartElement) {
     checkNewPage(80)
-    
+
     try {
       doc.setFontSize(14)
       doc.setFont('helvetica', 'bold')
@@ -240,7 +230,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
       const imgHeight = (canvas.height * imgWidth) / canvas.width
 
       checkNewPage(imgHeight + 20)
-      
+
       if (imgHeight > pageHeight - currentY - margin - footerHeight) {
         // Split image if too large
         const maxHeight = pageHeight - currentY - margin - footerHeight - 10
@@ -266,7 +256,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
   // Product Breakdown Table
   if (productBreakdown.length > 0) {
     checkNewPage(40)
-    
+
     doc.setFontSize(14)
     doc.setFont('helvetica', 'bold')
     doc.setTextColor(0, 0, 0)
@@ -284,26 +274,26 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
       const periods = productBreakdown[0].periods
       const productColWidth = 50
       const periodColWidth = (contentWidth - productColWidth) / periods.length
-      
+
       // Limit columns to fit on page
       const maxPeriodsPerPage = Math.min(periods.length, Math.floor((contentWidth - productColWidth) / 25))
       const periodsToShow = periods.slice(0, maxPeriodsPerPage)
 
       // Header row
       checkNewPage(25)
-      
+
       let headerY = currentY
-      
+
       doc.setFillColor(248, 250, 252)
       doc.rect(margin, headerY - 6, contentWidth, 12, 'F')
-      
+
       doc.setFont('helvetica', 'bold')
       doc.setFontSize(8)
       doc.setTextColor(50, 50, 50)
-      
+
       // Product column
       doc.text('Product', margin + 2, headerY + 2)
-      
+
       // Period columns
       let headerX = margin + productColWidth
       for (let i = 0; i < periodsToShow.length; i++) {
@@ -321,7 +311,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
           doc.text('Product', margin + 2, headerY + 2)
           headerX = margin + productColWidth
         }
-        
+
         doc.text(period.label, headerX + periodColWidth / 2, headerY + 2, {
           align: 'center',
           maxWidth: periodColWidth - 2,
@@ -343,7 +333,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
         doc.setFont('helvetica', 'bold')
         doc.setFontSize(8)
         doc.setTextColor(0, 0, 0)
-        const productName = product.productName.length > 25 
+        const productName = product.productName.length > 25
           ? product.productName.substring(0, 22) + '...'
           : product.productName
         doc.text(productName, margin + 2, rowStartY + 5, { maxWidth: productColWidth - 4 })
@@ -365,7 +355,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
             doc.setFontSize(8)
             doc.setTextColor(50, 50, 50)
             doc.text('Product', margin + 2, headerY + 2)
-            
+
             // Redraw period headers
             let newHeaderX = margin + productColWidth
             for (let j = i; j < periodsToShow.length; j++) {
@@ -376,10 +366,10 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
               })
               newHeaderX += periodColWidth
             }
-            
+
             dataX = margin + productColWidth
             currentY = headerY + 12
-            
+
             // Redraw product name on new page
             doc.setFont('helvetica', 'bold')
             doc.setFontSize(8)
@@ -389,12 +379,12 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
           }
 
           const cellY = rowStartY
-          
+
           doc.setFont('helvetica', 'bold')
           doc.setFontSize(8)
           doc.setTextColor(0, 0, 0)
-          
-          const amountText = formatCurrency(workspace.currency, period.amount)
+
+          const amountText = formatCurrency(currency, period.amount)
           doc.text(amountText, dataX + periodColWidth / 2, cellY + 5, {
             align: 'center',
             maxWidth: periodColWidth - 2,
@@ -403,7 +393,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
           doc.setFont('helvetica', 'normal')
           doc.setFontSize(7)
           doc.setTextColor(100, 100, 100)
-          
+
           const qtyText = `${period.quantity.toLocaleString()} units`
           doc.text(qtyText, dataX + periodColWidth / 2, cellY + 9, {
             align: 'center',
@@ -426,7 +416,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
         }
 
         currentY = rowStartY + rowHeight
-        
+
         // Draw separator line at the bottom of the row
         doc.setDrawColor(230, 230, 230)
         doc.line(margin, currentY - 2, pageWidth - margin, currentY - 2)

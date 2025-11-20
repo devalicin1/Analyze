@@ -24,10 +24,10 @@ export function DataTable<T>({
   // Ensure data is always an array
   const safeData = Array.isArray(data) ? data : []
   const safeColumns = Array.isArray(columns) ? columns : []
-  
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-card">
-      <table className="min-w-full table-fixed divide-y divide-gray-200">
+      <table className="min-w-full divide-y divide-gray-200">
         <thead className="bg-gray-50">
           <tr>
             {safeColumns.map((column) => (
@@ -38,7 +38,6 @@ export function DataTable<T>({
                   column.align === 'right' && 'text-right',
                   column.align === 'center' && 'text-center',
                 )}
-                style={{ width: column.width }}
               >
                 {column.header}
               </th>
@@ -62,11 +61,10 @@ export function DataTable<T>({
                 <td
                   key={column.header}
                   className={clsx(
-                    'px-4 py-3 text-gray-700 overflow-hidden',
+                    'px-4 py-3 text-gray-700',
                     column.align === 'right' && 'text-right',
                     column.align === 'center' && 'text-center',
                   )}
-                  style={{ width: column.width }}
                 >
                   {column.accessor(row)}
                 </td>

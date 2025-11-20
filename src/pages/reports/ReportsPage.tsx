@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { format } from 'date-fns'
+import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'
 import { DataTable, type TableColumn } from '../../components/tables/DataTable'
 import { DateRangePicker } from '../../components/forms/DateRangePicker'
 import { Select } from '../../components/forms/Select'
@@ -50,13 +51,7 @@ type ReportData = {
   }>
 }
 
-const formatCurrency = (currency: string, value: number) => {
-  const decimals = value >= 1000 ? 0 : 2
-  return `${currency} ${value.toLocaleString(undefined, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })}`
-}
+import { formatCurrency } from '../../lib/utils/formatting'
 
 export function ReportsPage() {
   const workspace = useWorkspace()
@@ -285,12 +280,7 @@ export function ReportsPage() {
     return filtered
   }, [products, filters.categoryId, filters.subcategoryId])
 
-  // Reset subcategory when category changes to "all"
-  useEffect(() => {
-    if (filters.categoryId === 'all') {
-      setFilters((prev) => ({ ...prev, subcategoryId: 'all' }))
-    }
-  }, [filters.categoryId])
+
 
   const handleDateRangeChange = (dateRange: DateRange) => {
     setFilters((prev) => ({ ...prev, dateRange }))
@@ -613,179 +603,237 @@ export function ReportsPage() {
           {/* Summary metrics */}
           <section>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Total revenue
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {formatCurrency(workspace.currency, reportData.totalAmount)}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      Qty: {reportData.totalQuantity.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-lg">
-                    <span className="text-blue-600">💎</span>
-                  </div>
+              <div className="app-card flex items-center justify-between gap-4 p-5">
+                <div>
+                  <p className="mb-1 text-sm font-medium text-slate-500">
+                    Total revenue
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {formatCurrency(workspace.currency, reportData.totalAmount)}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    Qty: {reportData.totalQuantity.toLocaleString()}
+                  </p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-xl text-blue-600">
+                  💎
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Items sold
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {reportData.totalQuantity.toLocaleString()}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">units</p>
-                  </div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-lg">
-                    <span className="text-emerald-600">📦</span>
-                  </div>
+              <div className="app-card flex items-center justify-between gap-4 p-5">
+                <div>
+                  <p className="mb-1 text-sm font-medium text-slate-500">
+                    Items sold
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {reportData.totalQuantity.toLocaleString()}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">units</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-xl text-emerald-600">
+                  📦
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Avg. price
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {formatCurrency(workspace.currency, reportData.averagePrice)}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">per item</p>
-                  </div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-50 text-lg">
-                    <span className="text-violet-600">⚡</span>
-                  </div>
+              <div className="app-card flex items-center justify-between gap-4 p-5">
+                <div>
+                  <p className="mb-1 text-sm font-medium text-slate-500">
+                    Avg. price
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {formatCurrency(workspace.currency, reportData.averagePrice)}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">per item</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 text-xl text-violet-600">
+                  ⚡
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Products
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {reportData.uniqueProducts}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">unique products</p>
-                  </div>
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-amber-50 text-lg">
-                    <span className="text-amber-600">🔥</span>
-                  </div>
+              <div className="app-card flex items-center justify-between gap-4 p-5">
+                <div>
+                  <p className="mb-1 text-sm font-medium text-slate-500">
+                    Products
+                  </p>
+                  <p className="text-2xl font-bold text-slate-900">
+                    {reportData.uniqueProducts}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">unique products</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-xl text-amber-600">
+                  🔥
                 </div>
               </div>
             </div>
+          </section>
+
+          {/* Charts Section */}
+          <section className="grid gap-6 lg:grid-cols-2">
+            {/* Sales by Category Chart */}
+            {reportData.categoryBreakdown.length > 0 && (
+              <div className="app-card">
+                <div className="mb-4">
+                  <h3 className="section-title">Sales by Category</h3>
+                  <p className="text-sm text-slate-500">Revenue distribution</p>
+                </div>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={reportData.categoryBreakdown}
+                        dataKey="amount"
+                        nameKey="categoryLabel"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={100}
+                        fill="#8884d8"
+                        label={({ name, percent }) => `${name} ${(percent ? percent * 100 : 0).toFixed(0)}%`}
+                      >
+                        {reportData.categoryBreakdown.map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={['#0F8BFD', '#7C3AED', '#F59E0B', '#10B981', '#EF4444', '#6366F1'][index % 6]} />
+                        ))}
+                      </Pie>
+                      <Tooltip
+                        formatter={(value: number) => formatCurrency(workspace.currency, value)}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {/* Top Products Chart */}
+            {reportData.productBreakdown.length > 0 && (
+              <div className="app-card">
+                <div className="mb-4">
+                  <h3 className="section-title">Top 5 Products</h3>
+                  <p className="text-sm text-slate-500">By revenue</p>
+                </div>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart
+                      data={reportData.productBreakdown.slice(0, 5)}
+                      layout="vertical"
+                      margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                    >
+                      <XAxis type="number" hide />
+                      <YAxis
+                        type="category"
+                        dataKey="productName"
+                        width={100}
+                        tick={{ fontSize: 12 }}
+                      />
+                      <Tooltip
+                        cursor={{ fill: 'transparent' }}
+                        formatter={(value: number) => formatCurrency(workspace.currency, value)}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                      />
+                      <Bar dataKey="amount" fill="#7C3AED" radius={[0, 4, 4, 0]}>
+                        {reportData.productBreakdown.slice(0, 5).map((_, index) => (
+                          <Cell key={`cell-${index}`} fill="#7C3AED" />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
           </section>
 
           {/* Category + Subcategory breakdown */}
           <section className="grid gap-6 lg:grid-cols-2">
             {reportData.categoryBreakdown.length > 0 && (
               <div className="app-card overflow-hidden">
-                <div className="mb-3 border-b border-slate-100 pb-3">
+                <div className="mb-4">
                   <h3 className="section-title">Category breakdown</h3>
                   <p className="text-sm text-slate-500">
                     Revenue distribution by category.
                   </p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-50">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Category
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Quantity
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Revenue
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Share
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {reportData.categoryBreakdown.map((category) => (
-                        <tr key={category.categoryId} className="hover:bg-slate-50/80">
-                          <td className="whitespace-nowrap px-4 py-2">
-                            <span className="font-semibold text-slate-900">
-                              {category.categoryLabel}
-                            </span>
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-right text-slate-700">
-                            {category.quantity.toLocaleString()}
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-right font-semibold text-slate-900">
-                            {formatCurrency(workspace.currency, category.amount)}
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-right text-slate-600">
-                            {(category.share * 100).toFixed(1)}%
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  data={reportData.categoryBreakdown}
+                  columns={[
+                    {
+                      header: 'Category',
+                      accessor: (row) => (
+                        <span className="font-semibold text-slate-900">
+                          {row.categoryLabel}
+                        </span>
+                      ),
+                    },
+                    {
+                      header: 'Quantity',
+                      accessor: (row) => row.quantity.toLocaleString(),
+                      align: 'right',
+                    },
+                    {
+                      header: 'Revenue',
+                      accessor: (row) => (
+                        <span className="font-medium text-slate-900">
+                          {formatCurrency(workspace.currency, row.amount)}
+                        </span>
+                      ),
+                      align: 'right',
+                    },
+                    {
+                      header: 'Share',
+                      accessor: (row) => (
+                        <span className="text-slate-600">
+                          {(row.share * 100).toFixed(1)}%
+                        </span>
+                      ),
+                      align: 'right',
+                    },
+                  ]}
+                />
               </div>
             )}
 
             {reportData.subcategoryBreakdown.length > 0 && (
               <div className="app-card overflow-hidden">
-                <div className="mb-3 border-b border-slate-100 pb-3">
+                <div className="mb-4">
                   <h3 className="section-title">Subcategory breakdown</h3>
                   <p className="text-sm text-slate-500">
                     Revenue distribution by subcategory.
                   </p>
                 </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-50">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Subcategory
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Quantity
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Revenue
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-semibold uppercase tracking-wide text-slate-600">
-                          Share
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {reportData.subcategoryBreakdown.map((subcategory) => (
-                        <tr key={subcategory.subcategoryId} className="hover:bg-slate-50/80">
-                          <td className="whitespace-nowrap px-4 py-2">
-                            <span className="font-semibold text-slate-900">
-                              {subcategory.subcategoryLabel}
-                            </span>
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-right text-slate-700">
-                            {subcategory.quantity.toLocaleString()}
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-right font-semibold text-slate-900">
-                            {formatCurrency(workspace.currency, subcategory.amount)}
-                          </td>
-                          <td className="whitespace-nowrap px-4 py-2 text-right text-slate-600">
-                            {(subcategory.share * 100).toFixed(1)}%
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                <DataTable
+                  data={reportData.subcategoryBreakdown}
+                  columns={[
+                    {
+                      header: 'Subcategory',
+                      accessor: (row) => (
+                        <span className="font-semibold text-slate-900">
+                          {row.subcategoryLabel}
+                        </span>
+                      ),
+                    },
+                    {
+                      header: 'Quantity',
+                      accessor: (row) => row.quantity.toLocaleString(),
+                      align: 'right',
+                    },
+                    {
+                      header: 'Revenue',
+                      accessor: (row) => (
+                        <span className="font-medium text-slate-900">
+                          {formatCurrency(workspace.currency, row.amount)}
+                        </span>
+                      ),
+                      align: 'right',
+                    },
+                    {
+                      header: 'Share',
+                      accessor: (row) => (
+                        <span className="text-slate-600">
+                          {(row.share * 100).toFixed(1)}%
+                        </span>
+                      ),
+                      align: 'right',
+                    },
+                  ]}
+                />
               </div>
             )}
           </section>

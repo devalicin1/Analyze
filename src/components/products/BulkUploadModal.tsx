@@ -62,22 +62,26 @@ export function BulkUploadModal({
       const result = await parseProductExcel(selectedFile, menuGroups)
       console.log('Parsed products:', result.products)
       console.log('Parse errors:', result.errors)
-      
+
       if (result.errors.length > 0) {
         console.warn('Parse errors found:', result.errors)
       }
-      
+
       setParseErrors(result.errors)
-      
+
       if (result.products.length === 0) {
         setPreview([])
         setTotalProducts(0)
         return
       }
-      
+
       setTotalProducts(result.products.length)
-      setPreview(result.products.slice(0, 10)) // Show first 10 for preview
-      
+      setPreview(result.products.slice(0, 10).map(p => ({
+        ...p,
+        activeFrom: p.activeFrom instanceof Date ? p.activeFrom.toISOString().split('T')[0] : (p.activeFrom || undefined),
+        activeTo: p.activeTo instanceof Date ? p.activeTo.toISOString().split('T')[0] : (p.activeTo || undefined),
+      }))) // Show first 10 for preview
+
       // Show warnings if there were errors but some products were parsed
       if (result.errors.length > 0) {
         console.warn(`${result.errors.length} rows had errors but ${result.products.length} products were parsed successfully`)
@@ -107,7 +111,7 @@ export function BulkUploadModal({
       const result = await parseProductExcel(file, menuGroups)
       const products = result.products
       setProgress((prev) => prev && { ...prev, total: products.length })
-      
+
       if (result.errors.length > 0) {
         console.warn('Upload errors:', result.errors)
       }
@@ -119,9 +123,9 @@ export function BulkUploadModal({
         setProgress((prev) =>
           prev
             ? {
-                ...prev,
-                processed: i + 1,
-              }
+              ...prev,
+              processed: i + 1,
+            }
             : null,
         )
 
@@ -205,7 +209,7 @@ export function BulkUploadModal({
   const canUpload = file && preview && preview.length > 0 && !uploading && !progress
 
   return (
-      <Modal open={isOpen} onClose={handleClose} title="Bulk Upload Products">
+    <Modal open={isOpen} onClose={handleClose} title="Bulk Upload Products">
       <div className="space-y-6">
         <div className="space-y-4">
           <div className="flex items-center justify-between">
@@ -266,7 +270,7 @@ export function BulkUploadModal({
                       The file was parsed but no valid products were found.
                     </p>
                   </div>
-                  
+
                   {parseErrors.length > 0 && (
                     <div className="max-h-64 space-y-1 overflow-y-auto rounded-xl border border-red-200 bg-red-50 p-4">
                       <p className="text-sm font-semibold text-red-900">
@@ -289,7 +293,7 @@ export function BulkUploadModal({
                   )}
                 </div>
               )}
-              
+
               {preview && preview.length > 0 && parseErrors.length > 0 && (
                 <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
                   <p className="text-sm font-semibold text-amber-900">

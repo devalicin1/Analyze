@@ -1,7 +1,6 @@
 import {
   collection,
   doc,
-  getDoc,
   getDocs,
   query,
   setDoc,
@@ -28,7 +27,7 @@ export async function getProductMappings(scope: WorkspaceScope): Promise<Record<
 
   const snapshot = await getDocs(collectionRef(scope))
   const mappings: Record<string, string> = {}
-  
+
   snapshot.forEach((docSnap) => {
     const data = docSnap.data() as Omit<ProductMapping, 'id'>
     mappings[data.unmappedProductName] = data.productId
@@ -50,7 +49,7 @@ export async function getProductMapping(
 
   const q = query(collectionRef(scope), where('unmappedProductName', '==', unmappedProductName))
   const snapshot = await getDocs(q)
-  
+
   if (snapshot.empty) {
     return null
   }
@@ -123,7 +122,7 @@ export async function saveProductMappings(
   // Save or update each mapping
   for (const [unmappedName, productId] of Object.entries(mappings)) {
     const existingId = existingMap.get(unmappedName)
-    
+
     if (existingId) {
       // Update existing
       await setDoc(

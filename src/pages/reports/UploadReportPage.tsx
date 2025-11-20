@@ -28,7 +28,7 @@ type ReportType = 'daily' | 'monthly'
 
 export function UploadReportPage() {
   const workspace = useWorkspace()
-  const auth = useAuth()
+  const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(0)
   const [file, setFile] = useState<File | null>(null)
   const [reportType, setReportType] = useState<ReportType>('daily')
@@ -49,6 +49,25 @@ export function UploadReportPage() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<SalesReportStatus | 'all'>('all')
   const [deletingReportId, setDeletingReportId] = useState<string | null>(null)
+
+  // Load column mapping from localStorage on mount
+  useEffect(() => {
+    const savedMapping = localStorage.getItem('lastColumnMapping')
+    if (savedMapping) {
+      try {
+        setColumnMapping(JSON.parse(savedMapping))
+      } catch (e) {
+        console.error('Failed to parse saved column mapping', e)
+      }
+    }
+  }, [])
+
+  // Save column mapping to localStorage whenever it changes
+  useEffect(() => {
+    if (columnMapping.productName || columnMapping.quantity || columnMapping.amount) {
+      localStorage.setItem('lastColumnMapping', JSON.stringify(columnMapping))
+    }
+  }, [columnMapping])
 
   useEffect(() => {
     listSalesReports(workspace).then((reports) => {
@@ -125,7 +144,7 @@ export function UploadReportPage() {
           source: 'excel_upload',
           status: 'uploaded',
           originalFilePath: '', // Will be set by createSalesReport after upload
-          createdByUserId: auth.userId,
+          createdByUserId: user?.userId || '',
           totalAmount: previewRows.reduce((sum, row) => sum + Number(row[columnMapping.amount] ?? 0), 0),
           totalQuantity: previewRows.reduce(
             (sum, row) => sum + Number(row[columnMapping.quantity] ?? 0),
@@ -152,10 +171,10 @@ export function UploadReportPage() {
 
   async function handleDeleteReport(reportId: string) {
     const report = reports.find((r) => r.id === reportId)
-    const reportDate = report?.reportDate instanceof Date 
+    const reportDate = report?.reportDate instanceof Date
       ? format(report.reportDate, 'd MMM yyyy')
       : report?.reportDate?.toString() || reportId
-    
+
     if (!confirm(`Bu raporu silmek istediğinizden emin misiniz?\n\nRapor Tarihi: ${reportDate}\n\nBu işlem geri alınamaz ve rapor veritabanından ve depolamadan tamamen kaldırılacaktır.`)) {
       return
     }
@@ -192,7 +211,7 @@ export function UploadReportPage() {
     {
       header: 'Status',
       accessor: (row) => (
-        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold capitalize text-gray-600">
+        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold capitalize text-slate-600">
           {row.status.replace('_', ' ')}
         </span>
       ),
@@ -201,11 +220,11 @@ export function UploadReportPage() {
       header: 'Totals',
       accessor: (row) => (
         <div>
-          <p className="text-sm font-semibold text-gray-900">
+          <p className="text-sm font-semibold text-slate-900">
             {workspace.currency}{' '}
             {row.totalAmount?.toLocaleString(undefined, { maximumFractionDigits: 0 }) ?? '—'}
           </p>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-slate-500">
             Qty: {row.totalQuantity?.toLocaleString() ?? '—'}
           </p>
         </div>
@@ -215,7 +234,7 @@ export function UploadReportPage() {
       header: 'Actions',
       accessor: (row) => (
         <div className="flex items-center gap-3 justify-end">
-          <Link to={`/reports/${row.id}`} className="text-sm font-semibold text-primary">
+          <Link to={`/reports/${row.id}`} className="text-sm font-semibold text-primary hover:text-primary/80">
             View detail
           </Link>
           <button
@@ -241,7 +260,7 @@ export function UploadReportPage() {
     <section className="space-y-8">
       <header>
         <h1 className="page-title">Upload sales report</h1>
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-slate-500">
           Upload POS exports and process them into analytics.
         </p>
       </header>
@@ -250,14 +269,13 @@ export function UploadReportPage() {
         {steps.map((label, index) => (
           <div
             key={label}
-            className={`rounded-2xl border p-4 ${
-              currentStep === index ? 'border-primary bg-primary-muted/60' : 'border-gray-200 bg-white'
-            }`}
+            className={`rounded-2xl border p-4 ${currentStep === index ? 'border-primary bg-primary-muted/60' : 'border-slate-200 bg-white'
+              }`}
           >
-            <p className="text-xs uppercase tracking-[0.2em] text-gray-500">
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
               Step {index + 1}
             </p>
-            <p className="mt-2 text-sm font-semibold text-gray-900">{label}</p>
+            <p className="mt-2 text-sm font-semibold text-slate-900">{label}</p>
           </div>
         ))}
       </div>
@@ -273,31 +291,31 @@ export function UploadReportPage() {
 
       {currentStep === 1 && (
         <div className="app-card space-y-4">
-          <p className="text-sm font-semibold text-gray-900">Configure report</p>
+          <p className="text-sm font-semibold text-slate-900">Configure report</p>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="text-sm font-semibold text-gray-700">
+            <label className="text-sm font-semibold text-slate-700">
               Report type
               <select
                 value={reportType}
                 onChange={(event) => setReportType(event.target.value as ReportType)}
-                className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 shadow-sm"
+                className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               >
                 <option value="daily">Daily</option>
                 <option value="monthly">Monthly summary</option>
               </select>
             </label>
             {reportType === 'daily' ? (
-              <label className="text-sm font-semibold text-gray-700">
+              <label className="text-sm font-semibold text-slate-700">
                 Report date
                 <input
                   type="date"
                   value={reportDate}
                   onChange={(event) => setReportDate(event.target.value)}
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 shadow-sm"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </label>
             ) : (
-              <div className="text-sm font-semibold text-gray-700">
+              <div className="text-sm font-semibold text-slate-700">
                 Report period
                 <div className="mt-1">
                   <DateRangePicker value={dateRange} onChange={setDateRange} />
@@ -307,14 +325,14 @@ export function UploadReportPage() {
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {(['productName', 'quantity', 'amount'] as const).map((key) => (
-              <label key={key} className="text-sm font-semibold text-gray-700">
+              <label key={key} className="text-sm font-semibold text-slate-700">
                 Column for {key}
                 <select
                   value={columnMapping[key]}
                   onChange={(event) =>
                     setColumnMapping((prev) => ({ ...prev, [key]: event.target.value }))
                   }
-                  className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900 shadow-sm"
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 >
                   {Object.keys(previewRows[0] ?? {}).map((column) => (
                     <option key={column} value={column}>
@@ -329,14 +347,14 @@ export function UploadReportPage() {
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white"
+              className="btn-primary"
             >
               Continue to preview
             </button>
             <button
               type="button"
               onClick={resetFlow}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700"
+              className="btn-secondary"
             >
               Start over
             </button>
@@ -346,13 +364,13 @@ export function UploadReportPage() {
 
       {currentStep === 2 && (
         <div className="app-card space-y-4">
-          <p className="text-sm font-semibold text-gray-900">Preview first 20 rows</p>
+          <p className="text-sm font-semibold text-slate-900">Preview first 20 rows</p>
           <div className="overflow-x-auto">
             <table className="min-w-full text-sm">
               <thead>
                 <tr>
                   {Object.keys(previewRows[0] ?? {}).map((header) => (
-                    <th key={header} className="px-3 py-2 text-left text-xs uppercase text-gray-500">
+                    <th key={header} className="px-3 py-2 text-left text-xs uppercase text-slate-500">
                       {header}
                     </th>
                   ))}
@@ -360,9 +378,9 @@ export function UploadReportPage() {
               </thead>
               <tbody>
                 {previewRows.map((row, index) => (
-                  <tr key={index} className="border-t border-gray-100">
+                  <tr key={index} className="border-t border-slate-100">
                     {Object.values(row).map((value, idx) => (
-                      <td key={idx} className="px-3 py-2 text-gray-700">
+                      <td key={idx} className="px-3 py-2 text-slate-700">
                         {String(value)}
                       </td>
                     ))}
@@ -375,14 +393,14 @@ export function UploadReportPage() {
             <button
               type="button"
               onClick={() => setCurrentStep(3)}
-              className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white"
+              className="btn-primary"
             >
               Process report
             </button>
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700"
+              className="btn-secondary"
             >
               Back
             </button>
@@ -392,7 +410,7 @@ export function UploadReportPage() {
 
       {currentStep === 3 && (
         <div className="app-card space-y-4">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-slate-600">
             Processing uploads the file to Storage and triggers the Cloud Function. You can close
             the page safely—the function will continue in the background.
           </p>
@@ -400,18 +418,18 @@ export function UploadReportPage() {
             type="button"
             disabled={processing}
             onClick={handleProcessReport}
-            className="rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+            className="btn-primary disabled:opacity-50"
           >
             {processing ? 'Processing...' : 'Confirm & process'}
           </button>
           <button
             type="button"
             onClick={resetFlow}
-            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700"
+            className="btn-secondary"
           >
             Start over
           </button>
-          {statusMessage && <p className="text-sm text-gray-600">{statusMessage}</p>}
+          {statusMessage && <p className="text-sm text-slate-600">{statusMessage}</p>}
         </div>
       )}
 
@@ -419,7 +437,7 @@ export function UploadReportPage() {
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <h2 className="section-title">Recent reports</h2>
           <div className="flex items-center gap-3">
-            <Filter className="h-4 w-4 text-gray-500" />
+            <Filter className="h-4 w-4 text-slate-500" />
             <Select
               value={statusFilter}
               onChange={(event) => setStatusFilter(event.target.value as SalesReportStatus | 'all')}
@@ -434,11 +452,10 @@ export function UploadReportPage() {
           </div>
         </div>
         {statusMessage && (
-          <div className={`mb-4 rounded-xl border px-4 py-3 text-sm ${
-            statusMessage.includes('hata') || statusMessage.includes('Failed')
-              ? 'bg-red-50 border-red-200 text-red-800'
-              : 'bg-green-50 border-green-200 text-green-800'
-          }`}>
+          <div className={`mb-4 rounded-xl border px-4 py-3 text-sm ${statusMessage.includes('hata') || statusMessage.includes('Failed')
+            ? 'bg-red-50 border-red-200 text-red-800'
+            : 'bg-green-50 border-green-200 text-green-800'
+            }`}>
             {statusMessage}
           </div>
         )}

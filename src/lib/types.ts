@@ -27,7 +27,7 @@ export type Product = {
   active?: boolean
 }
 
-export type SalesReportStatus = 'uploaded' | 'needs_mapping' | 'processed' | 'error'
+export type SalesReportStatus = 'uploaded' | 'needs_mapping' | 'processing' | 'processed' | 'error'
 export type SalesReportSource = 'excel_upload' | 'api'
 
 export type ReportColumnMapping = {

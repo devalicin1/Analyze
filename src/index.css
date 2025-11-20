@@ -1,14 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    sans-serif;
-  color: #101828;
-  background-color: #f9fafb;
+  /* Base Colors */
+  --color-background: #ffffff;
+  --color-foreground: #0f172a;
+  
+  /* Primary Brand Colors (Blue-ish) */
+  --color-primary: #0F8BFD;
+  --color-primary-foreground: #ffffff;
+  --color-primary-muted: #E0F0FF;
+  
+  /* Neutral Colors */
+  --color-gray-50: #F9FAFB;
+  --color-gray-100: #F2F4F7;
+  --color-gray-200: #EAECF0;
+  --color-gray-300: #D0D5DD;
+  --color-gray-400: #98A2B3;
+  --color-gray-500: #667085;
+  --color-gray-600: #475467;
+  --color-gray-700: #344054;
+  --color-gray-800: #1D2939;
+  --color-gray-900: #101828;
+
+  /* UI Specifics */
+  --color-border: var(--color-gray-200);
+  --color-surface: #ffffff;
+  --color-surface-subtle: var(--color-gray-50);
+  
+  /* Typography */
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -17,29 +41,34 @@
 body {
   margin: 0;
   min-height: 100vh;
-  background-color: #f8fafc;
+  background-color: var(--color-gray-50);
+  color: var(--color-foreground);
 }
 
 #root {
   min-height: 100vh;
 }
 
-.app-card {
-  border-radius: 1rem;
-  border: 1px solid #eaecf0;
-  background-color: #ffffff;
-  padding: 1.5rem;
-  box-shadow: 0 4px 24px rgba(15, 139, 253, 0.04);
-}
+@layer components {
+  .app-card {
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm;
+    /* box-shadow: 0 4px 24px rgba(15, 139, 253, 0.04); */
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+  }
 
-.page-title {
-  font-size: 1.75rem;
-  font-weight: 600;
-  color: #101828;
-}
+  .page-title {
+    @apply text-3xl font-bold text-gray-900 tracking-tight;
+  }
 
-.section-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #101828;
+  .section-title {
+    @apply text-lg font-semibold text-gray-900;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-sm;
+  }
+  
+  .btn-secondary {
+    @apply bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors shadow-sm;
+  }
 }

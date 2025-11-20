@@ -8,6 +8,7 @@ import { fetchOverview } from '../../lib/api/analytics'
 import type { CategoryBreakdown, MenuGroup, ProductPerformance } from '../../lib/types'
 import { useWorkspace } from '../../context/WorkspaceContext'
 import { getMenuGroups } from '../../lib/api/menuGroups'
+import { formatCurrency } from '../../lib/utils/formatting'
 
 type OverviewData = {
   metrics: {
@@ -21,15 +22,7 @@ type OverviewData = {
   categories: CategoryBreakdown[]
 }
 
-const formatCurrency = (currency: string, value: number) => {
-  // Format currency with proper decimal places
-  // For amounts >= 1000, show no decimals; for smaller amounts, show 2 decimals
-  const decimals = value >= 1000 ? 0 : 2
-  return `${currency} ${value.toLocaleString(undefined, {
-    minimumFractionDigits: decimals,
-    maximumFractionDigits: decimals,
-  })}`
-}
+
 
 const formatCompactNumber = (value: number) => {
   if (value >= 1_000_000) return (value / 1_000_000).toFixed(1) + 'M'
@@ -99,13 +92,13 @@ export function OverviewPage() {
     const getCategoryLabels = (product: ProductPerformance) => {
       const categoryGroup = menuGroups.find((g) => g.id === product.menuGroup)
       const categoryLabel = categoryGroup?.label || product.menuGroup
-      
+
       let subcategoryLabel: string | undefined
       if (product.menuSubGroup && categoryGroup) {
         const subGroup = categoryGroup.subGroups.find((sg) => sg.id === product.menuSubGroup)
         subcategoryLabel = subGroup?.label || product.menuSubGroup
       }
-      
+
       return { categoryLabel, subcategoryLabel }
     }
 
@@ -271,48 +264,45 @@ export function OverviewPage() {
           {/* Key Metrics Grid */}
           <section>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-               <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                 <div className="flex items-center justify-between gap-3">
-                   <div>
-                     <p className="mb-1 text-sm font-medium text-slate-500">
-                       Total Revenue
-                     </p>
-                     <p className="text-2xl font-bold text-slate-900">
-                       {workspace.currency}{' '}
-                       {data.metrics.totalAmount.toLocaleString(undefined, {
-                         maximumFractionDigits: 0,
-                       })}
-                     </p>
-                     <p className="mt-1 text-xs text-slate-400">
-                       Qty: {data.metrics.totalQuantity.toLocaleString()}
-                     </p>
-                   </div>
-                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg">
-                     <span className="text-blue-600">💎</span>
-                   </div>
-                 </div>
-               </div>
+              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="mb-1 text-sm font-medium text-slate-500">
+                      Total Revenue
+                    </p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {formatCurrency(workspace.currency, data.metrics.totalAmount)}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      Qty: {data.metrics.totalQuantity.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg">
+                    <span className="text-blue-600">💎</span>
+                  </div>
+                </div>
+              </div>
 
-               <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                 <div className="flex items-center justify-between gap-3">
-                   <div>
-                     <p className="mb-1 text-sm font-medium text-slate-500">
-                       Items Sold
-                     </p>
-                     <p className="text-2xl font-bold text-slate-900">
-                       {data.metrics.totalQuantity.toLocaleString(undefined, {
-                         maximumFractionDigits: 0,
-                       })}
-                     </p>
-                     <p className="mt-1 text-xs text-slate-400">
-                       units
-                     </p>
-                   </div>
-                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-lg">
-                     <span className="text-emerald-600">📦</span>
-                   </div>
-                 </div>
-               </div>
+              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="mb-1 text-sm font-medium text-slate-500">
+                      Items Sold
+                    </p>
+                    <p className="text-2xl font-bold text-slate-900">
+                      {data.metrics.totalQuantity.toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </p>
+                    <p className="mt-1 text-xs text-slate-400">
+                      units
+                    </p>
+                  </div>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-lg">
+                    <span className="text-emerald-600">📦</span>
+                  </div>
+                </div>
+              </div>
 
               <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-3">
@@ -718,10 +708,10 @@ export function OverviewPage() {
                 </div>
               </div>
             </div>
-             <DataTable
-               data={filteredProducts}
-               columns={productColumns}
-             />
+            <DataTable
+              data={filteredProducts}
+              columns={productColumns}
+            />
           </section>
         </div>
       </div>

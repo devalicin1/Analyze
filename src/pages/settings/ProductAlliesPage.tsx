@@ -270,7 +270,7 @@ const ALIAS_ENTRIES: [string, string][] = [
 
 export function ProductAlliesPage() {
   const workspace = useWorkspace()
-  const auth = useAuth()
+  const { user } = useAuth()
   const [allies, setAllies] = useState<ProductAlly[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
@@ -338,7 +338,7 @@ export function ProductAlliesPage() {
       for (const [salesName, targetProductName] of ALIAS_ENTRIES) {
         // Try to find product by exact name match first
         let productId: string | undefined = productNameMap.get(targetProductName.toLowerCase().trim())
-        
+
         // If not found, try normalized match
         if (!productId) {
           const normalizedTarget = normalizeName(targetProductName)
@@ -370,7 +370,9 @@ export function ProductAlliesPage() {
 
       // Save all allies
       if (alliesToSave.length > 0) {
-        await saveProductAllies(workspace, alliesToSave, auth.userId)
+        if (user?.userId) {
+          await saveProductAllies(workspace, alliesToSave, user.userId)
+        }
         await listProductAllies(workspace).then((alliesList) => {
           setAllies(Array.isArray(alliesList) ? alliesList : [])
         })
@@ -411,7 +413,7 @@ export function ProductAlliesPage() {
   }
 
   async function handleSaveEdit() {
-    if (!editingAlly || !auth?.userId) return
+    if (!editingAlly || !user?.userId) return
 
     if (!editSalesName.trim()) {
       setFeedback('Sales name is required.')
@@ -437,10 +439,10 @@ export function ProductAlliesPage() {
         // Delete old ally
         await deleteProductAlly(workspace, editingAlly.salesName)
         // Create new ally with new sales name
-        await saveProductAlly(workspace, normalizedSalesName, editProductId, auth.userId)
+        await saveProductAlly(workspace, normalizedSalesName, editProductId, user.userId)
       } else {
         // Just update the product ID
-        await saveProductAlly(workspace, normalizedSalesName, editProductId, auth.userId)
+        await saveProductAlly(workspace, normalizedSalesName, editProductId, user.userId)
       }
 
       // Reload allies list
@@ -483,13 +485,13 @@ export function ProductAlliesPage() {
     {
       header: 'Sales Name (POS Name)',
       accessor: (ally: ProductAlly) => (
-        <span className="font-medium text-gray-900">{ally.salesName}</span>
+        <span className="font-medium text-slate-900">{ally.salesName}</span>
       ),
     },
     {
       header: 'Product Name',
       accessor: (ally: ProductAlly) => (
-        <span className="text-gray-700">{productMap.get(ally.productId) || ally.productId}</span>
+        <span className="text-slate-700">{productMap.get(ally.productId) || ally.productId}</span>
       ),
     },
     {
@@ -499,7 +501,7 @@ export function ProductAlliesPage() {
           <button
             type="button"
             onClick={() => handleEdit(ally)}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-50"
+            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
             title="Edit"
           >
             <Edit2 className="h-4 w-4" />
@@ -507,7 +509,7 @@ export function ProductAlliesPage() {
           <button
             type="button"
             onClick={() => handleDelete(ally.salesName)}
-            className="rounded-lg border border-gray-200 px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-50"
+            className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
             title="Delete"
           >
             <Trash2 className="h-4 w-4" />
@@ -533,7 +535,7 @@ export function ProductAlliesPage() {
       <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="page-title">Product Allies</h1>
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             Manage product matching rules. Allies are checked first during product matching and take
             priority over all other matching methods.
           </p>
@@ -543,7 +545,7 @@ export function ProductAlliesPage() {
             type="button"
             onClick={handleImportAliases}
             disabled={loading || products.length === 0}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Download className="h-4 w-4" />
             Import Aliases
@@ -551,7 +553,7 @@ export function ProductAlliesPage() {
           <button
             type="button"
             onClick={() => setBulkUploadOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+            className="btn-secondary"
           >
             <Upload className="h-4 w-4" />
             Bulk Upload
@@ -568,15 +570,15 @@ export function ProductAlliesPage() {
       <div className="app-card">
         {allies.length === 0 ? (
           <div className="py-12 text-center">
-            <p className="text-sm text-gray-500">No product allies defined yet.</p>
-            <p className="mt-2 text-sm text-gray-400">
+            <p className="text-sm text-slate-500">No product allies defined yet.</p>
+            <p className="mt-2 text-sm text-slate-400">
               Use Bulk Upload to add product allies from an Excel file.
             </p>
           </div>
         ) : (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-600">
                 {allies.length} product ally{allies.length !== 1 ? 'ies' : ''} defined
               </p>
             </div>
@@ -592,7 +594,7 @@ export function ProductAlliesPage() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-semibold text-gray-900 mb-1">
+            <label className="block text-sm font-semibold text-slate-900 mb-1">
               Sales Name (POS Name)
             </label>
             <input
@@ -600,9 +602,9 @@ export function ProductAlliesPage() {
               value={editSalesName}
               onChange={(e) => setEditSalesName(e.target.value)}
               placeholder="Enter sales name from POS report"
-              className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
+              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/20"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="mt-1 text-xs text-slate-500">
               This name will be normalized for matching (lowercase, trimmed, etc.)
             </p>
           </div>
@@ -627,7 +629,7 @@ export function ProductAlliesPage() {
               type="button"
               onClick={handleSaveEdit}
               disabled={saving || !editSalesName.trim() || !editProductId}
-              className="flex-1 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-primary flex-1 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
@@ -635,7 +637,7 @@ export function ProductAlliesPage() {
               type="button"
               onClick={handleCloseEdit}
               disabled={saving}
-              className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="btn-secondary disabled:cursor-not-allowed disabled:opacity-50"
             >
               Cancel
             </button>
@@ -649,7 +651,7 @@ export function ProductAlliesPage() {
         workspace={workspace}
         products={safeProducts}
         currentAllies={allies}
-        userId={auth.userId}
+        userId={user?.userId || ''}
         onSuccess={handleBulkUploadSuccess}
       />
     </section>
@@ -676,7 +678,7 @@ function ProductAlliesBulkUploadModal({
 }: ProductAlliesBulkUploadModalProps) {
   // CRITICAL: Ensure products is always an array, never a number
   const safeProducts = Array.isArray(products) ? products : []
-  
+
   const [file, setFile] = useState<File | null>(null)
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState<Array<{ salesName: string; productId: string; productName: string }>>([])
@@ -723,7 +725,7 @@ function ProductAlliesBulkUploadModal({
 
       // Defensive check: ensure allies is an array before using
       const safeAllies = Array.isArray(result.allies) ? result.allies : []
-      
+
       if (safeAllies.length === 0) {
         setError('No product allies found in the file. Please check the format.')
         setFile(null)
@@ -756,7 +758,7 @@ function ProductAlliesBulkUploadModal({
 
   async function handleUpload() {
     if (!file || !preview) return
-    
+
     // Ensure preview is an array before proceeding
     const safePreview = Array.isArray(preview) ? preview : []
     if (safePreview.length === 0) return
@@ -801,19 +803,19 @@ function ProductAlliesBulkUploadModal({
     header: string
     accessor: (row: { salesName: string; productName: string }) => ReactNode
   }> = [
-    {
-      header: 'Sales Name',
-      accessor: (row: { salesName: string }) => (
-        <span className="font-medium text-gray-900">{row.salesName}</span>
-      ),
-    },
-    {
-      header: 'Product Name',
-      accessor: (row: { productName: string }) => (
-        <span className="text-gray-700">{row.productName}</span>
-      ),
-    },
-  ]
+      {
+        header: 'Sales Name',
+        accessor: (row: { salesName: string }) => (
+          <span className="font-medium text-gray-900">{row.salesName}</span>
+        ),
+      },
+      {
+        header: 'Product Name',
+        accessor: (row: { productName: string }) => (
+          <span className="text-gray-700">{row.productName}</span>
+        ),
+      },
+    ]
 
   return (
     <Modal open={isOpen} onClose={handleClose} title="Bulk Upload Product Allies">
@@ -871,11 +873,11 @@ function ProductAlliesBulkUploadModal({
         {(() => {
           const safePreview = Array.isArray(preview) ? preview : []
           const safePreviewColumns = Array.isArray(previewColumns) ? previewColumns : []
-          
+
           if (safePreview.length === 0 || safePreviewColumns.length === 0) {
             return null
           }
-          
+
           return (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -884,9 +886,9 @@ function ProductAlliesBulkUploadModal({
                 </p>
               </div>
               <div className="max-h-60 overflow-y-auto rounded-xl border border-gray-200">
-                <DataTable 
-                  columns={safePreviewColumns} 
-                  data={safePreview.slice(0, 20)} 
+                <DataTable
+                  columns={safePreviewColumns}
+                  data={safePreview.slice(0, 20)}
                 />
                 {safePreview.length > 20 && (
                   <div className="px-4 py-2 text-xs text-gray-500 border-t border-gray-200">

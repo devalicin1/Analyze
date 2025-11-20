@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { format } from 'date-fns'
-import { Search, Check, X, Sparkles, Download, Filter, Database, TrendingUp, Package, DollarSign, BarChart3 } from 'lucide-react'
+import { Search, Check, X, Sparkles, Download, Filter, TrendingUp, DollarSign, BarChart3, Calendar, AlertCircle } from 'lucide-react'
 import { listProducts } from '../../lib/api/products'
 import { getSalesReport, updateSalesReport } from '../../lib/api/salesReports'
 import { fetchSalesLines } from '../../lib/api/analytics'
@@ -18,13 +18,12 @@ import { SearchableSelect } from '../../components/forms/SearchableSelect'
 import { DataTable } from '../../components/tables/DataTable'
 import { BarChart } from '../../components/charts/BarChart'
 import { PieChart } from '../../components/charts/PieChart'
-import { collection, getDocs } from 'firebase/firestore'
-import { db } from '../../lib/firebase'
+import { formatCurrency } from '../../lib/utils/formatting'
 
 export function ReportDetailPage() {
   const { reportId } = useParams()
   const workspace = useWorkspace()
-  const auth = useAuth()
+  const { user } = useAuth()
   const [report, setReport] = useState<SalesReport | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [salesLines, setSalesLines] = useState<SalesLine[]>([])
@@ -108,28 +107,28 @@ export function ReportDetailPage() {
   // Filter unmapped products based on search, status, and confidence
   const filteredUnmappedProducts = useMemo(() => {
     if (!report?.unmappedProducts) return []
-    
+
     return report.unmappedProducts.filter((name) => {
       // Search filter
       if (searchQuery && !name.toLowerCase().includes(searchQuery.toLowerCase())) {
         return false
       }
-      
+
       // Status filter
       const isMapped = !!mapping[name]
       if (statusFilter === 'mapped' && !isMapped) return false
       if (statusFilter === 'unmapped' && isMapped) return false
-      
+
       // Confidence filter (only for unmapped items)
       if (confidenceFilter !== 'all' && !isMapped) {
         const suggestions = findBestMatches(name, products, 1)
         const bestScore = suggestions.length > 0 ? suggestions[0].score : 0
-        
+
         if (confidenceFilter === 'high' && bestScore < 0.8) return false
         if (confidenceFilter === 'medium' && (bestScore < 0.5 || bestScore >= 0.8)) return false
         if (confidenceFilter === 'low' && bestScore >= 0.5) return false
       }
-      
+
       return true
     })
   }, [report?.unmappedProducts, searchQuery, statusFilter, confidenceFilter, mapping, products])
@@ -146,8 +145,8 @@ export function ReportDetailPage() {
     return salesLines.reduce((sum, line) => sum + (line.quantity || 0), 0)
   }, [salesLines, report?.totalQuantity])
 
-  const displayTotalAmount = report && report.totalAmount != null && !isNaN(report.totalAmount) 
-    ? report.totalAmount 
+  const displayTotalAmount = report && report.totalAmount != null && !isNaN(report.totalAmount)
+    ? report.totalAmount
     : calculatedTotalAmount
   const displayTotalQuantity = report && report.totalQuantity != null && !isNaN(report.totalQuantity)
     ? report.totalQuantity
@@ -158,7 +157,7 @@ export function ReportDetailPage() {
     if (salesLines.length === 0) return null
 
     const avgPrice = displayTotalQuantity > 0 ? displayTotalAmount / displayTotalQuantity : 0
-    
+
     // Top products by amount
     const productTotals = new Map<string, ProductPerformance>()
     salesLines.forEach((line) => {
@@ -230,42 +229,38 @@ export function ReportDetailPage() {
   }, [salesLines, displayTotalAmount, displayTotalQuantity, menuGroups])
 
   const salesLinesColumns = useMemo(() => [
-    { 
-      header: 'Product', 
+    {
+      header: 'Product',
       accessor: (line: SalesLine) => (
-        <span className="font-medium text-gray-900 truncate block max-w-md">{line.productNameAtSale}</span>
+        <span className="font-medium text-slate-900 truncate block max-w-md">{line.productNameAtSale}</span>
       ),
-      width: '40%'
     },
-    { 
-      header: 'Quantity', 
+    {
+      header: 'Quantity',
       accessor: (line: SalesLine) => {
         const qty = line.quantity != null && !isNaN(line.quantity) ? line.quantity : 0
-        return <span className="text-gray-700 whitespace-nowrap">{qty.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+        return <span className="text-slate-700 whitespace-nowrap">{qty.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
       },
       align: 'right' as const,
-      width: '15%'
     },
-    { 
-      header: 'Amount', 
+    {
+      header: 'Amount',
       accessor: (line: SalesLine) => {
         const amount = line.amount != null && !isNaN(line.amount) ? line.amount : 0
-        return <span className="font-semibold text-gray-900 whitespace-nowrap">{workspace.currency} {amount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+        return <span className="font-semibold text-slate-900 whitespace-nowrap">{formatCurrency(workspace.currency, amount)}</span>
       },
       align: 'right' as const,
-      width: '22.5%'
     },
-    { 
-      header: 'Unit Price', 
+    {
+      header: 'Unit Price',
       accessor: (line: SalesLine) => {
         // Recalculate unit price to ensure accuracy
         const qty = line.quantity != null && !isNaN(line.quantity) && line.quantity > 0 ? line.quantity : 1
         const amount = line.amount != null && !isNaN(line.amount) ? line.amount : 0
         const unitPrice = amount / qty
-        return <span className="text-gray-600 whitespace-nowrap">{workspace.currency} {unitPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+        return <span className="text-slate-600 whitespace-nowrap">{formatCurrency(workspace.currency, unitPrice)}</span>
       },
       align: 'right' as const,
-      width: '22.5%'
     },
   ], [workspace.currency])
 
@@ -274,8 +269,8 @@ export function ReportDetailPage() {
       setFeedback('Error: Report ID is missing.')
       return
     }
-    
-    if (!auth?.userId) {
+
+    if (!user?.userId) {
       setFeedback('Error: User authentication required.')
       return
     }
@@ -285,15 +280,15 @@ export function ReportDetailPage() {
     try {
       // Save mappings to workspace-level productMappings collection (for future reports)
       if (Object.keys(mapping).length > 0) {
-        await saveProductMappings(workspace, mapping, auth.userId)
-        
+        await saveProductMappings(workspace, mapping, user.userId)
+
         // Also save to Product Allies table (high-priority mappings)
         // Get existing allies to avoid duplicates
         const existingAllies = await getProductAllies(workspace)
         const existingSalesNames = new Set(
           Object.keys(existingAllies).map((name) => normalizeName(name))
         )
-        
+
         // Convert mapping format and filter out duplicates
         // Only save new mappings that don't already exist in allies table
         const alliesToSave = Object.entries(mapping)
@@ -302,9 +297,9 @@ export function ReportDetailPage() {
             productId,
           }))
           .filter(({ salesName }) => !existingSalesNames.has(salesName))
-        
+
         if (alliesToSave.length > 0) {
-          await saveProductAllies(workspace, alliesToSave, auth.userId)
+          await saveProductAllies(workspace, alliesToSave, user.userId)
         }
       }
 
@@ -314,16 +309,16 @@ export function ReportDetailPage() {
         status: 'uploaded', // Trigger Cloud Function to reprocess with mappings
         productMapping: mapping,
       })
-      
-      setReport((prev) => 
-        prev ? { 
-          ...prev, 
-          status: 'uploaded', 
+
+      setReport((prev) =>
+        prev ? {
+          ...prev,
+          status: 'uploaded',
           productMapping: mapping,
         } : prev
       )
       setFeedback('Mappings saved to workspace and allies table. Report is being reprocessed...')
-      
+
       // Reload report after a short delay to see updated status
       setTimeout(async () => {
         try {
@@ -353,160 +348,118 @@ export function ReportDetailPage() {
   }
 
   if (loading) {
-    return <div className="app-card text-sm text-gray-500">Loading report...</div>
+    return <div className="app-card text-sm text-slate-500">Loading report...</div>
   }
 
   if (!report) {
-    return <div className="app-card text-sm text-gray-500">Report not found.</div>
+    return <div className="app-card text-sm text-slate-500">Report not found.</div>
   }
 
   return (
     <section className="space-y-6">
-      <header className="flex flex-col gap-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="page-title">Report detail</h1>
-            <p className="text-sm text-gray-500">Report ID: {reportId}</p>
+      {/* Hero Section */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 px-6 py-8 shadow-xl">
+        <div className="absolute inset-0 bg-grid-white/10" />
+        <div className="relative">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div className="flex-1">
+              <div className="flex items-center gap-3 mb-2">
+                <h1 className="text-2xl font-bold text-white">Report Detail</h1>
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold ${report.status === 'processed' ? 'bg-emerald-500 text-white' :
+                  report.status === 'processing' ? 'bg-amber-500 text-white' :
+                    report.status === 'needs_mapping' ? 'bg-purple-500 text-white' :
+                      report.status === 'error' ? 'bg-red-500 text-white' :
+                        'bg-slate-500 text-white'
+                  }`}>
+                  {report.status === 'processing' && <div className="h-2 w-2 animate-pulse rounded-full bg-white" />}
+                  {report.status.replace('_', ' ').toUpperCase()}
+                </span>
+              </div>
+              <div className="flex flex-wrap items-center gap-4 text-sm text-blue-100">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  <span className="font-medium">
+                    {report.reportDate instanceof Date && !isNaN(report.reportDate.getTime())
+                      ? format(report.reportDate, 'd MMM yyyy')
+                      : 'Invalid date'}
+                  </span>
+                </div>
+                <div className="h-4 w-px bg-blue-400/30" />
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  <span>Period: <span className="font-medium">{report.periodKey || '—'}</span></span>
+                </div>
+                <div className="h-4 w-px bg-blue-400/30" />
+                <div className="text-xs opacity-75">
+                  ID: {reportId}
+                </div>
+              </div>
+              {report.status === 'error' && report.errorMessage && (
+                <div className="mt-3 flex items-start gap-2 rounded-lg bg-red-900/30 border border-red-400/30 px-3 py-2">
+                  <AlertCircle className="h-4 w-4 text-red-200 flex-shrink-0 mt-0.5" />
+                  <p className="text-sm text-red-100">{report.errorMessage}</p>
+                </div>
+              )}
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={async () => {
-              if (!reportId) return
-              console.log('[ReportDetailPage] Checking database for salesLines...')
-              const salesLinesPath = `tenants/${workspace.tenantId}/workspaces/${workspace.workspaceId}/salesLines`
-              try {
-                const snapshot = await getDocs(collection(db, salesLinesPath))
-                const allLines = snapshot.docs.map((doc) => ({
-                  id: doc.id,
-                  ...doc.data(),
-                }))
-                const reportLines = allLines.filter((line: any) => line.reportId === reportId)
-                console.log('[ReportDetailPage] Database check results:', {
-                  totalSalesLinesInCollection: allLines.length,
-                  salesLinesForThisReport: reportLines.length,
-                  reportId,
-                  sampleLines: reportLines.slice(0, 5).map((line: any) => ({
-                    id: line.id,
-                    productId: line.productId,
-                    productName: line.productNameAtSale,
-                    quantity: line.quantity,
-                    amount: line.amount,
-                    periodKey: line.periodKey,
-                    reportDate: line.reportDate,
-                  })),
-                  allReportIds: [...new Set(allLines.map((line: any) => line.reportId))],
-                  periodKeys: [...new Set(allLines.map((line: any) => line.periodKey))],
-                })
-                alert(`Database check complete!\n\nTotal salesLines in collection: ${allLines.length}\nSalesLines for this report: ${reportLines.length}\n\nCheck console for details.`)
-              } catch (error) {
-                console.error('[ReportDetailPage] Error checking database:', error)
-                alert(`Error checking database: ${error instanceof Error ? error.message : 'Unknown error'}`)
-              }
-            }}
-            className="inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
-          >
-            <Database className="h-4 w-4" />
-            Check Database
-          </button>
         </div>
-      </header>
-      {/* Detailed KPI Cards */}
+      </div>
+      {/* KPI Cards - 3 Columns */}
       {salesLines.length > 0 && reportMetrics && (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <div className="app-card">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50 to-white p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-gray-500">Total Sales</p>
-                <p className="mt-2 text-2xl font-bold text-gray-900">
-                  {workspace.currency}{' '}
-                  {displayTotalAmount > 0 
-                    ? displayTotalAmount.toLocaleString(undefined, { maximumFractionDigits: 0 })
-                    : '—'}
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Sales</p>
+                <p className="mt-3 text-3xl font-bold text-slate-900">
+                  {formatCurrency(workspace.currency, displayTotalAmount)}
+                </p>
+                <p className="mt-1 text-sm text-slate-500">
+                  {displayTotalQuantity.toLocaleString()} items sold
                 </p>
               </div>
-              <div className="rounded-full bg-blue-100 p-3">
-                <DollarSign className="h-6 w-6 text-blue-600" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 transition-transform group-hover:scale-110">
+                <DollarSign className="h-7 w-7" />
               </div>
             </div>
           </div>
-          <div className="app-card">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-emerald-50 to-white p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-gray-500">Quantity Sold</p>
-                <p className="mt-2 text-2xl font-bold text-gray-900">
-                  {displayTotalQuantity > 0 ? displayTotalQuantity.toLocaleString() : '—'}
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Average Price</p>
+                <p className="mt-3 text-3xl font-bold text-slate-900">
+                  {formatCurrency(workspace.currency, reportMetrics.avgPrice)}
+                </p>
+                <p className="mt-1 text-sm text-slate-500">
+                  per item
                 </p>
               </div>
-              <div className="rounded-full bg-green-100 p-3">
-                <Package className="h-6 w-6 text-green-600" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 transition-transform group-hover:scale-110">
+                <TrendingUp className="h-7 w-7" />
               </div>
             </div>
           </div>
-          <div className="app-card">
+          <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-purple-50 to-white p-6 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-gray-500">Average Price</p>
-                <p className="mt-2 text-2xl font-bold text-gray-900">
-                  {workspace.currency}{' '}
-                  {reportMetrics.avgPrice > 0 
-                    ? reportMetrics.avgPrice.toLocaleString(undefined, { maximumFractionDigits: 2 })
-                    : '—'}
-                </p>
-              </div>
-              <div className="rounded-full bg-purple-100 p-3">
-                <TrendingUp className="h-6 w-6 text-purple-600" />
-              </div>
-            </div>
-          </div>
-          <div className="app-card">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs uppercase text-gray-500">Unique Products</p>
-                <p className="mt-2 text-2xl font-bold text-gray-900">
+              <div className="flex-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Unique Products</p>
+                <p className="mt-3 text-3xl font-bold text-slate-900">
                   {reportMetrics.uniqueProducts}
                 </p>
                 {reportMetrics.topProduct && (
-                  <p className="mt-1 text-xs text-gray-500">
+                  <p className="mt-1 text-sm text-slate-500 truncate">
                     Top: {reportMetrics.topProduct.productName}
                   </p>
                 )}
               </div>
-              <div className="rounded-full bg-orange-100 p-3">
-                <BarChart3 className="h-6 w-6 text-orange-600" />
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-purple-100 text-purple-600 transition-transform group-hover:scale-110">
+                <BarChart3 className="h-7 w-7" />
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Basic Info Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <div className="app-card">
-          <p className="text-xs uppercase text-gray-500">Report date</p>
-          <p className="mt-2 text-lg font-semibold text-gray-900">
-            {report.reportDate instanceof Date && !isNaN(report.reportDate.getTime())
-              ? format(report.reportDate, 'd MMM yyyy')
-              : 'Invalid date'}
-          </p>
-        </div>
-        <div className="app-card">
-          <p className="text-xs uppercase text-gray-500">Status</p>
-          <p className="mt-2 text-lg font-semibold text-gray-900 capitalize">
-            {report.status.replace('_', ' ')}
-          </p>
-          {report.status === 'error' && report.errorMessage && (
-            <p className="mt-2 text-sm text-red-600 break-words">
-              Error: {report.errorMessage}
-            </p>
-          )}
-        </div>
-        <div className="app-card">
-          <p className="text-xs uppercase text-gray-500">Period Key</p>
-          <p className="mt-2 text-lg font-semibold text-gray-900">
-            {report.periodKey || '—'}
-          </p>
-        </div>
-      </div>
 
       {/* Charts Section */}
       {salesLines.length > 0 && reportMetrics && (
@@ -517,7 +470,7 @@ export function ReportDetailPage() {
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="section-title">Category Breakdown</h2>
-                  <p className="text-sm text-gray-500">Sales distribution by category</p>
+                  <p className="text-sm text-slate-500">Sales distribution by category</p>
                 </div>
               </div>
               <div className="mb-6 flex justify-center">
@@ -530,7 +483,7 @@ export function ReportDetailPage() {
                     formatter={(value, name) => {
                       const category = reportMetrics.categories.find(c => c.label === name)
                       const amount = category?.amount || 0
-                      return `${name}: ${workspace.currency} ${amount.toLocaleString(undefined, { maximumFractionDigits: 0 })} (${(Number(value) * 100).toFixed(1)}%)`
+                      return `${name}: ${formatCurrency(workspace.currency, amount)} (${(Number(value) * 100).toFixed(1)}%)`
                     }}
                     height={320}
                   />
@@ -540,19 +493,19 @@ export function ReportDetailPage() {
                 {reportMetrics.categories
                   .sort((a, b) => b.amount - a.amount)
                   .map((category) => (
-                    <div key={category.menuGroupId} className="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 p-3">
+                    <div key={category.menuGroupId} className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <div 
-                          className="h-4 w-4 flex-shrink-0 rounded-full" 
+                        <div
+                          className="h-4 w-4 flex-shrink-0 rounded-full"
                           style={{ backgroundColor: category.color || '#0F8BFD' }}
                         />
-                        <span className="min-w-0 flex-1 text-sm font-medium text-gray-700 truncate">{category.label}</span>
+                        <span className="min-w-0 flex-1 text-sm font-medium text-slate-700 truncate">{category.label}</span>
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <p className="text-sm font-semibold text-gray-900 whitespace-nowrap">
-                          {workspace.currency} {category.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        <p className="text-sm font-semibold text-slate-900 whitespace-nowrap">
+                          {formatCurrency(workspace.currency, category.amount)}
                         </p>
-                        <p className="text-xs text-gray-500 whitespace-nowrap">
+                        <p className="text-xs text-slate-500 whitespace-nowrap">
                           ({(category.share * 100).toFixed(1)}%)
                         </p>
                       </div>
@@ -570,9 +523,9 @@ export function ReportDetailPage() {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h2 className="section-title">Top Products by Revenue</h2>
-                    <p className="text-sm text-gray-500">Best performing products</p>
+                    <p className="text-sm text-slate-500">Best performing products</p>
                   </div>
-                  <span className="text-xs text-gray-500">Top 10</span>
+                  <span className="text-xs text-slate-500">Top 10</span>
                 </div>
                 <BarChart
                   data={reportMetrics.topProductsByAmount}
@@ -580,7 +533,7 @@ export function ReportDetailPage() {
                   yKey="amount"
                   color="#7C3AED"
                   height={280}
-                  formatter={(value) => `${workspace.currency} ${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`}
+                  formatter={(value) => formatCurrency(workspace.currency, value)}
                 />
                 <div className="mt-4 space-y-3">
                   {reportMetrics.topProductsByAmount.slice(0, 5).map((product, idx) => (
@@ -589,13 +542,13 @@ export function ReportDetailPage() {
                         <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-purple-100 text-xs font-semibold text-purple-700">
                           {idx + 1}
                         </span>
-                        <span className="min-w-0 flex-1 font-medium text-gray-700 truncate">{product.productName}</span>
+                        <span className="min-w-0 flex-1 font-medium text-slate-700 truncate">{product.productName}</span>
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <span className="block font-semibold text-gray-900 whitespace-nowrap">
-                          {workspace.currency} {product.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        <span className="block font-semibold text-slate-900 whitespace-nowrap">
+                          {formatCurrency(workspace.currency, product.amount)}
                         </span>
-                        <span className="block text-xs text-gray-500 whitespace-nowrap">
+                        <span className="block text-xs text-slate-500 whitespace-nowrap">
                           ({(product.percentOfTotal * 100).toFixed(1)}%)
                         </span>
                       </div>
@@ -611,9 +564,9 @@ export function ReportDetailPage() {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h2 className="section-title">Top Products by Quantity</h2>
-                    <p className="text-sm text-gray-500">Most sold products</p>
+                    <p className="text-sm text-slate-500">Most sold products</p>
                   </div>
-                  <span className="text-xs text-gray-500">Top 10</span>
+                  <span className="text-xs text-slate-500">Top 10</span>
                 </div>
                 <BarChart
                   data={reportMetrics.topProductsByQty}
@@ -630,14 +583,14 @@ export function ReportDetailPage() {
                         <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-semibold text-blue-700">
                           {idx + 1}
                         </span>
-                        <span className="min-w-0 flex-1 font-medium text-gray-700 truncate">{product.productName}</span>
+                        <span className="min-w-0 flex-1 font-medium text-slate-700 truncate">{product.productName}</span>
                       </div>
                       <div className="flex-shrink-0 text-right">
-                        <span className="block font-semibold text-gray-900 whitespace-nowrap">
+                        <span className="block font-semibold text-slate-900 whitespace-nowrap">
                           {product.quantity.toLocaleString()}
                         </span>
-                        <span className="block text-xs text-gray-500 whitespace-nowrap">
-                          {workspace.currency} {product.amount.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                        <span className="block text-xs text-slate-500 whitespace-nowrap">
+                          {formatCurrency(workspace.currency, product.amount)}
                         </span>
                       </div>
                     </div>
@@ -655,8 +608,8 @@ export function ReportDetailPage() {
           <div className="flex items-center gap-3">
             <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500"></div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Processing report</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-lg font-semibold text-slate-900">Processing report</h2>
+              <p className="text-sm text-slate-600">
                 The report is being processed. This page will automatically update when processing is complete.
                 {report.unmappedProducts && report.unmappedProducts.length > 0 && (
                   <span className="block mt-1">
@@ -673,8 +626,8 @@ export function ReportDetailPage() {
         <div className="app-card space-y-4 overflow-hidden">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Report lines</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-lg font-semibold text-slate-900">Report lines</h2>
+              <p className="text-sm text-slate-600">
                 {salesLines.length} line{salesLines.length !== 1 ? 's' : ''} found
               </p>
             </div>
@@ -692,8 +645,8 @@ export function ReportDetailPage() {
         <div className="app-card space-y-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Product mapping required</h2>
-              <p className="text-sm text-gray-600">
+              <h2 className="text-lg font-semibold text-slate-900">Product mapping required</h2>
+              <p className="text-sm text-slate-600">
                 {report.unmappedProducts?.length ?? 0} unmapped product(s) need to be assigned
               </p>
             </div>
@@ -709,7 +662,7 @@ export function ReportDetailPage() {
                     reportId,
                   )
                 }}
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="btn-secondary"
               >
                 <Download className="h-4 w-4" />
                 Export Excel
@@ -722,7 +675,7 @@ export function ReportDetailPage() {
                   const autoMapped = autoMatchProducts(report.unmappedProducts, products, 0.7, allies)
                   setMapping((prev) => ({ ...prev, ...autoMapped }))
                 }}
-                className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
+                className="btn-secondary"
               >
                 <Sparkles className="h-4 w-4" />
                 Auto-match
@@ -731,7 +684,7 @@ export function ReportDetailPage() {
                 type="button"
                 disabled={saving}
                 onClick={handleResolveMapping}
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+                className="btn-primary disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving ? 'Saving...' : 'Confirm mappings'}
               </button>
@@ -740,40 +693,40 @@ export function ReportDetailPage() {
                   type="button"
                   disabled={saving}
                   onClick={async () => {
-                    if (!reportId || !auth?.userId) {
+                    if (!reportId || !user?.userId) {
                       console.error('[ReportDetailPage] Missing reportId or userId')
                       return
                     }
-                    
+
                     console.log('[ReportDetailPage] Process without mapping clicked', {
                       reportId,
                       mappingCount: Object.keys(mapping).length,
                       unmappedCount: unmappedStillPending.length,
                     })
-                    
+
                     setSaving(true)
                     setFeedback(null)
                     try {
                       // Save existing mappings if any
                       if (Object.keys(mapping).length > 0) {
                         console.log('[ReportDetailPage] Saving product mappings...')
-                        await saveProductMappings(workspace, mapping, auth.userId)
+                        await saveProductMappings(workspace, mapping, user.userId)
                         console.log('[ReportDetailPage] Product mappings saved')
                       }
-                      
+
                       // Remove unmapped products from unmappedProducts array so Cloud Function can process
                       // Only keep products that are truly unmapped (not in mapping)
                       const remainingUnmapped = unmappedStillPending.filter(
                         (name) => !mapping[name]
                       )
-                      
+
                       console.log('[ReportDetailPage] Updating report:', {
                         status: 'uploaded',
                         productMappingCount: Object.keys(mapping).length,
                         remainingUnmappedCount: remainingUnmapped.length,
                         originalUnmappedCount: report?.unmappedProducts?.length ?? 0,
                       })
-                      
+
                       // Process report with existing mappings only (skip unmapped products)
                       // Set unmappedProducts to empty array so Cloud Function processes mapped products
                       // Cloud Function will use productMapping to match products
@@ -782,19 +735,19 @@ export function ReportDetailPage() {
                         productMapping: mapping,
                         unmappedProducts: [], // Empty array so Cloud Function processes with productMapping
                       })
-                      
+
                       console.log('[ReportDetailPage] Report updated, waiting for Cloud Function...')
-                      
-                      setReport((prev) => 
-                        prev ? { 
-                          ...prev, 
-                          status: 'uploaded', 
+
+                      setReport((prev) =>
+                        prev ? {
+                          ...prev,
+                          status: 'uploaded',
                           productMapping: mapping,
                           unmappedProducts: remainingUnmapped,
                         } : prev
                       )
                       setFeedback('Report is being processed with existing mappings. Unmapped products will be skipped.')
-                      
+
                       // Poll for status updates
                       let attempts = 0
                       const maxAttempts = 30 // 30 seconds max
@@ -806,7 +759,7 @@ export function ReportDetailPage() {
                             attempt: attempts,
                             status: updatedReport?.status,
                           })
-                          
+
                           if (updatedReport) {
                             setReport(updatedReport)
                             if (updatedReport.status === 'processed') {
@@ -825,7 +778,7 @@ export function ReportDetailPage() {
                               setFeedback(`Cloud Function error: ${errorMsg}. Please check Firebase Functions logs.`)
                             }
                           }
-                          
+
                           if (attempts >= maxAttempts) {
                             clearInterval(pollInterval)
                             setFeedback('Processing is taking longer than expected. Please refresh the page.')
@@ -924,108 +877,106 @@ export function ReportDetailPage() {
                 </thead>
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {filteredUnmappedProducts.map((name) => {
-                      const suggestions = findBestMatches(name, products, 3)
-                      const isMapped = !!mapping[name]
+                    const suggestions = findBestMatches(name, products, 3)
+                    const isMapped = !!mapping[name]
 
-                      return (
-                        <tr
-                          key={name}
-                          className={`transition ${
-                            isMapped
-                              ? 'bg-emerald-50/50'
-                              : 'bg-white hover:bg-gray-50'
+                    return (
+                      <tr
+                        key={name}
+                        className={`transition ${isMapped
+                          ? 'bg-emerald-50/50'
+                          : 'bg-white hover:bg-gray-50'
                           }`}
-                        >
-                          <td className="px-4 py-3">
-                            <p className="text-sm font-semibold text-gray-900">{name}</p>
-                          </td>
-                          <td className="px-4 py-3">
-                            {suggestions.length > 0 ? (
-                              <div className="space-y-1">
-                                {suggestions.map((match, idx) => (
-                                  <button
-                                    key={match.product.id}
-                                    type="button"
-                                    onClick={() =>
-                                      setMapping((prev) => ({
-                                        ...prev,
-                                        [name]: match.product.id,
-                                      }))
-                                    }
-                                    className={`w-full text-left inline-flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs font-medium transition ${
-                                      mapping[name] === match.product.id
-                                        ? 'bg-primary text-white'
-                                        : match.score > 0.8
-                                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      >
+                        <td className="px-4 py-3">
+                          <p className="text-sm font-semibold text-gray-900">{name}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          {suggestions.length > 0 ? (
+                            <div className="space-y-1">
+                              {suggestions.map((match) => (
+                                <button
+                                  key={match.product.id}
+                                  type="button"
+                                  onClick={() =>
+                                    setMapping((prev) => ({
+                                      ...prev,
+                                      [name]: match.product.id,
+                                    }))
+                                  }
+                                  className={`w-full text-left inline-flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs font-medium transition ${mapping[name] === match.product.id
+                                    ? 'bg-primary text-white'
+                                    : match.score > 0.8
+                                      ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                                     }`}
-                                    title={`${match.reason} (${Math.round(match.score * 100)}% match)`}
-                                  >
-                                    <span className="flex items-center gap-1">
-                                      {match.product.name}
-                                      {match.score > 0.8 && (
-                                        <span className="text-[10px]">✨</span>
-                                      )}
-                                    </span>
-                                    <span className="text-[10px] opacity-75">
-                                      {Math.round(match.score * 100)}%
-                                    </span>
-                                  </button>
-                                ))}
-                                <details className="mt-1">
-                                  <summary className="cursor-pointer text-[10px] text-gray-500 hover:text-gray-700">
-                                    Show details
-                                  </summary>
-                                  <div className="mt-1 space-y-0.5 text-[10px] text-gray-600">
-                                    {suggestions.map((match) => (
-                                      <div key={match.product.id} className="pl-2">
-                                        <span className="font-semibold">{match.product.name}:</span>{' '}
-                                        {match.reason} ({Math.round(match.score * 100)}%)
-                                      </div>
-                                    ))}
-                                  </div>
-                                </details>
-                              </div>
-                            ) : (
-                              <span className="text-xs text-gray-400">No suggestions</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <SearchableSelect
-                              value={mapping[name] ?? ''}
-                              onChange={(selectedValue) =>
-                                setMapping((prev) => ({
-                                  ...prev,
-                                  [name]: selectedValue,
-                                }))
-                              }
-                              options={[
-                                { label: 'Select product...', value: '' },
-                                ...products.map((product) => ({
-                                  label: product.name,
-                                  value: product.id,
-                                })),
-                              ]}
-                              placeholder="Select product..."
-                              searchPlaceholder="Search products..."
-                            />
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            {isMapped ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
-                                <Check className="h-3 w-3" />
-                                Mapped
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
-                                <X className="h-3 w-3" />
-                                Pending
-                              </span>
-                            )}
-                          </td>
-                        </tr>
-                      )
-                    })}
+                                  title={`${match.reason} (${Math.round(match.score * 100)}% match)`}
+                                >
+                                  <span className="flex items-center gap-1">
+                                    {match.product.name}
+                                    {match.score > 0.8 && (
+                                      <span className="text-[10px]">✨</span>
+                                    )}
+                                  </span>
+                                  <span className="text-[10px] opacity-75">
+                                    {Math.round(match.score * 100)}%
+                                  </span>
+                                </button>
+                              ))}
+                              <details className="mt-1">
+                                <summary className="cursor-pointer text-[10px] text-gray-500 hover:text-gray-700">
+                                  Show details
+                                </summary>
+                                <div className="mt-1 space-y-0.5 text-[10px] text-gray-600">
+                                  {suggestions.map((match) => (
+                                    <div key={match.product.id} className="pl-2">
+                                      <span className="font-semibold">{match.product.name}:</span>{' '}
+                                      {match.reason} ({Math.round(match.score * 100)}%)
+                                    </div>
+                                  ))}
+                                </div>
+                              </details>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-gray-400">No suggestions</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3">
+                          <SearchableSelect
+                            value={mapping[name] ?? ''}
+                            onChange={(selectedValue) =>
+                              setMapping((prev) => ({
+                                ...prev,
+                                [name]: selectedValue,
+                              }))
+                            }
+                            options={[
+                              { label: 'Select product...', value: '' },
+                              ...products.map((product) => ({
+                                label: product.name,
+                                value: product.id,
+                              })),
+                            ]}
+                            placeholder="Select product..."
+                            searchPlaceholder="Search products..."
+                          />
+                        </td>
+                        <td className="px-4 py-3 text-center">
+                          {isMapped ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
+                              <Check className="h-3 w-3" />
+                              Mapped
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
+                              <X className="h-3 w-3" />
+                              Pending
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    )
+                  })}
                 </tbody>
               </table>
             </div>
@@ -1047,11 +998,10 @@ export function ReportDetailPage() {
 
           {feedback && (
             <div
-              className={`rounded-xl border p-3 text-sm ${
-                feedback.includes('saved')
-                  ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                  : 'border-red-200 bg-red-50 text-red-700'
-              }`}
+              className={`rounded-xl border p-3 text-sm ${feedback.includes('saved')
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                : 'border-red-200 bg-red-50 text-red-700'
+                }`}
             >
               {feedback}
             </div>

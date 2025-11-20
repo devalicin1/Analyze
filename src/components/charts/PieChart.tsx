@@ -46,10 +46,7 @@ export function PieChart<T extends Record<string, unknown>>({
   innerRadius = 70,
   outerRadius = 110,
 }: PieChartProps<T>) {
-  const total = data.reduce(
-    (sum, item) => sum + (Number(item[valueKey]) || 0),
-    0
-  )
+
 
   return (
     <div className="relative w-full" style={{ height }}>

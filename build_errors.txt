@@ -1,0 +1,17 @@
+﻿src/components/products/BulkUploadModal.tsx(79,18): error TS2345: Argument of type '{ name: string; menuGroupId: string; menuSubGroupId?: string | undefined; isExtra: boolean; posCode?: string | undefined; defaultUnitPrice?: number | undefined; activeFrom?: Date | null | undefined; activeTo?: Date | ... 1 more ... | undefined; }[]' is not assignable to parameter of type 'SetStateAction<{ name: string; menuGroupId: string; menuSubGroupId?: string | undefined; isExtra: boolean; posCode?: string | undefined; defaultUnitPrice?: number | undefined; activeFrom?: string | undefined; activeTo?: string | undefined; }[] | null>'.
+  Type '{ name: string; menuGroupId: string; menuSubGroupId?: string | undefined; isExtra: boolean; posCode?: string | undefined; defaultUnitPrice?: number | undefined; activeFrom?: Date | null | undefined; activeTo?: Date | ... 1 more ... | undefined; }[]' is not assignable to type '{ name: string; menuGroupId: string; menuSubGroupId?: string | undefined; isExtra: boolean; posCode?: string | undefined; defaultUnitPrice?: number | undefined; activeFrom?: string | undefined; activeTo?: string | undefined; }[]'.
+    Type '{ name: string; menuGroupId: string; menuSubGroupId?: string | undefined; isExtra: boolean; posCode?: string | undefined; defaultUnitPrice?: number | undefined; activeFrom?: Date | null | undefined; activeTo?: Date | ... 1 more ... | undefined; }' is not assignable to type '{ name: string; menuGroupId: string; menuSubGroupId?: string | undefined; isExtra: boolean; posCode?: string | undefined; defaultUnitPrice?: number | undefined; activeFrom?: string | undefined; activeTo?: string | undefined; }'.
+      Types of property 'activeFrom' are incompatible.
+        Type 'Date | null | undefined' is not assignable to type 'string | undefined'.
+          Type 'null' is not assignable to type 'string | undefined'.
+src/lib/api/analytics.ts(211,3): error TS2322: Type 'SalesLine[]' is not assignable to type '{ reportDate: Date; quantity: number; amount: number; productId: string; periodKey: string; reportId: string; isExtraAtSale: boolean; productNameRaw: string; unitPrice: number; productNameAtSale: string; menuGroupAtSale: string; menuSubGroupAtSale?: string | undefined; id: string; }[]'.
+  Type 'SalesLine' is not assignable to type '{ reportDate: Date; quantity: number; amount: number; productId: string; periodKey: string; reportId: string; isExtraAtSale: boolean; productNameRaw: string; unitPrice: number; productNameAtSale: string; menuGroupAtSale: string; menuSubGroupAtSale?: string | undefined; id: string; }'.
+    Types of property 'reportDate' are incompatible.
+      Type 'TimestampLike' is not assignable to type 'Date'.
+        Type 'string' is not assignable to type 'Date'.
+src/lib/api/analytics.ts(624,3): error TS6133: 'dateRange' is declared but its value is never read.
+src/lib/api/productAllies.ts(4,3): error TS6133: 'getDoc' is declared but its value is never read.
+src/lib/utils/exportPerformanceReport.ts(136,65): error TS2339: Property 'currency' does not exist on type 'WorkspaceScope'.
+src/lib/utils/exportPerformanceReport.ts(137,62): error TS2339: Property 'currency' does not exist on type 'WorkspaceScope'.
+src/lib/utils/exportPerformanceReport.ts(207,41): error TS2339: Property 'currency' does not exist on type 'WorkspaceScope'.
+src/lib/utils/exportPerformanceReport.ts(397,55): error TS2339: Property 'currency' does not exist on type 'WorkspaceScope'.

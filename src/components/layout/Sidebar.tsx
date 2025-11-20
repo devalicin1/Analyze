@@ -31,16 +31,22 @@ export function Sidebar() {
   const { workspaceName, currency } = useWorkspace()
 
   return (
-    <aside className="hidden w-64 flex-col border-r border-gray-200 bg-white/90 px-4 py-6 backdrop-blur lg:flex">
-      <div className="mb-8">
-        <div className="text-sm font-semibold uppercase tracking-[0.2em] text-gray-400">
-          SCALES
+    <aside className="hidden w-72 flex-col border-r border-border bg-white px-6 py-8 lg:flex">
+      <div className="mb-10 flex items-center gap-3 px-2">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-white shadow-lg shadow-primary/20">
+          <BarChart2 className="h-6 w-6" />
         </div>
-        <div className="mt-1 text-2xl font-semibold text-gray-900">
-          Multi-Restaurant
+        <div>
+          <div className="text-xs font-bold uppercase tracking-wider text-gray-400">
+            SCALES
+          </div>
+          <div className="text-lg font-bold text-gray-900 leading-tight">
+            Analytics
+          </div>
         </div>
       </div>
-      <nav className="space-y-1">
+
+      <nav className="space-y-1.5 flex-1">
         {navItems.map((item) => {
           const Icon = item.icon
           return (
@@ -49,24 +55,31 @@ export function Sidebar() {
               to={item.to}
               className={({ isActive }) =>
                 clsx(
-                  'flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200',
+                  'group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
                   isActive
-                    ? 'bg-primary-muted text-primary shadow-sm'
-                    : 'text-gray-500 hover:bg-gray-100 hover:text-gray-900',
+                    ? 'bg-primary text-white shadow-md shadow-primary/25'
+                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                 )
               }
               end={item.to === '/'}
             >
-              <Icon className="h-4 w-4" />
+              <Icon className={clsx("h-5 w-5 transition-colors", ({ isActive }: { isActive: boolean }) => isActive ? 'text-white' : 'text-gray-400 group-hover:text-gray-600')} />
               {item.label}
             </NavLink>
           )
         })}
       </nav>
-      <div className="mt-auto rounded-2xl bg-gray-50 px-3 py-4 text-xs text-gray-500">
-        <p className="font-semibold text-gray-900">{workspaceName}</p>
-        <p>Primary currency: {currency}</p>
-        <p>Data refreshed hourly</p>
+
+      <div className="mt-auto rounded-2xl border border-border bg-gray-50 p-4">
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-lg font-bold text-primary">
+            {workspaceName.charAt(0)}
+          </div>
+          <div className="overflow-hidden">
+            <p className="truncate font-semibold text-gray-900 text-sm">{workspaceName}</p>
+            <p className="text-xs text-gray-500 truncate">{currency} • Updated hourly</p>
+          </div>
+        </div>
       </div>
     </aside>
   )

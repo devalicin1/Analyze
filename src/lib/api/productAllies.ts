@@ -1,7 +1,7 @@
 import {
   collection,
   doc,
-  getDoc,
+
   getDocs,
   query,
   setDoc,
@@ -29,7 +29,7 @@ export async function getProductAllies(scope: WorkspaceScope): Promise<Record<st
 
   const snapshot = await getDocs(collectionRef(scope))
   const allies: Record<string, string> = {}
-  
+
   snapshot.forEach((docSnap) => {
     const data = docSnap.data() as Omit<ProductAlly, 'id'>
     allies[data.salesName] = data.productId
@@ -51,7 +51,7 @@ export async function getProductAlly(
 
   const q = query(collectionRef(scope), where('salesName', '==', salesName))
   const snapshot = await getDocs(q)
-  
+
   if (snapshot.empty) {
     return null
   }
@@ -128,7 +128,7 @@ export async function saveProductAllies(
 
   for (const { salesName, productId } of allies) {
     const existingId = existingMap.get(salesName)
-    
+
     if (existingId) {
       // Update existing
       const docRef = doc(db, `${alliesPath(scope)}/${existingId}`)

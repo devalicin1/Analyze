@@ -5,6 +5,7 @@ import { Select } from '../../components/forms/Select'
 import { fetchLifecycleInsights } from '../../lib/api/analytics'
 import type { LifecycleItem } from '../../lib/types'
 import { useWorkspace } from '../../context/WorkspaceContext'
+import { formatCurrency } from '../../lib/utils/formatting'
 
 const windowOptions = [
   { label: 'Last 3 months', value: '3' },
@@ -51,10 +52,7 @@ export function LifecyclePage() {
     },
     {
       header: 'Lifetime amount',
-      accessor: (row) =>
-        `${workspace.currency} ${row.lifetimeAmount.toLocaleString(undefined, {
-          maximumFractionDigits: 0,
-        })}`,
+      accessor: (row) => formatCurrency(workspace.currency, row.lifetimeAmount),
       align: 'right',
     },
   ]
