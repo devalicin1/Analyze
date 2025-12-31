@@ -18,6 +18,7 @@ import { SearchableSelect } from '../../components/forms/SearchableSelect'
 import { DataTable } from '../../components/tables/DataTable'
 import { BarChart } from '../../components/charts/BarChart'
 import { PieChart } from '../../components/charts/PieChart'
+import { RemapModal } from '../../components/reports/RemapModal'
 import { formatCurrency } from '../../lib/utils/formatting'
 
 export function ReportDetailPage() {
@@ -35,6 +36,7 @@ export function ReportDetailPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | 'mapped' | 'unmapped'>('all')
   const [confidenceFilter, setConfidenceFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all')
   const [menuGroups, setMenuGroups] = useState<{ id: string; label: string; color: string }[]>([])
+  const [isRemapModalOpen, setIsRemapModalOpen] = useState(false)
 
   useEffect(() => {
     async function load() {
@@ -347,6 +349,85 @@ export function ReportDetailPage() {
     }
   }
 
+  async function handleRemap(newMapping: Record<string, string>, updateGlobal: boolean) {
+    if (!reportId || !user?.userId) return
+
+    setSaving(true)
+    setFeedback(null)
+    try {
+      // 1. Update global aliases if requested
+      if (updateGlobal) {
+        const existingAllies = await getProductAllies(workspace)
+        const existingSalesNames = new Set(
+          Object.keys(existingAllies).map((name) => normalizeName(name))
+        )
+
+        const alliesToSave = Object.entries(newMapping)
+          .map(([salesName, productId]) => ({
+            salesName: normalizeName(salesName),
+            productId,
+          }))
+          .filter(({ salesName }) => !existingSalesNames.has(salesName))
+
+        if (alliesToSave.length > 0) {
+          await saveProductAllies(workspace, alliesToSave, user.userId)
+        }
+      }
+
+      // 2. Update report with new mapping and set status to 'uploaded' to trigger reprocessing
+      // We merge new mapping with existing mapping
+      const updatedMapping = { ...mapping, ...newMapping }
+
+      await updateSalesReport(workspace, reportId, {
+        status: 'uploaded',
+        productMapping: updatedMapping,
+        // We don't need to touch unmappedProducts, the Cloud Function will recalculate everything
+      })
+
+      setReport((prev) =>
+        prev ? {
+          ...prev,
+          status: 'uploaded',
+          productMapping: updatedMapping,
+        } : prev
+      )
+
+      setMapping(updatedMapping)
+      setFeedback('Remapping submitted. Report is being reprocessed...')
+
+      // Poll for completion
+      let attempts = 0
+      const maxAttempts = 30
+      const pollInterval = setInterval(async () => {
+        attempts++
+        try {
+          const updatedReport = await getSalesReport(workspace, reportId)
+          if (updatedReport) {
+            setReport(updatedReport)
+            if (updatedReport.status === 'processed') {
+              clearInterval(pollInterval)
+              setFeedback('Report reprocessed successfully!')
+              const lines = await fetchSalesLines(workspace, { reportId })
+              setSalesLines(lines)
+            } else if (updatedReport.status === 'error') {
+              clearInterval(pollInterval)
+              setFeedback(`Error reprocessing: ${updatedReport.errorMessage}`)
+            }
+          }
+          if (attempts >= maxAttempts) clearInterval(pollInterval)
+        } catch (error) {
+          console.error('Error polling:', error)
+        }
+      }, 1000)
+
+    } catch (error) {
+      console.error('Error remapping:', error)
+      setFeedback('Failed to update mappings.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   if (loading) {
     return <div className="app-card text-sm text-slate-500">Loading report...</div>
   }
@@ -401,6 +482,17 @@ export function ReportDetailPage() {
                 </div>
               )}
             </div>
+            {report.status === 'processed' && (
+              <div className="flex-shrink-0">
+                <button
+                  onClick={() => setIsRemapModalOpen(true)}
+                  className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Remap Products
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -799,217 +891,231 @@ export function ReportDetailPage() {
                   }}
                   className="inline-flex items-center gap-2 rounded-xl border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Process without mapping ({unmappedStillPending.length} unmapped will be skipped)
+                  Process without mapping
                 </button>
               )}
             </div>
           </div>
+        </div>
+      )}
 
-          <div className="app-card">
-            <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-gray-500">
-              <Filter className="h-4 w-4" />
-              Filters
-            </div>
-            <div className="grid gap-4 md:grid-cols-3">
-              <div>
-                <label className="block text-xs font-semibold text-gray-700 mb-1">
-                  Search
-                </label>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search unmapped products..."
-                    className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
-                  />
-                </div>
+      {needsMapping && (
+        <div className="app-card">
+          <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-gray-500">
+            <Filter className="h-4 w-4" />
+            Filters
+          </div>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div>
+              <label className="block text-xs font-semibold text-gray-700 mb-1">
+                Search
+              </label>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search unmapped products..."
+                  className="w-full rounded-xl border border-gray-200 bg-white py-2 pl-10 pr-4 text-sm text-gray-900 placeholder-gray-500 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                />
               </div>
-              <Select
-                label="Status"
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as 'all' | 'mapped' | 'unmapped')}
-                options={[
-                  { label: 'All', value: 'all' },
-                  { label: 'Mapped', value: 'mapped' },
-                  { label: 'Unmapped', value: 'unmapped' },
-                ]}
-              />
-              <Select
-                label="Confidence Score"
-                value={confidenceFilter}
-                onChange={(e) => setConfidenceFilter(e.target.value as 'all' | 'high' | 'medium' | 'low')}
-                options={[
-                  { label: 'All', value: 'all' },
-                  { label: 'High (≥80%)', value: 'high' },
-                  { label: 'Medium (50-79%)', value: 'medium' },
-                  { label: 'Low (<50%)', value: 'low' },
-                ]}
-                helperText="Filter by best match confidence"
-              />
             </div>
-            {filteredUnmappedProducts.length !== (report.unmappedProducts?.length ?? 0) && (
-              <div className="mt-3 text-xs text-gray-500">
-                Showing {filteredUnmappedProducts.length} of {report.unmappedProducts?.length ?? 0} products
-              </div>
-            )}
+            <Select
+              label="Status"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as 'all' | 'mapped' | 'unmapped')}
+              options={[
+                { label: 'All', value: 'all' },
+                { label: 'Mapped', value: 'mapped' },
+                { label: 'Unmapped', value: 'unmapped' },
+              ]}
+            />
+            <Select
+              label="Confidence Score"
+              value={confidenceFilter}
+              onChange={(e) => setConfidenceFilter(e.target.value as 'all' | 'high' | 'medium' | 'low')}
+              options={[
+                { label: 'All', value: 'all' },
+                { label: 'High (≥80%)', value: 'high' },
+                { label: 'Medium (50-79%)', value: 'medium' },
+                { label: 'Low (<50%)', value: 'low' },
+              ]}
+              helperText="Filter by best match confidence"
+            />
           </div>
-
-          <div className="overflow-hidden rounded-xl border border-gray-200">
-            <div className="max-h-[600px] overflow-y-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="sticky top-0 z-10 bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Unmapped Product
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Suggestions
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Assign To
-                    </th>
-                    <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
-                      Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 bg-white">
-                  {filteredUnmappedProducts.map((name) => {
-                    const suggestions = findBestMatches(name, products, 3)
-                    const isMapped = !!mapping[name]
-
-                    return (
-                      <tr
-                        key={name}
-                        className={`transition ${isMapped
-                          ? 'bg-emerald-50/50'
-                          : 'bg-white hover:bg-gray-50'
-                          }`}
-                      >
-                        <td className="px-4 py-3">
-                          <p className="text-sm font-semibold text-gray-900">{name}</p>
-                        </td>
-                        <td className="px-4 py-3">
-                          {suggestions.length > 0 ? (
-                            <div className="space-y-1">
-                              {suggestions.map((match) => (
-                                <button
-                                  key={match.product.id}
-                                  type="button"
-                                  onClick={() =>
-                                    setMapping((prev) => ({
-                                      ...prev,
-                                      [name]: match.product.id,
-                                    }))
-                                  }
-                                  className={`w-full text-left inline-flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs font-medium transition ${mapping[name] === match.product.id
-                                    ? 'bg-primary text-white'
-                                    : match.score > 0.8
-                                      ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
-                                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                                    }`}
-                                  title={`${match.reason} (${Math.round(match.score * 100)}% match)`}
-                                >
-                                  <span className="flex items-center gap-1">
-                                    {match.product.name}
-                                    {match.score > 0.8 && (
-                                      <span className="text-[10px]">✨</span>
-                                    )}
-                                  </span>
-                                  <span className="text-[10px] opacity-75">
-                                    {Math.round(match.score * 100)}%
-                                  </span>
-                                </button>
-                              ))}
-                              <details className="mt-1">
-                                <summary className="cursor-pointer text-[10px] text-gray-500 hover:text-gray-700">
-                                  Show details
-                                </summary>
-                                <div className="mt-1 space-y-0.5 text-[10px] text-gray-600">
-                                  {suggestions.map((match) => (
-                                    <div key={match.product.id} className="pl-2">
-                                      <span className="font-semibold">{match.product.name}:</span>{' '}
-                                      {match.reason} ({Math.round(match.score * 100)}%)
-                                    </div>
-                                  ))}
-                                </div>
-                              </details>
-                            </div>
-                          ) : (
-                            <span className="text-xs text-gray-400">No suggestions</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3">
-                          <SearchableSelect
-                            value={mapping[name] ?? ''}
-                            onChange={(selectedValue) =>
-                              setMapping((prev) => ({
-                                ...prev,
-                                [name]: selectedValue,
-                              }))
-                            }
-                            options={[
-                              { label: 'Select product...', value: '' },
-                              ...products.map((product) => ({
-                                label: product.name,
-                                value: product.id,
-                              })),
-                            ]}
-                            placeholder="Select product..."
-                            searchPlaceholder="Search products..."
-                          />
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          {isMapped ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
-                              <Check className="h-3 w-3" />
-                              Mapped
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
-                              <X className="h-3 w-3" />
-                              Pending
-                            </span>
-                          )}
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
-            <div className="text-sm text-gray-600">
-              <span className="font-semibold text-gray-900">
-                {(report.unmappedProducts?.length ?? 0) - unmappedStillPending.length}
-              </span>{' '}
-              of {report.unmappedProducts?.length ?? 0} mapped
-            </div>
-            {unmappedStillPending.length > 0 && (
-              <p className="text-xs text-amber-600">
-                {unmappedStillPending.length} product(s) still need mapping
-              </p>
-            )}
-          </div>
-
-          {feedback && (
-            <div
-              className={`rounded-xl border p-3 text-sm ${feedback.includes('saved')
-                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-                : 'border-red-200 bg-red-50 text-red-700'
-                }`}
-            >
-              {feedback}
+          {filteredUnmappedProducts.length !== (report.unmappedProducts?.length ?? 0) && (
+            <div className="mt-3 text-xs text-gray-500">
+              Showing {filteredUnmappedProducts.length} of {report.unmappedProducts?.length ?? 0} products
             </div>
           )}
         </div>
       )}
+
+      {needsMapping && (
+        <div className="overflow-hidden rounded-xl border border-gray-200">
+          <div className="max-h-[600px] overflow-y-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="sticky top-0 z-10 bg-gray-50">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Unmapped Product
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Suggestions
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Assign To
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wide text-gray-500">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {filteredUnmappedProducts.map((name) => {
+                  const suggestions = findBestMatches(name, products, 3)
+                  const isMapped = !!mapping[name]
+
+                  return (
+                    <tr
+                      key={name}
+                      className={`transition ${isMapped
+                        ? 'bg-emerald-50/50'
+                        : 'bg-white hover:bg-gray-50'
+                        }`}
+                    >
+                      <td className="px-4 py-3">
+                        <p className="text-sm font-semibold text-gray-900">{name}</p>
+                      </td>
+                      <td className="px-4 py-3">
+                        {suggestions.length > 0 ? (
+                          <div className="space-y-1">
+                            {suggestions.map((match) => (
+                              <button
+                                key={match.product.id}
+                                type="button"
+                                onClick={() =>
+                                  setMapping((prev) => ({
+                                    ...prev,
+                                    [name]: match.product.id,
+                                  }))
+                                }
+                                className={`w-full text-left inline-flex items-center justify-between gap-2 rounded-lg px-2 py-1.5 text-xs font-medium transition ${mapping[name] === match.product.id
+                                  ? 'bg-primary text-white'
+                                  : match.score > 0.8
+                                    ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                  }`}
+                                title={`${match.reason} (${Math.round(match.score * 100)}% match)`}
+                              >
+                                <span className="flex items-center gap-1">
+                                  {match.product.name}
+                                  {match.score > 0.8 && (
+                                    <span className="text-[10px]">✨</span>
+                                  )}
+                                </span>
+                                <span className="text-[10px] opacity-75">
+                                  {Math.round(match.score * 100)}%
+                                </span>
+                              </button>
+                            ))}
+                            <details className="mt-1">
+                              <summary className="cursor-pointer text-[10px] text-gray-500 hover:text-gray-700">
+                                Show details
+                              </summary>
+                              <div className="mt-1 space-y-0.5 text-[10px] text-gray-600">
+                                {suggestions.map((match) => (
+                                  <div key={match.product.id} className="pl-2">
+                                    <span className="font-semibold">{match.product.name}:</span>{' '}
+                                    {match.reason} ({Math.round(match.score * 100)}%)
+                                  </div>
+                                ))}
+                              </div>
+                            </details>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-gray-400">No suggestions</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3">
+                        <SearchableSelect
+                          value={mapping[name] ?? ''}
+                          onChange={(selectedValue) =>
+                            setMapping((prev) => ({
+                              ...prev,
+                              [name]: selectedValue,
+                            }))
+                          }
+                          options={[
+                            { label: 'Select product...', value: '' },
+                            ...products.map((product) => ({
+                              label: product.name,
+                              value: product.id,
+                            })),
+                          ]}
+                          placeholder="Select product..."
+                          searchPlaceholder="Search products..."
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {isMapped ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 text-xs font-semibold text-emerald-700">
+                            <Check className="h-3 w-3" />
+                            Mapped
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 text-xs font-semibold text-amber-700">
+                            <X className="h-3 w-3" />
+                            Pending
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {needsMapping && (
+        <div className="flex items-center justify-between rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+          <div className="text-sm text-gray-600">
+            <span className="font-semibold text-gray-900">
+              {(report.unmappedProducts?.length ?? 0) - unmappedStillPending.length}
+            </span>{' '}
+            of {report.unmappedProducts?.length ?? 0} mapped
+          </div>
+          {unmappedStillPending.length > 0 && (
+            <p className="text-xs text-amber-600">
+              {unmappedStillPending.length} product(s) still need mapping
+            </p>
+          )}
+        </div>
+      )}
+
+      {feedback && (
+        <div
+          className={`rounded-xl border p-3 text-sm ${feedback.includes('saved')
+            ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+            : 'border-red-200 bg-red-50 text-red-700'
+            }`}
+        >
+          {feedback}
+        </div>
+      )}
+
+      <RemapModal
+        isOpen={isRemapModalOpen}
+        onClose={() => setIsRemapModalOpen(false)}
+        onSave={handleRemap}
+        products={products}
+        currentMapping={report?.productMapping || mapping}
+        unmappedProducts={report.unmappedProducts || []}
+        salesLines={salesLines}
+      />
     </section>
   )
 }
-
-
