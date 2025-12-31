@@ -78,8 +78,8 @@ export function BulkUploadModal({
       setTotalProducts(result.products.length)
       setPreview(result.products.slice(0, 10).map(p => ({
         ...p,
-        activeFrom: p.activeFrom instanceof Date ? p.activeFrom.toISOString().split('T')[0] : (p.activeFrom || undefined),
-        activeTo: p.activeTo instanceof Date ? p.activeTo.toISOString().split('T')[0] : (p.activeTo || undefined),
+        activeFrom: p.activeFrom instanceof Date ? p.activeFrom.toISOString().split('T')[0] : (typeof p.activeFrom === 'string' ? p.activeFrom : undefined),
+        activeTo: p.activeTo instanceof Date ? p.activeTo.toISOString().split('T')[0] : (typeof p.activeTo === 'string' ? p.activeTo : undefined),
       }))) // Show first 10 for preview
 
       // Show warnings if there were errors but some products were parsed

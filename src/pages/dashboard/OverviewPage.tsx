@@ -219,7 +219,7 @@ export function OverviewPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto w-full">
         {/* Header */}
         <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
           <div className="px-6 py-4">

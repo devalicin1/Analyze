@@ -154,7 +154,7 @@ export async function fetchSalesLines(
     }
   }
 
-  let lines = snapshot.docs.map((docSnap) => {
+  let lines: SalesLine[] = snapshot.docs.map((docSnap) => {
     const data = docSnap.data() as Omit<SalesLine, 'id'>
     return {
       id: docSnap.id,
@@ -623,6 +623,7 @@ export async function fetchLifecycleInsights(
   months = 3,
   _dateRange?: { start: Date; end: Date },
 ) {
+  void _dateRange
   if (USE_MOCK_DATA) {
     const cutoff = new Date()
     cutoff.setMonth(cutoff.getMonth() - months)
