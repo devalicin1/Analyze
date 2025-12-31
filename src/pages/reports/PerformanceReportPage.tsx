@@ -515,7 +515,7 @@ export function PerformanceReportPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto w-full">
         {/* Header */}
         <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
           <div className="px-6 py-4">
@@ -843,11 +843,11 @@ export function PerformanceReportPage() {
                         Comparative analysis by product and period
                       </p>
                     </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="bg-slate-50">
+                    <div className="max-h-[600px] overflow-auto rounded-lg border border-slate-200">
+                      <table className="w-full border-separate border-spacing-0 text-sm">
+                        <thead className="sticky top-0 z-30 bg-slate-50 shadow-[0_1px_0_rgba(0,0,0,0.05)]">
                           <tr>
-                            <th className="sticky left-0 z-10 bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600">
+                            <th className="sticky left-0 top-0 z-40 bg-slate-50 px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-slate-600 after:absolute after:bottom-0 after:right-0 after:top-0 after:w-px after:bg-slate-200 after:content-['']">
                               Product
                             </th>
                             {productBreakdown[0]?.periods.map((period) => (
@@ -863,7 +863,7 @@ export function PerformanceReportPage() {
                         <tbody className="divide-y divide-slate-100 bg-white">
                           {productBreakdown.map((product) => (
                             <tr key={product.productId} className="hover:bg-slate-50/80">
-                              <td className="sticky left-0 z-10 bg-white px-4 py-3 font-semibold text-slate-900">
+                              <td className="sticky left-0 z-20 bg-white px-4 py-3 font-semibold text-slate-900 after:absolute after:bottom-0 after:right-0 after:top-0 after:w-px after:bg-slate-200 after:content-[''] group-hover:bg-slate-50/80">
                                 {product.productName}
                               </td>
                               {product.periods.map((period, idx) => (

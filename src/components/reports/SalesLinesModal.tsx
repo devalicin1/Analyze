@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { format } from 'date-fns'
-import { X, Download } from 'lucide-react'
+import { X } from 'lucide-react'
 import { DataTable } from '../tables/DataTable'
 import { formatCurrency } from '../../lib/utils/formatting'
 import type { SalesLine } from '../../lib/types'

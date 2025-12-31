@@ -13,6 +13,8 @@ import type { SalesReport, SalesReportStatus } from '../../lib/types'
 import type { DateRange } from '../../context/WorkspaceContext'
 import { useWorkspace } from '../../context/WorkspaceContext'
 import { useAuth } from '../../context/AuthContext'
+import { downloadSalesReportTemplate } from '../../lib/utils/excelTemplate'
+import { Download, Info, CheckCircle2 } from 'lucide-react'
 
 type ColumnMapping = {
   productName: string
@@ -281,12 +283,55 @@ export function UploadReportPage() {
       </div>
 
       {currentStep === 0 && (
-        <FileUpload
-          label="Drag & drop POS export"
-          hint="Supports CSV or XLSX files"
-          accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
-          onFileSelected={handleFileSelected}
-        />
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="md:col-span-2">
+            <FileUpload
+              label="Drag & drop POS export"
+              hint="Supports CSV or XLSX files"
+              accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel"
+              onFileSelected={handleFileSelected}
+            />
+          </div>
+          <div className="space-y-4">
+            <div className="app-card bg-indigo-50/50 border-indigo-100">
+              <div className="flex items-center gap-2 mb-3 text-indigo-700">
+                <Download className="h-4 w-4" />
+                <h3 className="font-bold text-sm">Download Template</h3>
+              </div>
+              <p className="text-xs text-indigo-600 mb-4 leading-relaxed">
+                Use our optimized template to ensure your data mappings are detected automatically.
+              </p>
+              <button
+                onClick={downloadSalesReportTemplate}
+                className="w-full flex items-center justify-center gap-2 bg-white border border-indigo-200 text-indigo-700 px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-indigo-50 transition-colors shadow-sm"
+              >
+                Download Excel Template
+              </button>
+            </div>
+
+            <div className="app-card">
+              <div className="flex items-center gap-2 mb-4 text-slate-700">
+                <Info className="h-4 w-4" />
+                <h3 className="font-bold text-sm">Required Columns</h3>
+              </div>
+              <ul className="space-y-3">
+                {[
+                  { label: 'Product Name', desc: 'Exact name from POS' },
+                  { label: 'Quantity', desc: 'Number of items sold' },
+                  { label: 'Amount', desc: 'Total revenue (GBP)' }
+                ].map((col) => (
+                  <li key={col.label} className="flex gap-3">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-xs font-bold text-slate-900 leading-none mb-1">{col.label}</p>
+                      <p className="text-[10px] text-slate-500 leading-none">{col.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </div>
       )}
 
       {currentStep === 1 && (

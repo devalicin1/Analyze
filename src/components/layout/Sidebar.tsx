@@ -3,8 +3,8 @@ import {
   BarChart2,
   ChartLine,
   FileText,
-  Layers,
-  LineChart,
+  // Layers,
+  // LineChart,
   ListChecks,
   Settings2,
   Upload,
@@ -16,8 +16,8 @@ import { useWorkspace } from '../../context/WorkspaceContext'
 
 const navItems = [
   { label: 'Overview', icon: BarChart2, to: '/' },
-  { label: 'Trends', icon: LineChart, to: '/trends' },
-  { label: 'Extras', icon: Layers, to: '/extras' },
+  // { label: 'Trends', icon: LineChart, to: '/trends' },
+  // { label: 'Extras', icon: Layers, to: '/extras' },
   { label: 'Lifecycle', icon: ChartLine, to: '/lifecycle' },
   { label: 'Products', icon: ListChecks, to: '/products' },
   { label: 'Reports', icon: FileText, to: '/reports' },

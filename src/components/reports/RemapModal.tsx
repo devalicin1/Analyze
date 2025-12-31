@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { X, Save, AlertTriangle } from 'lucide-react'
+import { X, AlertTriangle } from 'lucide-react'
 import { SearchableSelect } from '../forms/SearchableSelect'
 import type { Product } from '../../lib/types'
 

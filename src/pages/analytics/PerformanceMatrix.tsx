@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine, Label } from 'recharts'
 import { DataTable } from '../../components/tables/DataTable'
 import { useWorkspace } from '../../context/WorkspaceContext'
-import { fetchOverview } from '../../lib/api/analytics'
+
 import { formatCurrency } from '../../lib/utils/formatting'
 import type { ProductPerformance } from '../../lib/types'
 

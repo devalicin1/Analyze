@@ -251,7 +251,7 @@ export async function parseProductExcel(
     activeFrom?: Date | null
     activeTo?: Date | null
   }> = []
-  
+
   const errors: Array<{ row: number; productName: string; error: string }> = []
 
   // Skip header row (row 1) and example rows
@@ -553,11 +553,11 @@ export async function parseProductAlliesExcel(
 ): Promise<{ allies: ParsedAlly[]; errors: ParseError[] }> {
   // CRITICAL: Ensure products is always an array, never a number
   const safeProducts = Array.isArray(products) ? products : []
-  
+
   // Always initialize as arrays - never use 0 as a sentinel
   const allies: ParsedAlly[] = []
   const errors: ParseError[] = []
-  
+
   try {
     const buffer = await file.arrayBuffer()
     const workbook = new ExcelJS.Workbook()
@@ -583,7 +583,7 @@ export async function parseProductAlliesExcel(
 
     // Skip header row (row 1) and example rows
     let startRow = 2
-    
+
     // Safely check first data row
     try {
       const firstDataRow = worksheet.getRow(2)
@@ -674,3 +674,67 @@ export async function parseProductAlliesExcel(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Sales Report Excel Template
+// ---------------------------------------------------------------------------
+
+export async function downloadSalesReportTemplate(): Promise<void> {
+  const workbook = new ExcelJS.Workbook()
+  const worksheet = workbook.addWorksheet('Sales Data')
+
+  // Header row
+  worksheet.columns = [
+    { header: 'Product Name', key: 'productName', width: 40 },
+    { header: 'Quantity', key: 'quantity', width: 15 },
+    { header: 'Amount', key: 'amount', width: 20 },
+  ]
+
+  // Style header row
+  worksheet.getRow(1).font = { bold: true }
+  worksheet.getRow(1).fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFE0E0E0' },
+  }
+
+  // Add example rows
+  worksheet.addRow({ productName: 'Example Latte', quantity: 15, amount: 67.50 })
+  worksheet.addRow({ productName: 'Example Cappuccino', quantity: 10, amount: 45.00 })
+  worksheet.addRow({ productName: 'Example Espresso', quantity: 8, amount: 20.00 })
+
+  // Add Instructions sheet
+  const instructionsSheet = workbook.addWorksheet('Instructions')
+  instructionsSheet.columns = [{ key: 'instruction', width: 100 }]
+
+  instructionsSheet.addRow({ instruction: 'SALES REPORT UPLOAD TEMPLATE' })
+  instructionsSheet.addRow({ instruction: '' })
+  instructionsSheet.addRow({ instruction: '═══════════════════════════════════════════════════════════════════════════════' })
+  instructionsSheet.addRow({ instruction: 'HOW TO USE THIS TEMPLATE' })
+  instructionsSheet.addRow({ instruction: '═══════════════════════════════════════════════════════════════════════════════' })
+  instructionsSheet.addRow({ instruction: '' })
+  instructionsSheet.addRow({ instruction: '1. Fill in the "Sales Data" sheet with your daily or monthly sales.' })
+  instructionsSheet.addRow({ instruction: '2. Product Name: Must match the product name in the system or mapping.' })
+  instructionsSheet.addRow({ instruction: '3. Quantity: The number of items sold (numeric).' })
+  instructionsSheet.addRow({ instruction: '4. Amount: The total revenue for that product (numeric, GBP).' })
+  instructionsSheet.addRow({ instruction: '5. Do not change the header names to ensure automatic mapping.' })
+  instructionsSheet.addRow({ instruction: '' })
+  instructionsSheet.addRow({ instruction: '═══════════════════════════════════════════════════════════════════════════════' })
+
+  // Style instructions
+  instructionsSheet.getRow(1).font = { bold: true, size: 16 }
+  instructionsSheet.getRow(4).font = { bold: true, size: 12 }
+
+  // Generate Excel file
+  const buffer = await workbook.xlsx.writeBuffer()
+  const blob = new Blob([buffer], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  })
+  const url = window.URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = 'sales_report_template.xlsx'
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  window.URL.revokeObjectURL(url)
+}
