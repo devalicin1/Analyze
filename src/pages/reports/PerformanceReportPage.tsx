@@ -18,6 +18,8 @@ import { useWorkspace, type DateRange } from '../../context/WorkspaceContext'
 import type { MenuGroup, Product, TrendPoint } from '../../lib/types'
 import { TrendingUp, TrendingDown, Minus, Download } from 'lucide-react'
 import { exportPerformanceReportToPDF } from '../../lib/utils/exportPerformanceReport'
+import { SalesLinesModal } from '../../components/reports/SalesLinesModal'
+import type { SalesLine } from '../../lib/types'
 
 type ReportType = 'category' | 'subcategory' | 'product'
 
@@ -65,6 +67,12 @@ export function PerformanceReportPage() {
   const [productBreakdown, setProductBreakdown] = useState<ProductPeriodData[]>([])
   const [exportingPDF, setExportingPDF] = useState(false)
   const chartRef = useRef<HTMLDivElement>(null)
+
+  // Drill-down state
+  const [allSalesLines, setAllSalesLines] = useState<SalesLine[]>([])
+  const [drillDownLines, setDrillDownLines] = useState<SalesLine[]>([])
+  const [drillDownTitle, setDrillDownTitle] = useState('')
+  const [isDrillDownOpen, setIsDrillDownOpen] = useState(false)
 
   // Load initial data
   useEffect(() => {
@@ -176,6 +184,7 @@ export function PerformanceReportPage() {
               end: dateRange.end,
             },
           })
+          setAllSalesLines(salesLines)
 
           // Filter by category or subcategory
           let filteredLines = salesLines
@@ -292,6 +301,7 @@ export function PerformanceReportPage() {
         setTrendData([])
         setMetrics(null)
         setProductBreakdown([])
+        setAllSalesLines([])
       } finally {
         setLoading(false)
       }
@@ -477,6 +487,18 @@ export function PerformanceReportPage() {
       alert('Failed to export PDF. Please try again.')
     } finally {
       setExportingPDF(false)
+    }
+  }
+
+  const handleCellClick = (productId: string, periodKey: string, productName: string, periodLabel: string) => {
+    const lines = allSalesLines.filter(
+      (line) => line.productId === productId && line.periodKey === periodKey
+    )
+
+    if (lines.length > 0) {
+      setDrillDownLines(lines)
+      setDrillDownTitle(`${productName} - ${periodLabel}`)
+      setIsDrillDownOpen(true)
     }
   }
 
@@ -847,7 +869,9 @@ export function PerformanceReportPage() {
                               {product.periods.map((period, idx) => (
                                 <td
                                   key={period.periodKey}
-                                  className="px-3 py-3 text-center"
+                                  className="px-3 py-3 text-center cursor-pointer transition hover:bg-blue-50"
+                                  onClick={() => handleCellClick(product.productId, period.periodKey, product.productName, period.label)}
+                                  title="Click to view details"
                                 >
                                   <div className="space-y-1.5">
                                     <div>
@@ -924,6 +948,12 @@ export function PerformanceReportPage() {
           )}
         </div>
       </div>
+      <SalesLinesModal
+        isOpen={isDrillDownOpen}
+        onClose={() => setIsDrillDownOpen(false)}
+        title={drillDownTitle}
+        salesLines={drillDownLines}
+      />
     </div>
   )
 }

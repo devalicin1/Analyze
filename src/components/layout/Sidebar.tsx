@@ -21,6 +21,7 @@ const navItems = [
   { label: 'Lifecycle', icon: ChartLine, to: '/lifecycle' },
   { label: 'Products', icon: ListChecks, to: '/products' },
   { label: 'Reports', icon: FileText, to: '/reports' },
+  { label: 'Analytics', icon: TrendingUp, to: '/analytics' },
   { label: 'Performance', icon: TrendingUp, to: '/reports/performance' },
   { label: 'Upload Report', icon: Upload, to: '/reports/upload' },
   { label: 'Settings', icon: Settings2, to: '/settings/menu-groups' },

@@ -10,6 +10,7 @@ import { ReportsPage } from '../pages/reports/ReportsPage'
 import { PerformanceReportPage } from '../pages/reports/PerformanceReportPage'
 import { UploadReportPage } from '../pages/reports/UploadReportPage'
 import { ReportDetailPage } from '../pages/reports/ReportDetailPage'
+import { AnalyticsPage } from '../pages/analytics/AnalyticsPage'
 import { MenuGroupsSettingsPage } from '../pages/settings/MenuGroupsSettingsPage'
 import { ProductAlliesPage } from '../pages/settings/ProductAlliesPage'
 import { SeedDataPage } from '../pages/dev/SeedDataPage'
@@ -31,6 +32,7 @@ const router = createBrowserRouter([
       { path: 'products', element: <ProductsListPage /> },
       { path: 'products/:productId', element: <EditProductPage /> },
       { path: 'reports', element: <ReportsPage /> },
+      { path: 'analytics', element: <AnalyticsPage /> },
       { path: 'reports/performance', element: <PerformanceReportPage /> },
       { path: 'reports/upload', element: <UploadReportPage /> },
       { path: 'reports/:reportId', element: <ReportDetailPage /> },
