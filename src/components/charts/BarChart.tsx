@@ -38,7 +38,7 @@ export function BarChart<T extends Record<string, unknown>>({
   const gradientId = gradientIdRef.current
 
   return (
-    <div className="h-full w-full">
+    <div className="w-full">
       <ResponsiveContainer width="100%" height={height}>
         <RechartsBarChart
           data={data}

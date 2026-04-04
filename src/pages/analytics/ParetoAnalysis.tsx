@@ -115,7 +115,7 @@ export function ParetoAnalysis({ dateRange }: { dateRange: { start: Date; end: D
 
     return (
         <div className="space-y-6">
-            <div className="app-card">
+            <div className="app-card p-6">
                 <div className="mb-6">
                     <h2 className="section-title">Pareto Analysis (80/20 Rule)</h2>
                     <p className="text-sm text-slate-500">
@@ -127,23 +127,28 @@ export function ParetoAnalysis({ dateRange }: { dateRange: { start: Date; end: D
                 <div className="h-[500px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <ComposedChart
-                            data={data.slice(0, 50)} // Show top 50 for readability in chart
-                            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                            data={data.slice(0, 30)}
+                            margin={{ top: 20, right: 60, bottom: 20, left: 40 }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" opacity={0.5} />
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.3} vertical={false} />
                             <XAxis
                                 dataKey="productName"
                                 angle={-45}
                                 textAnchor="end"
                                 height={100}
                                 interval={0}
-                                tick={{ fontSize: 10 }}
+                                tick={{ fontSize: 11, fill: '#64748b' }}
+                                axisLine={false}
+                                tickLine={false}
                             />
                             <YAxis
                                 yAxisId="left"
                                 orientation="left"
                                 stroke="#8884d8"
-                                tickFormatter={(val) => formatCurrency(workspace.currency, val).replace(workspace.currency, '').trim()} // Shorten for axis
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#64748b', fontSize: 12 }}
+                                tickFormatter={(val) => formatCurrency(workspace.currency, val).replace(workspace.currency, '').trim()}
                             />
                             <YAxis
                                 yAxisId="right"
@@ -151,23 +156,26 @@ export function ParetoAnalysis({ dateRange }: { dateRange: { start: Date; end: D
                                 stroke="#10b981"
                                 unit="%"
                                 domain={[0, 100]}
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#64748b', fontSize: 12 }}
                             />
                             <Tooltip content={<CustomTooltip />} />
                             <Legend />
-                            <Bar yAxisId="left" dataKey="amount" name="Revenue" fill="#8884d8" barSize={20} />
+                            <Bar yAxisId="left" dataKey="amount" name="Revenue" fill="#7c3aed" radius={[4, 4, 0, 0]} maxBarSize={40} />
                             <Line
                                 yAxisId="right"
                                 type="monotone"
                                 dataKey="cumulativePercent"
                                 name="Cumulative %"
                                 stroke="#10b981"
-                                strokeWidth={2}
+                                strokeWidth={2.5}
                                 dot={false}
                             />
-                            <ReferenceLine yAxisId="right" y={80} stroke="#f59e0b" strokeDasharray="3 3" label="80% Cutoff" />
+                            <ReferenceLine yAxisId="right" y={80} stroke="#f59e0b" strokeDasharray="5 5" strokeWidth={1.5} label={{ value: '80% Cutoff', position: 'right', fill: '#d97706', fontSize: 12 }} />
                         </ComposedChart>
                     </ResponsiveContainer>
-                    <p className="text-center text-xs text-slate-400 mt-2">* Chart shows top 50 products for clarity</p>
+                    <p className="text-center text-xs text-slate-400 mt-2">* Chart shows top 30 products for clarity</p>
                 </div>
 
                 <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">

@@ -112,6 +112,15 @@ export function CategoryMixTrends({ dateRange }: { dateRange: { start: Date; end
         return <div className="app-card p-8 text-center text-slate-500">No data available for the selected range.</div>
     }
 
+    if (data.length === 1) {
+        return (
+            <div className="app-card p-8 text-center text-slate-500">
+                <p className="font-medium text-slate-700">Only 1 period of data available</p>
+                <p className="mt-1 text-sm">Category Mix Trends requires at least 2 periods to show trends. Upload more reports to see the chart.</p>
+            </div>
+        )
+    }
+
     return (
         <div className="space-y-6">
             <div className="app-card p-6">
@@ -174,10 +183,13 @@ export function CategoryMixTrends({ dateRange }: { dateRange: { start: Date; end
                                 tick={{ fill: '#64748b', fontSize: 12 }}
                             />
                             <Tooltip
-                                formatter={(value: number, name: string) => [
-                                    formatCurrency(workspace.currency, value),
-                                    name
-                                ]}
+                                formatter={(value: number, name: string) => {
+                                    if (viewMode === 'percent') {
+                                        // In expand mode, values are 0-1 fractions
+                                        return [`${(value * 100).toFixed(1)}%`, name]
+                                    }
+                                    return [formatCurrency(workspace.currency, value), name]
+                                }}
                                 contentStyle={{ borderRadius: '0.75rem', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                                 itemStyle={{ padding: 0 }}
                             />

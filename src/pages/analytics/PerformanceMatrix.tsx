@@ -155,7 +155,7 @@ export function PerformanceMatrix({ dateRange }: { dateRange: { start: Date; end
 
     return (
         <div className="space-y-6">
-            <div className="app-card">
+            <div className="app-card p-6">
                 <div className="mb-6">
                     <h2 className="section-title">Product Performance Matrix</h2>
                     <p className="text-sm text-slate-500">
@@ -166,22 +166,26 @@ export function PerformanceMatrix({ dateRange }: { dateRange: { start: Date; end
                 <div className="h-[500px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <ScatterChart
-                            margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+                            margin={{ top: 20, right: 20, bottom: 30, left: 40 }}
                         >
-                            <CartesianGrid strokeDasharray="3 3" opacity={0.5} />
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.3} />
                             <XAxis
                                 type="number"
                                 dataKey="quantity"
                                 name="Quantity"
-                                unit=""
-                                label={{ value: 'Quantity Sold (Popularity)', position: 'bottom', offset: 0 }}
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#64748b', fontSize: 12 }}
+                                label={{ value: 'Quantity Sold (Popularity)', position: 'bottom', offset: 10, fill: '#475569', fontSize: 13, fontWeight: 600 }}
                             />
                             <YAxis
                                 type="number"
                                 dataKey="amount"
                                 name="Revenue"
-                                unit=""
-                                label={{ value: 'Total Revenue (Contribution)', angle: -90, position: 'insideLeft' }}
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fill: '#64748b', fontSize: 12 }}
+                                label={{ value: 'Total Revenue', angle: -90, position: 'insideLeft', dx: -20, fill: '#475569', fontSize: 13, fontWeight: 600 }}
                             />
                             <Tooltip content={<CustomTooltip />} cursor={{ strokeDasharray: '3 3' }} />
 

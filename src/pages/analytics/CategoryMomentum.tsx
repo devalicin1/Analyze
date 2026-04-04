@@ -298,7 +298,7 @@ export function CategoryMomentum({ dateRange }: { dateRange: { start: Date; end:
             <div className="grid gap-6 lg:grid-cols-2">
                 {/* Left Column: Overall Performance */}
                 <div className="space-y-6">
-                    <div className="app-card overflow-hidden">
+                    <div className="app-card p-6 overflow-hidden">
                         <div className="flex items-center gap-2 mb-6 border-b border-slate-50 pb-4">
                             <span className="text-xl">🚀</span>
                             <h3 className="font-bold text-slate-900">Top Growing Categories</h3>
@@ -330,7 +330,7 @@ export function CategoryMomentum({ dateRange }: { dateRange: { start: Date; end:
                         </div>
                     </div>
 
-                    <div className="app-card overflow-hidden">
+                    <div className="app-card p-6 overflow-hidden">
                         <div className="flex items-center gap-2 mb-6 border-b border-slate-50 pb-4">
                             <span className="text-xl">💰</span>
                             <h3 className="font-bold text-slate-900">Revenue Leaders</h3>

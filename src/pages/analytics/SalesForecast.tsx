@@ -248,7 +248,7 @@ export function SalesForecast() {
                 </div>
             </div>
 
-            <div className="app-card">
+            <div className="app-card p-6">
                 <div className="mb-6">
                     <h2 className="section-title">Revenue Forecast (3 Months)</h2>
                     <p className="text-sm text-slate-500">

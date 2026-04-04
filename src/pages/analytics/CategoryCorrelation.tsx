@@ -131,7 +131,7 @@ export function CategoryCorrelation({ dateRange }: { dateRange: { start: Date; e
 
     return (
         <div className="space-y-6">
-            <div className="app-card">
+            <div className="app-card p-6">
                 <div className="mb-6">
                     <h2 className="section-title">Category Correlation</h2>
                     <p className="text-sm text-slate-500">
@@ -161,7 +161,7 @@ export function CategoryCorrelation({ dateRange }: { dateRange: { start: Date; e
                     </div>
                 </div>
 
-                <div className="h-[400px] w-full">
+                <div className="h-[500px] w-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <ScatterChart
                             margin={{ top: 20, right: 20, bottom: 20, left: 20 }}

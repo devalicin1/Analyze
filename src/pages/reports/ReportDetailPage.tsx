@@ -429,11 +429,11 @@ export function ReportDetailPage() {
   }
 
   if (loading) {
-    return <div className="app-card text-sm text-slate-500">Loading report...</div>
+    return <div className="app-card p-6 text-sm text-slate-500">Loading report...</div>
   }
 
   if (!report) {
-    return <div className="app-card text-sm text-slate-500">Report not found.</div>
+    return <div className="app-card p-6 text-sm text-slate-500">Report not found.</div>
   }
 
   return (
@@ -558,7 +558,7 @@ export function ReportDetailPage() {
         <>
           {/* Category Breakdown - Full Width */}
           {reportMetrics.categories.length > 0 && (
-            <div className="app-card">
+            <div className="app-card p-6">
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <h2 className="section-title">Category Breakdown</h2>
@@ -611,7 +611,7 @@ export function ReportDetailPage() {
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Top Products by Amount */}
             {reportMetrics.topProductsByAmount.length > 0 && (
-              <div className="app-card">
+              <div className="app-card p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h2 className="section-title">Top Products by Revenue</h2>
@@ -652,7 +652,7 @@ export function ReportDetailPage() {
 
             {/* Top Products by Quantity */}
             {reportMetrics.topProductsByQty.length > 0 && (
-              <div className="app-card">
+              <div className="app-card p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <h2 className="section-title">Top Products by Quantity</h2>
@@ -696,7 +696,7 @@ export function ReportDetailPage() {
 
 
       {report.status === 'processing' && (
-        <div className="app-card space-y-4">
+        <div className="app-card p-6 space-y-4">
           <div className="flex items-center gap-3">
             <div className="h-2 w-2 animate-pulse rounded-full bg-blue-500"></div>
             <div>
@@ -715,7 +715,7 @@ export function ReportDetailPage() {
       )}
 
       {salesLines.length > 0 && (
-        <div className="app-card space-y-4 overflow-hidden">
+        <div className="app-card p-6 space-y-4 overflow-hidden">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Report lines</h2>
@@ -734,7 +734,7 @@ export function ReportDetailPage() {
       )}
 
       {needsMapping && (
-        <div className="app-card space-y-4">
+        <div className="app-card p-6 space-y-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">Product mapping required</h2>
@@ -900,7 +900,7 @@ export function ReportDetailPage() {
       )}
 
       {needsMapping && (
-        <div className="app-card">
+        <div className="app-card p-6">
           <div className="mb-4 flex items-center gap-3 text-sm font-semibold text-gray-500">
             <Filter className="h-4 w-4" />
             Filters
