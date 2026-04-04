@@ -358,7 +358,7 @@ export function PerformanceReportPage() {
     if (metrics.amountChangePercent > 10) {
       result.push({ text: `Revenue grew ${formatPercent(metrics.amountChangePercent)} from ${metrics.firstPeriodLabel} to ${metrics.lastPeriodLabel}. Strong upward momentum.`, type: 'positive' })
     } else if (metrics.amountChangePercent < -10) {
-      result.push({ text: `Revenue declined ${formatPercent(Math.abs(metrics.amountChangePercent))} from ${metrics.firstPeriodLabel} to ${metrics.lastPeriodLabel}. Investigate root causes.`, type: 'negative' })
+      result.push({ text: `Revenue declined ${Math.abs(metrics.amountChangePercent).toFixed(1)}% from ${metrics.firstPeriodLabel} to ${metrics.lastPeriodLabel}. Investigate root causes.`, type: 'negative' })
     } else {
       result.push({ text: `Revenue remained stable between ${metrics.firstPeriodLabel} and ${metrics.lastPeriodLabel}.`, type: 'neutral' })
     }
@@ -572,7 +572,7 @@ export function PerformanceReportPage() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Revenue Change</p>
                   <div className="mt-2 flex items-center gap-2">
                     <p className={`text-2xl font-bold ${metrics.amountChangePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {metrics.amountChangePercent >= 0 ? '+' : ''}{formatPercent(metrics.amountChangePercent)}
+                      {formatPercent(metrics.amountChangePercent)}
                     </p>
                     {metrics.trendDirection === 'up' && <TrendingUp className="h-5 w-5 text-emerald-600" />}
                     {metrics.trendDirection === 'down' && <TrendingDown className="h-5 w-5 text-red-600" />}
@@ -592,7 +592,7 @@ export function PerformanceReportPage() {
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Volume Change</p>
                   <div className="mt-2 flex items-center gap-2">
                     <p className={`text-2xl font-bold ${metrics.quantityChangePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                      {metrics.quantityChangePercent >= 0 ? '+' : ''}{formatPercent(metrics.quantityChangePercent)}
+                      {formatPercent(metrics.quantityChangePercent)}
                     </p>
                     {metrics.quantityChangePercent >= 0 ? <TrendingUp className="h-5 w-5 text-emerald-600" /> : <TrendingDown className="h-5 w-5 text-red-600" />}
                   </div>
@@ -640,7 +640,7 @@ export function PerformanceReportPage() {
                 <div className="flex flex-col items-center gap-1">
                   <ArrowRight className="h-5 w-5 text-slate-400" />
                   <span className={`text-sm font-bold ${metrics.amountChangePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                    {metrics.amountChangePercent >= 0 ? '+' : ''}{formatPercent(metrics.amountChangePercent)}
+                    {formatPercent(metrics.amountChangePercent)}
                   </span>
                 </div>
               </div>
