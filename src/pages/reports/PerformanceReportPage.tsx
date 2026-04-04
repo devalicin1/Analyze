@@ -225,7 +225,7 @@ export function PerformanceReportPage() {
 
               const [year, month] = periodKey.split('-').map(Number)
               const date = new Date(year, (month ?? 1) - 1)
-              const label = format(date, 'MMM yyyy')
+              const label = !isNaN(date.getTime()) ? format(date, 'MMM yyyy') : periodKey
 
               let quantityChange: number | undefined
               let amountChange: number | undefined
@@ -431,7 +431,11 @@ export function PerformanceReportPage() {
             </p>
             <div className="mt-3 flex items-center gap-2 text-xs text-blue-200">
               <Activity className="h-3.5 w-3.5" />
-              <span>{format(dateRange.start, 'd MMM yyyy')} — {format(dateRange.end, 'd MMM yyyy')}</span>
+              <span>
+                {dateRange.start instanceof Date && !isNaN(dateRange.start.getTime()) ? format(dateRange.start, 'd MMM yyyy') : '—'}
+                {' — '}
+                {dateRange.end instanceof Date && !isNaN(dateRange.end.getTime()) ? format(dateRange.end, 'd MMM yyyy') : '—'}
+              </span>
               <span className="mx-1">|</span>
               <span className="capitalize">{reportType}: {getSelectedLabel()}</span>
             </div>
@@ -654,7 +658,9 @@ export function PerformanceReportPage() {
               <div className="mb-4">
                 <h3 className="text-base font-semibold text-slate-900">Performance Trend: {getSelectedLabel()}</h3>
                 <p className="mt-1 text-sm text-slate-500">
-                  {format(dateRange.start, 'MMM d, yyyy')} – {format(dateRange.end, 'MMM d, yyyy')}
+                  {dateRange.start instanceof Date && !isNaN(dateRange.start.getTime()) ? format(dateRange.start, 'MMM d, yyyy') : '—'}
+                  {' – '}
+                  {dateRange.end instanceof Date && !isNaN(dateRange.end.getTime()) ? format(dateRange.end, 'MMM d, yyyy') : '—'}
                 </p>
               </div>
               <div ref={chartRef} className="h-96">
