@@ -77,7 +77,10 @@ export function ReportsPage() {
   const dateRangeLabel = useMemo(() => {
     const { start, end } = filters.dateRange
     if (!start || !end) return ''
-    return `${format(start, 'dd MMM yyyy')} – ${format(end, 'dd MMM yyyy')}`
+    const startDate = start instanceof Date ? start : new Date(start)
+    const endDate = end instanceof Date ? end : new Date(end)
+    if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) return ''
+    return `${format(startDate, 'dd MMM yyyy')} – ${format(endDate, 'dd MMM yyyy')}`
   }, [filters.dateRange.start, filters.dateRange.end])
 
   // Load initial metadata
@@ -387,7 +390,7 @@ export function ReportsPage() {
         header: 'Date',
         accessor: (row) => (
           <span className="text-sm text-slate-600">
-            {format(new Date(row.reportDate), 'MMM d, yyyy')}
+            {row.reportDate && !isNaN(new Date(row.reportDate).getTime()) ? format(new Date(row.reportDate), 'MMM d, yyyy') : '—'}
           </span>
         ),
       },
