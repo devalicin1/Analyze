@@ -419,7 +419,7 @@ export function PerformanceReportPage() {
   }
 
   return (
-    <section className="space-y-6">
+    <section className="space-y-6 overflow-hidden">
       {/* Hero Header */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-700 to-cyan-700 px-6 py-8 shadow-xl">
         <div className="absolute inset-0 bg-grid-white/10" />
