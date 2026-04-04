@@ -465,36 +465,36 @@ export function ReportsPage() {
   return (
     <section className="space-y-8 pb-10 md:space-y-10">
       {/* Header */}
-      <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">Detailed Reports</h1>
-          <p className="mt-2 text-base text-slate-500">
-            Generate comprehensive sales reports with advanced filtering.
-          </p>
-        </div>
+      <div className="page-hero bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Detailed Reports</h1>
+            <p className="mt-1 text-sm text-blue-100">Deep dive into your sales data with filters</p>
+          </div>
 
-        <div className="flex flex-col items-start gap-2 text-sm text-slate-500 md:items-end">
-          {dateRangeLabel && (
-            <p>
-              <span className="font-semibold text-slate-700">Date range:</span>{' '}
-              <span>{dateRangeLabel}</span>
-            </p>
-          )}
-          {reportData && (
-            <p>
-              <span className="font-semibold text-slate-700">Scope:</span>{' '}
-              {reportData.salesLines.length.toLocaleString()} sales lines ·{' '}
-              {reportData.productBreakdown.length.toLocaleString()} products
-            </p>
-          )}
-          {isUpdating && (
-            <span className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
-              <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-              Updating…
-            </span>
-          )}
+          <div className="flex flex-col items-start gap-2 text-sm text-blue-100 md:items-end">
+            {dateRangeLabel && (
+              <p>
+                <span className="font-semibold text-white">Date range:</span>{' '}
+                <span>{dateRangeLabel}</span>
+              </p>
+            )}
+            {reportData && (
+              <p>
+                <span className="font-semibold text-white">Scope:</span>{' '}
+                {reportData.salesLines.length.toLocaleString()} sales lines ·{' '}
+                {reportData.productBreakdown.length.toLocaleString()} products
+              </p>
+            )}
+            {isUpdating && (
+              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white">
+                <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-400" />
+                Updating…
+              </span>
+            )}
+          </div>
         </div>
-      </header>
+      </div>
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm font-medium text-red-700">

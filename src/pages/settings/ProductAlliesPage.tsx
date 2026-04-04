@@ -532,34 +532,33 @@ export function ProductAlliesPage() {
 
   return (
     <section className="space-y-6">
-      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="page-title">Product Allies</h1>
-          <p className="text-sm text-slate-500">
-            Manage product matching rules. Allies are checked first during product matching and take
-            priority over all other matching methods.
-          </p>
+      <div className="page-hero bg-gradient-to-br from-cyan-600 via-blue-700 to-indigo-800">
+        <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Product Allies</h1>
+            <p className="mt-1 text-sm text-cyan-100">Manage product name mappings for automatic matching</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleImportAliases}
+              disabled={loading || products.length === 0}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="h-4 w-4" />
+              Import Aliases
+            </button>
+            <button
+              type="button"
+              onClick={() => setBulkUploadOpen(true)}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+            >
+              <Upload className="h-4 w-4" />
+              Bulk Upload
+            </button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={handleImportAliases}
-            disabled={loading || products.length === 0}
-            className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <Download className="h-4 w-4" />
-            Import Aliases
-          </button>
-          <button
-            type="button"
-            onClick={() => setBulkUploadOpen(true)}
-            className="btn-secondary"
-          >
-            <Upload className="h-4 w-4" />
-            Bulk Upload
-          </button>
-        </div>
-      </header>
+      </div>
 
       {feedback && (
         <div className="rounded-xl bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">

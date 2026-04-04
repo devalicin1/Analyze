@@ -39,11 +39,17 @@ export function LifecyclePage() {
     },
     {
       header: 'First sold',
-      accessor: (row) => format(new Date(row.firstSold), 'd MMM yyyy'),
+      accessor: (row) => {
+        const d = new Date(row.firstSold)
+        return d instanceof Date && !isNaN(d.getTime()) ? format(d, 'd MMM yyyy') : '—'
+      },
     },
     {
       header: 'Last sold',
-      accessor: (row) => format(new Date(row.lastSold), 'd MMM yyyy'),
+      accessor: (row) => {
+        const d = new Date(row.lastSold)
+        return d instanceof Date && !isNaN(d.getTime()) ? format(d, 'd MMM yyyy') : '—'
+      },
     },
     {
       header: 'Last window qty',
@@ -59,19 +65,19 @@ export function LifecyclePage() {
 
   return (
     <section className="space-y-8">
-      <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="page-title">Lifecycle</h1>
-          <p className="text-sm text-gray-500">
-            Identify new and declining items in your menu.
-          </p>
+      <div className="page-hero bg-gradient-to-br from-emerald-600 via-green-700 to-teal-800">
+        <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Product Lifecycle</h1>
+            <p className="mt-1 text-sm text-emerald-100">Track new arrivals and discontinued items</p>
+          </div>
+          <Select
+            value={windowLength}
+            onChange={(event) => setWindowLength(event.target.value)}
+            options={windowOptions}
+          />
         </div>
-        <Select
-          value={windowLength}
-          onChange={(event) => setWindowLength(event.target.value)}
-          options={windowOptions}
-        />
-      </header>
+      </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div>

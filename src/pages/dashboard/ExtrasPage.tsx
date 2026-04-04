@@ -55,12 +55,12 @@ export function ExtrasPage() {
 
   return (
     <section className="space-y-8">
-      <header>
-        <h1 className="page-title">Extras Analytics</h1>
-        <p className="text-sm text-gray-500">
-          Track attach performance of extras and modifiers.
-        </p>
-      </header>
+      <div className="page-hero bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-800">
+        <div className="relative">
+          <h1 className="text-2xl font-bold text-white">Extras & Add-ons</h1>
+          <p className="mt-1 text-sm text-teal-100">Analyze performance of extras and add-on items</p>
+        </div>
+      </div>
       <div className="grid gap-6 md:grid-cols-3">
         <div className="app-card">
           <p className="text-sm text-gray-500">Total Extras Quantity</p>

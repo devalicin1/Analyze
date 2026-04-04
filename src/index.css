@@ -51,9 +51,18 @@ body {
 
 @layer components {
   .app-card {
-    @apply bg-white border border-gray-200 rounded-xl shadow-sm;
-    /* box-shadow: 0 4px 24px rgba(15, 139, 253, 0.04); */
+    @apply bg-white border border-gray-200 rounded-xl shadow-sm transition-shadow duration-200 hover:shadow-md;
     box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px rgba(16, 24, 40, 0.06);
+  }
+
+  .page-hero {
+    @apply relative overflow-hidden rounded-2xl px-6 py-8 shadow-xl;
+  }
+
+  .page-hero::before {
+    content: '';
+    @apply absolute inset-0;
+    background-image: radial-gradient(circle at 20% 50%, rgba(255,255,255,0.08) 0%, transparent 50%);
   }
 
   .page-title {
@@ -63,12 +72,12 @@ body {
   .section-title {
     @apply text-lg font-semibold text-gray-900;
   }
-  
+
   .btn-primary {
-    @apply bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors shadow-sm;
+    @apply bg-primary text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-all shadow-sm hover:shadow-md;
   }
-  
+
   .btn-secondary {
-    @apply bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-colors shadow-sm;
+    @apply bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-50 transition-all shadow-sm;
   }
 }

@@ -9,6 +9,7 @@ import type { CategoryBreakdown, MenuGroup, ProductPerformance } from '../../lib
 import { useWorkspace } from '../../context/WorkspaceContext'
 import { getMenuGroups } from '../../lib/api/menuGroups'
 import { formatCurrency } from '../../lib/utils/formatting'
+import { DollarSign, Package, BarChart3, Flame, TrendingUp, Upload } from 'lucide-react'
 
 type OverviewData = {
   metrics: {
@@ -192,24 +193,30 @@ export function OverviewPage() {
 
   if (!data || !hasData) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-        <div className="mx-auto flex min-h-screen max-w-7xl items-center justify-center px-6">
-          <div className="max-w-md rounded-2xl bg-white p-8 shadow-sm ring-1 ring-slate-100">
-            <h1 className="text-xl font-semibold text-slate-900">
-              No sales data for this period
-            </h1>
+      <section className="space-y-6">
+        <div className="page-hero bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
+          <div className="relative">
+            <h1 className="text-2xl font-bold text-white">Performance Overview</h1>
+            <p className="mt-1 text-sm text-blue-100">Your sales dashboard at a glance</p>
+          </div>
+        </div>
+        <div className="flex items-center justify-center py-16">
+          <div className="max-w-md text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-50">
+              <Upload className="h-8 w-8 text-blue-400" />
+            </div>
+            <h2 className="text-xl font-semibold text-slate-900">No sales data for this period</h2>
             <p className="mt-2 text-sm text-slate-500">
-              Try expanding your date range or checking back after new sales have been
-              imported.
+              Try expanding your date range or upload a new sales report to see your performance data.
             </p>
             <p className="mt-4 text-xs text-slate-400">
               Selected period:{' '}
-              {format(workspace.dateRange.start, 'MMM d')} –{' '}
-              {format(workspace.dateRange.end, 'MMM d, yyyy')}
+              {workspace.dateRange.start instanceof Date && !isNaN(workspace.dateRange.start.getTime()) ? format(workspace.dateRange.start, 'MMM d') : '—'} –{' '}
+              {workspace.dateRange.end instanceof Date && !isNaN(workspace.dateRange.end.getTime()) ? format(workspace.dateRange.end, 'MMM d, yyyy') : '—'}
             </p>
           </div>
         </div>
-      </div>
+      </section>
     )
   }
 
@@ -218,132 +225,105 @@ export function OverviewPage() {
   )
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
-      <div className="mx-auto w-full">
-        {/* Header */}
-        <div className="border-b border-slate-200 bg-white/80 backdrop-blur">
-          <div className="px-6 py-4">
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900">
-                  Performance Overview
-                </h1>
-                <p className="mt-1 text-sm text-slate-500">
-                  {format(workspace.dateRange.start, 'MMM d')} –{' '}
-                  {format(workspace.dateRange.end, 'MMM d, yyyy')}
-                </p>
+    <section className="space-y-6 overflow-hidden">
+      {/* Hero Header */}
+      <div className="page-hero bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
+        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Performance Overview</h1>
+            <p className="mt-1 text-sm text-blue-100">
+              {workspace.dateRange.start instanceof Date && !isNaN(workspace.dateRange.start.getTime()) ? format(workspace.dateRange.start, 'MMM d') : '—'} –{' '}
+              {workspace.dateRange.end instanceof Date && !isNaN(workspace.dateRange.end.getTime()) ? format(workspace.dateRange.end, 'MMM d, yyyy') : '—'}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <Select
+              value={menuGroupId}
+              onChange={(event) => setMenuGroupId(event.target.value)}
+              options={[
+                { label: 'All Categories', value: 'all' },
+                ...menuGroups.map((group) => ({
+                  label: group.label,
+                  value: group.id,
+                })),
+              ]}
+              className="w-48"
+            />
+            <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm text-white">
+              <input
+                type="checkbox"
+                checked={includeExtras}
+                onChange={(event) => setIncludeExtras(event.target.checked)}
+                className="h-4 w-4 rounded border-white/30 bg-white/20 text-blue-300 focus:ring-blue-300"
+              />
+              Include extras
+            </label>
+          </div>
+        </div>
+      </div>
+
+          {/* Key Metrics Grid */}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Revenue</p>
+                  <p className="mt-2 text-2xl font-bold text-slate-900">
+                    {formatCurrency(workspace.currency, data.metrics.totalAmount)}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">
+                    {data.metrics.totalQuantity.toLocaleString()} items sold
+                  </p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 transition-transform group-hover:scale-110">
+                  <DollarSign className="h-6 w-6" />
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-3">
-                <Select
-                  value={menuGroupId}
-                  onChange={(event) => setMenuGroupId(event.target.value)}
-                  options={[
-                    { label: 'All Categories', value: 'all' },
-                    ...menuGroups.map((group) => ({
-                      label: group.label,
-                      value: group.id,
-                    })),
-                  ]}
-                  className="w-48"
-                />
-                <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-slate-100 px-3 py-2 text-sm text-slate-700">
-                  <input
-                    type="checkbox"
-                    checked={includeExtras}
-                    onChange={(event) => setIncludeExtras(event.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  Include extras
-                </label>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Items Sold</p>
+                  <p className="mt-2 text-2xl font-bold text-slate-900">
+                    {data.metrics.totalQuantity.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">units</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 transition-transform group-hover:scale-110">
+                  <Package className="h-6 w-6" />
+                </div>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-violet-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg. Price</p>
+                  <p className="mt-2 text-2xl font-bold text-slate-900">
+                    {formatCurrency(workspace.currency, data.metrics.averageSellingPrice || 0)}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-400">per item</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 transition-transform group-hover:scale-110">
+                  <TrendingUp className="h-6 w-6" />
+                </div>
+              </div>
+            </div>
+
+            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Active Products</p>
+                  <p className="mt-2 text-2xl font-bold text-slate-900">{data.metrics.activeProducts}</p>
+                  <p className="mt-1 text-xs text-slate-400">in {data.categories.length} categories</p>
+                </div>
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 transition-transform group-hover:scale-110">
+                  <Flame className="h-6 w-6" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-
-        <div className="space-y-6 p-6">
-          {/* Key Metrics Grid */}
-          <section>
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Total Revenue
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {formatCurrency(workspace.currency, data.metrics.totalAmount)}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      Qty: {data.metrics.totalQuantity.toLocaleString()}
-                    </p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-lg">
-                    <span className="text-blue-600">💎</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Items Sold
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {data.metrics.totalQuantity.toLocaleString(undefined, {
-                        maximumFractionDigits: 0,
-                      })}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      units
-                    </p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-50 text-lg">
-                    <span className="text-emerald-600">📦</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Avg. Price
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {formatCurrency(
-                        workspace.currency,
-                        data.metrics.averageSellingPrice || 0
-                      )}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">per item</p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-violet-50 text-lg">
-                    <span className="text-violet-600">⚡</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="mb-1 text-sm font-medium text-slate-500">
-                      Active Products
-                    </p>
-                    <p className="text-2xl font-bold text-slate-900">
-                      {data.metrics.activeProducts}
-                    </p>
-                    <p className="mt-1 text-xs text-slate-400">
-                      in {data.categories.length} categories
-                    </p>
-                  </div>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-50 text-lg">
-                    <span className="text-amber-600">🔥</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
 
           {/* Charts Section */}
           <section className="grid gap-6 lg:grid-cols-2">
@@ -353,8 +333,8 @@ export function OverviewPage() {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50">
-                        <span className="text-xl">📦</span>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
+                        <Package className="h-5 w-5" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-slate-900">
@@ -420,8 +400,8 @@ export function OverviewPage() {
                 <div className="mb-4 flex items-center justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50">
-                        <span className="text-xl">💎</span>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
+                        <DollarSign className="h-5 w-5" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-slate-900">
@@ -713,8 +693,6 @@ export function OverviewPage() {
               columns={productColumns}
             />
           </section>
-        </div>
-      </div>
-    </div>
+    </section>
   )
 }

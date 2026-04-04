@@ -230,21 +230,12 @@ export function TrendsPage() {
 
   return (
     <section className="space-y-6 md:space-y-8">
-      <header className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="page-title">Trends</h1>
-          <p className="text-sm text-gray-500">
-            Track how key products and menu groups evolve over time.
-          </p>
+      <div className="page-hero bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-800">
+        <div className="relative">
+          <h1 className="text-2xl font-bold text-white">Product Trends</h1>
+          <p className="mt-1 text-sm text-violet-100">Track how your products perform over time</p>
         </div>
-
-        {dateRangeLabel && (
-          <div className="text-xs md:text-sm text-gray-500 md:text-right">
-            <span className="font-medium text-gray-700">Date range:</span>{' '}
-            <span>{dateRangeLabel}</span>
-          </div>
-        )}
-      </header>
+      </div>
 
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">

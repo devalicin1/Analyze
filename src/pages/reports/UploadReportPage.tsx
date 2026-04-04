@@ -260,12 +260,12 @@ export function UploadReportPage() {
 
   return (
     <section className="space-y-8">
-      <header>
-        <h1 className="page-title">Upload sales report</h1>
-        <p className="text-sm text-slate-500">
-          Upload POS exports and process them into analytics.
-        </p>
-      </header>
+      <div className="page-hero bg-gradient-to-br from-indigo-600 via-violet-700 to-purple-800">
+        <div className="relative">
+          <h1 className="text-2xl font-bold text-white">Upload Sales Report</h1>
+          <p className="mt-1 text-sm text-indigo-100">Import your POS data to generate insights</p>
+        </div>
+      </div>
 
       <div className="grid gap-4 md:grid-cols-4">
         {steps.map((label, index) => (
