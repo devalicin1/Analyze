@@ -69,7 +69,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
           <input
             type="date"
             name="start"
-            value={value.start.toISOString().split('T')[0]}
+            value={value.start instanceof Date && !isNaN(value.start.getTime()) ? value.start.toISOString().split('T')[0] : ''}
             onChange={handleInputChange}
             className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900"
           />
@@ -79,7 +79,7 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
           <input
             type="date"
             name="end"
-            value={value.end.toISOString().split('T')[0]}
+            value={value.end instanceof Date && !isNaN(value.end.getTime()) ? value.end.toISOString().split('T')[0] : ''}
             onChange={handleInputChange}
             className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900"
           />
