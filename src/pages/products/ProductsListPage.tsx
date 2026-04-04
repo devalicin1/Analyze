@@ -110,24 +110,24 @@ export function ProductsListPage() {
 
   return (
     <section className="space-y-6">
-      <div className="page-hero bg-gradient-to-br from-slate-700 via-slate-800 to-slate-900">
-        <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="page-header">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Products</h1>
-            <p className="mt-1 text-sm text-slate-100">Manage your product catalog</p>
+            <h1>Products</h1>
+            <p>Manage your product catalog</p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setBulkUploadOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="btn-secondary"
             >
               <Upload className="h-4 w-4" />
               Bulk Upload
             </button>
             <Link
               to="/products/new"
-              className="inline-flex items-center justify-center rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition hover:bg-white/90"
+              className="btn-primary"
             >
               Add product
             </Link>

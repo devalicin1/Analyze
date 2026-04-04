@@ -230,11 +230,9 @@ export function TrendsPage() {
 
   return (
     <section className="space-y-6 md:space-y-8">
-      <div className="page-hero bg-gradient-to-br from-violet-600 via-purple-700 to-indigo-800">
-        <div className="relative">
-          <h1 className="text-2xl font-bold text-white">Product Trends</h1>
-          <p className="mt-1 text-sm text-violet-100">Track how your products perform over time</p>
-        </div>
+      <div className="page-header">
+        <h1>Product Trends</h1>
+        <p>Track how your products perform over time</p>
       </div>
 
       {error && (

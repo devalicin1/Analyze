@@ -260,11 +260,9 @@ export function UploadReportPage() {
 
   return (
     <section className="space-y-8">
-      <div className="page-hero bg-gradient-to-br from-indigo-600 via-violet-700 to-purple-800">
-        <div className="relative">
-          <h1 className="text-2xl font-bold text-white">Upload Sales Report</h1>
-          <p className="mt-1 text-sm text-indigo-100">Import your POS data to generate insights</p>
-        </div>
+      <div className="page-header">
+        <h1>Upload Sales Report</h1>
+        <p>Import your POS data to generate insights</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-4">

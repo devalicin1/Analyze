@@ -65,11 +65,11 @@ export function LifecyclePage() {
 
   return (
     <section className="space-y-8">
-      <div className="page-hero bg-gradient-to-br from-emerald-600 via-green-700 to-teal-800">
-        <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="page-header">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Product Lifecycle</h1>
-            <p className="mt-1 text-sm text-emerald-100">Track new arrivals and discontinued items</p>
+            <h1>Product Lifecycle</h1>
+            <p>Track new arrivals and discontinued items</p>
           </div>
           <Select
             value={windowLength}

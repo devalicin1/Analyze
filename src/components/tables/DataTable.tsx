@@ -26,15 +26,15 @@ export function DataTable<T>({
   const safeColumns = Array.isArray(columns) ? columns : []
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-card">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
-          <tr>
+    <div className="overflow-hidden rounded-lg border border-gray-200">
+      <table className="min-w-full">
+        <thead>
+          <tr className="border-b border-gray-200">
             {safeColumns.map((column) => (
               <th
                 key={column.header}
                 className={clsx(
-                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500',
+                  'px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400',
                   column.align === 'right' && 'text-right',
                   column.align === 'center' && 'text-center',
                 )}
@@ -44,10 +44,10 @@ export function DataTable<T>({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 bg-white text-sm">
+        <tbody className="divide-y divide-gray-100 text-sm">
           {safeData.length === 0 && (
             <tr>
-              <td colSpan={safeColumns.length} className="px-4 py-8 text-center text-gray-500">
+              <td colSpan={safeColumns.length} className="px-4 py-10 text-center text-[13px] text-gray-400">
                 {emptyLabel}
               </td>
             </tr>
@@ -55,13 +55,13 @@ export function DataTable<T>({
           {safeData.map((row, rowIndex) => (
             <tr
               key={rowIndex}
-              className="transition hover:bg-gray-50"
+              className="transition-colors duration-100 hover:bg-gray-50"
             >
               {safeColumns.map((column) => (
                 <td
                   key={column.header}
                   className={clsx(
-                    'px-4 py-3 text-gray-700',
+                    'px-4 py-2.5 text-gray-600',
                     column.align === 'right' && 'text-right',
                     column.align === 'center' && 'text-center',
                   )}
@@ -73,9 +73,9 @@ export function DataTable<T>({
           ))}
         </tbody>
         {footer && (
-          <tfoot className="bg-gray-50">
-            <tr>
-              <td colSpan={safeColumns.length} className="px-4 py-3">
+          <tfoot>
+            <tr className="border-t border-gray-200">
+              <td colSpan={safeColumns.length} className="px-4 py-2.5">
                 {footer}
               </td>
             </tr>

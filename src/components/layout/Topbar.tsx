@@ -11,18 +11,17 @@ export function Topbar() {
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
 
-  const rangeLabel =
-    dateRange.label ??
-    `${format(dateRange.start, 'd MMM yyyy')} – ${format(dateRange.end, 'd MMM yyyy')}`
+  const rangeLabel = dateRange.label ??
+    (dateRange.start instanceof Date && !isNaN(dateRange.start.getTime()) && dateRange.end instanceof Date && !isNaN(dateRange.end.getTime())
+      ? `${format(dateRange.start, 'd MMM yyyy')} – ${format(dateRange.end, 'd MMM yyyy')}`
+      : 'Select range')
 
-  // Close picker when clicking outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (pickerRef.current && !pickerRef.current.contains(event.target as Node)) {
         setIsPickerOpen(false)
       }
     }
-
     if (isPickerOpen) {
       document.addEventListener('mousedown', handleClickOutside)
       return () => document.removeEventListener('mousedown', handleClickOutside)
@@ -32,48 +31,40 @@ export function Topbar() {
   if (!user) return null
 
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-white px-6 py-4">
+    <header className="sticky top-0 z-10 border-b border-gray-200 bg-white px-5 py-3">
       <div className="flex items-center justify-between gap-4">
-        <div className="flex items-center gap-4 lg:hidden">
-          <button className="inline-flex items-center justify-center rounded-xl border border-gray-200 p-2 text-gray-500 hover:bg-gray-50">
-            <Menu className="h-5 w-5" />
+        <div className="flex items-center gap-3 lg:hidden">
+          <button className="inline-flex items-center justify-center rounded-md border border-gray-200 p-1.5 text-gray-500 hover:bg-gray-50">
+            <Menu className="h-4 w-4" />
           </button>
         </div>
 
-        <div className="flex flex-1 items-center gap-4">
-          <div className="hidden flex-col lg:flex">
-            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">
-              Workspace
-            </span>
-            <span className="text-lg font-bold text-gray-900 leading-tight">{workspaceName}</span>
-          </div>
+        <div className="flex flex-1 items-center gap-3">
+          <span className="hidden text-[13px] font-medium text-gray-500 lg:block">{workspaceName}</span>
 
-          <div className="h-8 w-px bg-gray-200 hidden lg:block" />
+          <span className="hidden text-gray-300 lg:block">/</span>
 
           <div className="relative" ref={pickerRef}>
             <button
               type="button"
               onClick={() => setIsPickerOpen(!isPickerOpen)}
-              className="group flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 shadow-sm transition-all hover:border-primary hover:ring-1 hover:ring-primary/20"
+              className="flex items-center gap-1.5 rounded-md border border-gray-200 px-2.5 py-1.5 text-[13px] font-medium text-gray-600 transition-colors hover:bg-gray-50"
             >
-              <CalendarRange className="h-4 w-4 text-gray-500 group-hover:text-primary transition-colors" />
+              <CalendarRange className="h-3.5 w-3.5 text-gray-400" />
               {rangeLabel}
-              <ChevronDown
-                className={`h-4 w-4 text-gray-400 transition-transform ${isPickerOpen ? 'rotate-180' : ''
-                  }`}
-              />
+              <ChevronDown className={`h-3.5 w-3.5 text-gray-400 transition-transform duration-150 ${isPickerOpen ? 'rotate-180' : ''}`} />
             </button>
             {isPickerOpen && (
-              <div className="absolute left-0 top-full z-50 mt-2 w-80">
-                <div className="rounded-xl border border-gray-200 bg-white shadow-xl ring-1 ring-black/5">
-                  <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
-                    <h3 className="text-sm font-semibold text-gray-900">Select date range</h3>
+              <div className="absolute left-0 top-full z-50 mt-1.5 w-80">
+                <div className="rounded-lg border border-gray-200 bg-white shadow-lg">
+                  <div className="flex items-center justify-between border-b border-gray-100 px-4 py-2.5">
+                    <h3 className="text-[13px] font-semibold text-gray-900">Date range</h3>
                     <button
                       type="button"
                       onClick={() => setIsPickerOpen(false)}
                       className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                   <div className="p-2">
@@ -85,17 +76,12 @@ export function Topbar() {
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="hidden text-right lg:block">
-            <p className="text-sm font-semibold text-gray-900 leading-none">{user.name}</p>
-            <p className="text-xs text-gray-500 mt-1 capitalize">{user.role}</p>
+            <p className="text-[13px] font-medium text-gray-700">{user.name}</p>
           </div>
-          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-primary to-blue-600 text-white flex items-center justify-center text-sm font-bold shadow-md shadow-primary/20 ring-2 ring-white">
-            {user.name
-              .split(' ')
-              .map((part) => part[0])
-              .join('')
-              .slice(0, 2)}
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-gray-900 text-[11px] font-semibold text-white">
+            {user.name.split(' ').map((part) => part[0]).join('').slice(0, 2)}
           </div>
         </div>
       </div>

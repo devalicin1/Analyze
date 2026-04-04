@@ -194,11 +194,9 @@ export function OverviewPage() {
   if (!data || !hasData) {
     return (
       <section className="space-y-6">
-        <div className="page-hero bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
-          <div className="relative">
-            <h1 className="text-2xl font-bold text-white">Performance Overview</h1>
-            <p className="mt-1 text-sm text-blue-100">Your sales dashboard at a glance</p>
-          </div>
+        <div className="page-header">
+          <h1>Performance Overview</h1>
+          <p>Your sales dashboard at a glance</p>
         </div>
         <div className="flex items-center justify-center py-16">
           <div className="max-w-md text-center">
@@ -226,45 +224,43 @@ export function OverviewPage() {
 
   return (
     <section className="space-y-6 overflow-hidden">
-      {/* Hero Header */}
-      <div className="page-hero bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800">
-        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-white">Performance Overview</h1>
-            <p className="mt-1 text-sm text-blue-100">
-              {workspace.dateRange.start instanceof Date && !isNaN(workspace.dateRange.start.getTime()) ? format(workspace.dateRange.start, 'MMM d') : '—'} –{' '}
-              {workspace.dateRange.end instanceof Date && !isNaN(workspace.dateRange.end.getTime()) ? format(workspace.dateRange.end, 'MMM d, yyyy') : '—'}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <Select
-              value={menuGroupId}
-              onChange={(event) => setMenuGroupId(event.target.value)}
-              options={[
-                { label: 'All Categories', value: 'all' },
-                ...menuGroups.map((group) => ({
-                  label: group.label,
-                  value: group.id,
-                })),
-              ]}
-              className="w-48"
-            />
-            <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm text-white">
-              <input
-                type="checkbox"
-                checked={includeExtras}
-                onChange={(event) => setIncludeExtras(event.target.checked)}
-                className="h-4 w-4 rounded border-white/30 bg-white/20 text-blue-300 focus:ring-blue-300"
-              />
-              Include extras
-            </label>
-          </div>
-        </div>
+      {/* Header */}
+      <div className="page-header">
+        <h1>Performance Overview</h1>
+        <p>
+          {workspace.dateRange.start instanceof Date && !isNaN(workspace.dateRange.start.getTime()) ? format(workspace.dateRange.start, 'MMM d') : '—'} –{' '}
+          {workspace.dateRange.end instanceof Date && !isNaN(workspace.dateRange.end.getTime()) ? format(workspace.dateRange.end, 'MMM d, yyyy') : '—'}
+        </p>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-3">
+        <Select
+          value={menuGroupId}
+          onChange={(event) => setMenuGroupId(event.target.value)}
+          options={[
+            { label: 'All Categories', value: 'all' },
+            ...menuGroups.map((group) => ({
+              label: group.label,
+              value: group.id,
+            })),
+          ]}
+          className="w-48"
+        />
+        <label className="flex cursor-pointer items-center gap-2 rounded-lg bg-gray-50 px-3 py-2 text-sm text-gray-700">
+          <input
+            type="checkbox"
+            checked={includeExtras}
+            onChange={(event) => setIncludeExtras(event.target.checked)}
+            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+          />
+          Include extras
+        </label>
       </div>
 
           {/* Key Metrics Grid */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Revenue</p>
@@ -275,13 +271,13 @@ export function OverviewPage() {
                     {data.metrics.totalQuantity.toLocaleString()} items sold
                   </p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <DollarSign className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Items Sold</p>
@@ -290,13 +286,13 @@ export function OverviewPage() {
                   </p>
                   <p className="mt-1 text-xs text-slate-400">units</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <Package className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-violet-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg. Price</p>
@@ -305,20 +301,20 @@ export function OverviewPage() {
                   </p>
                   <p className="mt-1 text-xs text-slate-400">per item</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <TrendingUp className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Active Products</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">{data.metrics.activeProducts}</p>
                   <p className="mt-1 text-xs text-slate-400">in {data.categories.length} categories</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <Flame className="h-6 w-6" />
                 </div>
               </div>

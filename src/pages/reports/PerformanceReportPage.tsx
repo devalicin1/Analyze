@@ -420,16 +420,15 @@ export function PerformanceReportPage() {
 
   return (
     <section className="space-y-6 overflow-hidden">
-      {/* Hero Header */}
-      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-blue-700 to-cyan-700 px-6 py-8 shadow-xl">
-        <div className="absolute inset-0 bg-grid-white/10" />
-        <div className="relative flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      {/* Header */}
+      <div className="page-header">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Performance Report</h1>
-            <p className="mt-1 text-sm text-blue-100">
+            <h1>Performance Report</h1>
+            <p>
               Analyze trends over time with period-over-period comparisons
             </p>
-            <div className="mt-3 flex items-center gap-2 text-xs text-blue-200">
+            <div className="mt-2 flex items-center gap-2 text-xs text-gray-400">
               <Activity className="h-3.5 w-3.5" />
               <span>
                 {dateRange.start instanceof Date && !isNaN(dateRange.start.getTime()) ? format(dateRange.start, 'd MMM yyyy') : '—'}
@@ -445,7 +444,7 @@ export function PerformanceReportPage() {
               type="button"
               onClick={handleExportPDF}
               disabled={exportingPDF}
-              className="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 text-sm font-medium text-white transition hover:bg-white/20 disabled:opacity-50"
+              className="btn-secondary disabled:opacity-50"
             >
               <Download className="h-4 w-4" />
               {exportingPDF ? 'Exporting...' : 'Export PDF'}
@@ -540,33 +539,33 @@ export function PerformanceReportPage() {
       {metrics && (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Total Revenue</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">{formatCurrency(workspace.currency, metrics.totalAmount)}</p>
                   <p className="mt-1 text-xs text-slate-500">{metrics.totalQuantity.toLocaleString()} items across {metrics.periodsCount} periods</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-100 text-blue-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <DollarSign className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-violet-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg. Price</p>
                   <p className="mt-2 text-2xl font-bold text-slate-900">{formatCurrency(workspace.currency, metrics.averagePrice)}</p>
                   <p className="mt-1 text-xs text-slate-500">per item sold</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-violet-100 text-violet-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <BarChart3 className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-emerald-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Revenue Change</p>
@@ -580,13 +579,13 @@ export function PerformanceReportPage() {
                   </div>
                   <p className="mt-1 text-xs text-slate-500">{metrics.firstPeriodLabel} vs {metrics.lastPeriodLabel}</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <Activity className="h-6 w-6" />
                 </div>
               </div>
             </div>
 
-            <div className="group relative overflow-hidden rounded-2xl border border-slate-100 bg-gradient-to-br from-amber-50 to-white p-5 shadow-sm transition-all hover:shadow-md">
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Volume Change</p>
@@ -598,7 +597,7 @@ export function PerformanceReportPage() {
                   </div>
                   <p className="mt-1 text-xs text-slate-500">{metrics.firstPeriodLabel} vs {metrics.lastPeriodLabel}</p>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 transition-transform group-hover:scale-110">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <Package className="h-6 w-6" />
                 </div>
               </div>

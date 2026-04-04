@@ -55,11 +55,9 @@ export function ExtrasPage() {
 
   return (
     <section className="space-y-8">
-      <div className="page-hero bg-gradient-to-br from-teal-600 via-teal-700 to-cyan-800">
-        <div className="relative">
-          <h1 className="text-2xl font-bold text-white">Extras & Add-ons</h1>
-          <p className="mt-1 text-sm text-teal-100">Analyze performance of extras and add-on items</p>
-        </div>
+      <div className="page-header">
+        <h1>Extras & Add-ons</h1>
+        <p>Analyze performance of extras and add-on items</p>
       </div>
       <div className="grid gap-6 md:grid-cols-3">
         <div className="app-card">

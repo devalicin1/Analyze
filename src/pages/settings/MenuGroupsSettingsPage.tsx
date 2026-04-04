@@ -98,16 +98,16 @@ export function MenuGroupsSettingsPage() {
 
   return (
     <section className="space-y-6">
-      <div className="page-hero bg-gradient-to-br from-slate-600 via-slate-700 to-gray-800">
-        <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="page-header">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Menu Groups</h1>
-            <p className="mt-1 text-sm text-slate-100">Organize your products into categories and subcategories</p>
+            <h1>Menu Groups</h1>
+            <p>Organize your products into categories and subcategories</p>
           </div>
           <button
             type="button"
             onClick={() => setBulkUploadOpen(true)}
-            className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+            className="btn-secondary"
           >
             <Upload className="h-4 w-4" />
             Bulk Upload

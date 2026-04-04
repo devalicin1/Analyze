@@ -532,18 +532,18 @@ export function ProductAlliesPage() {
 
   return (
     <section className="space-y-6">
-      <div className="page-hero bg-gradient-to-br from-cyan-600 via-blue-700 to-indigo-800">
-        <div className="relative flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div className="page-header">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">Product Allies</h1>
-            <p className="mt-1 text-sm text-cyan-100">Manage product name mappings for automatic matching</p>
+            <h1>Product Allies</h1>
+            <p>Manage product name mappings for automatic matching</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex gap-2">
             <button
               type="button"
               onClick={handleImportAliases}
               disabled={loading || products.length === 0}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Download className="h-4 w-4" />
               Import Aliases
@@ -551,7 +551,7 @@ export function ProductAlliesPage() {
             <button
               type="button"
               onClick={() => setBulkUploadOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10"
+              className="btn-secondary"
             >
               <Upload className="h-4 w-4" />
               Bulk Upload
