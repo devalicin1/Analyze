@@ -261,7 +261,23 @@ export function PerformanceReportPage() {
   }, [workspace, reportType, dateRange, categoryId, subcategoryId, productId, products])
 
   // Quarter comparison data
-  type QuarterData = { key: string; label: string; amount: number; quantity: number; avgPrice: number }
+  type QuarterRow = {
+    key: string
+    label: string
+    qNum: number // 1-4
+    year: number
+    amount: number
+    quantity: number
+    avgPrice: number
+    // Sequential QoQ (vs previous quarter)
+    seqAmountChange?: number
+    seqQuantityChange?: number
+    // Year-over-Year same quarter (e.g. Q1 2026 vs Q1 2025)
+    yoyAmountChange?: number
+    yoyQuantityChange?: number
+    yoyLabel?: string // e.g. "vs Q1 2025"
+  }
+
   const quarterComparison = useMemo(() => {
     if (trendData.length === 0) return null
 
@@ -281,13 +297,17 @@ export function PerformanceReportPage() {
       quarterMap.set(qKey, existing)
     })
 
-    const quarters: QuarterData[] = Array.from(quarterMap.entries())
+    const quarters = Array.from(quarterMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([key, data]) => {
-        const [year, q] = key.split('-')
+        const [yearStr, qStr] = key.split('-')
+        const year = parseInt(yearStr)
+        const qNum = parseInt(qStr.replace('Q', ''))
         return {
           key,
-          label: `${q} ${year}`,
+          label: `Q${qNum} ${year}`,
+          qNum,
+          year,
           amount: data.amount,
           quantity: data.quantity,
           avgPrice: data.quantity > 0 ? data.amount / data.quantity : 0,
@@ -296,18 +316,34 @@ export function PerformanceReportPage() {
 
     if (quarters.length < 2) return null
 
-    // Calculate QoQ changes
-    const comparisons = quarters.map((q, i) => {
-      if (i === 0) return { ...q, amountChange: undefined as number | undefined, quantityChange: undefined as number | undefined }
-      const prev = quarters[i - 1]
-      return {
-        ...q,
-        amountChange: prev.amount > 0 ? ((q.amount - prev.amount) / prev.amount) * 100 : undefined,
-        quantityChange: prev.quantity > 0 ? ((q.quantity - prev.quantity) / prev.quantity) * 100 : undefined,
+    // Build lookup for YoY: same quarter previous year
+    const qLookup = new Map(quarters.map(q => [q.key, q]))
+
+    const rows: QuarterRow[] = quarters.map((q, i) => {
+      // Sequential QoQ
+      let seqAmountChange: number | undefined
+      let seqQuantityChange: number | undefined
+      if (i > 0) {
+        const prev = quarters[i - 1]
+        if (prev.amount > 0) seqAmountChange = ((q.amount - prev.amount) / prev.amount) * 100
+        if (prev.quantity > 0) seqQuantityChange = ((q.quantity - prev.quantity) / prev.quantity) * 100
       }
+
+      // YoY same quarter
+      let yoyAmountChange: number | undefined
+      let yoyQuantityChange: number | undefined
+      let yoyLabel: string | undefined
+      const sameQLastYear = qLookup.get(`${q.year - 1}-Q${q.qNum}`)
+      if (sameQLastYear) {
+        yoyLabel = `vs Q${q.qNum} ${q.year - 1}`
+        if (sameQLastYear.amount > 0) yoyAmountChange = ((q.amount - sameQLastYear.amount) / sameQLastYear.amount) * 100
+        if (sameQLastYear.quantity > 0) yoyQuantityChange = ((q.quantity - sameQLastYear.quantity) / sameQLastYear.quantity) * 100
+      }
+
+      return { ...q, seqAmountChange, seqQuantityChange, yoyAmountChange, yoyQuantityChange, yoyLabel }
     })
 
-    return comparisons
+    return rows
   }, [trendData])
 
   const availableSubcategories = useMemo(() => {
@@ -704,7 +740,7 @@ export function PerformanceReportPage() {
           {/* Quarter Comparison */}
           {quarterComparison && quarterComparison.length >= 2 && (
             <div className="app-card p-6">
-              <h3 className="mb-1 text-base font-semibold text-gray-900">Quarter-over-Quarter</h3>
+              <h3 className="mb-1 text-base font-semibold text-gray-900">Quarterly Performance</h3>
               <p className="mb-4 text-sm text-gray-500">
                 {reportType === 'category' ? 'Category' : reportType === 'subcategory' ? 'Subcategory' : 'Product'}: {getSelectedLabel()}
               </p>
@@ -713,38 +749,63 @@ export function PerformanceReportPage() {
                   <thead>
                     <tr className="border-b border-gray-200">
                       <th className="py-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400">Quarter</th>
-                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Revenue</th>
-                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">QoQ Rev.</th>
-                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Volume</th>
-                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">QoQ Vol.</th>
-                      <th className="py-2 pl-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Avg. Price</th>
+                      <th className="py-2 px-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Revenue</th>
+                      <th className="py-2 px-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Volume</th>
+                      <th className="py-2 px-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Avg. Price</th>
+                      <th className="py-2 px-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                        <div>Sequential</div>
+                        <div className="font-normal normal-case tracking-normal text-[10px] text-gray-300">vs prev quarter</div>
+                      </th>
+                      <th className="py-2 pl-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">
+                        <div>Year-over-Year</div>
+                        <div className="font-normal normal-case tracking-normal text-[10px] text-gray-300">vs same quarter</div>
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100">
                     {quarterComparison.map((q) => (
                       <tr key={q.key} className="hover:bg-gray-50 transition-colors">
                         <td className="py-2.5 pr-4 font-medium text-gray-900">{q.label}</td>
-                        <td className="py-2.5 px-4 text-right font-semibold text-gray-900">{formatCurrency(workspace.currency, q.amount)}</td>
-                        <td className="py-2.5 px-4 text-right">
-                          {q.amountChange !== undefined ? (
-                            <span className={`font-medium ${q.amountChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                              {formatPercent(q.amountChange)}
-                            </span>
+                        <td className="py-2.5 px-3 text-right font-semibold text-gray-900">{formatCurrency(workspace.currency, q.amount)}</td>
+                        <td className="py-2.5 px-3 text-right text-gray-600">{q.quantity.toLocaleString()}</td>
+                        <td className="py-2.5 px-3 text-right text-gray-600">{formatCurrency(workspace.currency, q.avgPrice)}</td>
+                        {/* Sequential QoQ */}
+                        <td className="py-2.5 px-3 text-right">
+                          {q.seqAmountChange !== undefined ? (
+                            <div>
+                              <span className={`font-medium ${q.seqAmountChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                {formatPercent(q.seqAmountChange)}
+                              </span>
+                              {q.seqQuantityChange !== undefined && (
+                                <div className={`text-[10px] ${q.seqQuantityChange >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                                  vol {formatPercent(q.seqQuantityChange)}
+                                </div>
+                              )}
+                            </div>
                           ) : (
                             <span className="text-gray-300">—</span>
                           )}
                         </td>
-                        <td className="py-2.5 px-4 text-right text-gray-600">{q.quantity.toLocaleString()}</td>
-                        <td className="py-2.5 px-4 text-right">
-                          {q.quantityChange !== undefined ? (
-                            <span className={`font-medium ${q.quantityChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-                              {formatPercent(q.quantityChange)}
-                            </span>
+                        {/* YoY same quarter */}
+                        <td className="py-2.5 pl-3 text-right">
+                          {q.yoyAmountChange !== undefined ? (
+                            <div>
+                              <span className={`font-medium ${q.yoyAmountChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                                {formatPercent(q.yoyAmountChange)}
+                              </span>
+                              {q.yoyQuantityChange !== undefined && (
+                                <div className={`text-[10px] ${q.yoyQuantityChange >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
+                                  vol {formatPercent(q.yoyQuantityChange)}
+                                </div>
+                              )}
+                              {q.yoyLabel && (
+                                <div className="text-[10px] text-gray-400">{q.yoyLabel}</div>
+                              )}
+                            </div>
                           ) : (
-                            <span className="text-gray-300">—</span>
+                            <span className="text-gray-300 text-[10px]">no prior year</span>
                           )}
                         </td>
-                        <td className="py-2.5 pl-4 text-right text-gray-600">{formatCurrency(workspace.currency, q.avgPrice)}</td>
                       </tr>
                     ))}
                   </tbody>
