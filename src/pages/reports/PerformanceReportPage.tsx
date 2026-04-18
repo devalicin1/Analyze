@@ -44,6 +44,13 @@ type PerformanceMetrics = {
   rollingFirstLabel?: string
   rollingLastLabel?: string
   hasYoYData: boolean
+  // Price decomposition
+  firstPeriodAvgPrice: number
+  lastPeriodAvgPrice: number
+  priceChangePercent: number
+  // Revenue decomposition: how much of revenue change is from price vs volume
+  priceEffect?: number   // % of revenue change attributable to price
+  volumeEffect?: number  // % of revenue change attributable to volume
 }
 
 type ProductPeriodData = {
@@ -189,7 +196,39 @@ export function PerformanceReportPage() {
           else if (trendBasis < -5) trendDirection = 'down'
 
           // Check if YoY data exists in quarter comparison
-          const hasYoYData = n >= 13 // at least 13 months means we have same-quarter prior year
+          const hasYoYData = n >= 13
+
+          // Price decomposition
+          const firstAvgPrice = firstPeriod[1].quantity > 0 ? firstPeriod[1].amount / firstPeriod[1].quantity : 0
+          const lastAvgPrice = lastPeriod[1].quantity > 0 ? lastPeriod[1].amount / lastPeriod[1].quantity : 0
+          const priceChangePercent = firstAvgPrice > 0
+            ? ((lastAvgPrice - firstAvgPrice) / firstAvgPrice) * 100
+            : 0
+
+          // Revenue change decomposition (Laspeyres-style):
+          // Revenue = Price × Quantity
+          // ΔRevenue = (ΔPrice × Q_base) + (ΔQuantity × P_base) + (ΔPrice × ΔQuantity)
+          // Simplified: priceEffect ≈ priceChange%, volumeEffect ≈ quantityChange%
+          // The interaction term goes to volume (convention)
+          let priceEffect: number | undefined
+          let volumeEffect: number | undefined
+          if (firstPeriod[1].amount > 0 && firstPeriod[1].quantity > 0) {
+            const baseQty = firstPeriod[1].quantity
+            const basePrice = firstAvgPrice
+            const priceDelta = lastAvgPrice - firstAvgPrice
+            const qtyDelta = lastPeriod[1].quantity - baseQty
+            const totalDelta = lastPeriod[1].amount - firstPeriod[1].amount
+
+            if (Math.abs(totalDelta) > 0) {
+              // Price effect: what if only price changed, volume stayed same
+              const priceImpact = priceDelta * baseQty
+              // Volume effect: what if only volume changed, price stayed same + interaction
+              const volumeImpact = qtyDelta * basePrice + priceDelta * qtyDelta
+
+              priceEffect = (priceImpact / firstPeriod[1].amount) * 100
+              volumeEffect = (volumeImpact / firstPeriod[1].amount) * 100
+            }
+          }
 
           setMetrics({
             totalAmount,
@@ -210,6 +249,11 @@ export function PerformanceReportPage() {
             rollingFirstLabel,
             rollingLastLabel,
             hasYoYData,
+            firstPeriodAvgPrice: firstAvgPrice,
+            lastPeriodAvgPrice: lastAvgPrice,
+            priceChangePercent,
+            priceEffect,
+            volumeEffect,
           })
         } else {
           setMetrics(null)
@@ -543,18 +587,52 @@ export function PerformanceReportPage() {
       }
     }
 
-    // 3. Price vs Volume divergence
-    const qtyBasis = metrics.rollingQuantityChange ?? metrics.quantityChangePercent
-    const revBasis = metrics.rollingAmountChange ?? metrics.amountChangePercent
-    if (qtyBasis < -5 && revBasis > 0) {
-      result.push({ text: 'Volume is declining while revenue grows — likely driven by price increases or mix shift to premium items. Monitor customer retention.', type: 'warning' })
-    } else if (qtyBasis > 5 && revBasis < 0) {
-      result.push({ text: 'Volume is growing but revenue is down — possible heavy discounting or shift toward lower-priced items. Review pricing strategy.', type: 'negative' })
-    } else if (qtyBasis > 10 && revBasis > 10) {
-      result.push({ text: 'Both volume and revenue are growing strongly — healthy scaling across both dimensions.', type: 'positive' })
+    // 3. Price-Volume Decomposition (most valuable insight)
+    if (metrics.priceEffect !== undefined && metrics.volumeEffect !== undefined) {
+      const pe = metrics.priceEffect
+      const ve = metrics.volumeEffect
+      const totalChange = metrics.amountChangePercent
+
+      if (Math.abs(totalChange) > 3) {
+        const pricePortion = Math.abs(totalChange) > 0 ? Math.abs(pe / totalChange) * 100 : 0
+        const volumePortion = 100 - pricePortion
+
+        if (totalChange > 0) {
+          if (pe > 3 && ve > 3) {
+            result.push({ text: `Revenue growth of ${formatPercent(totalChange)} is driven by both price (${formatPercent(pe)}) and volume (${formatPercent(ve)}). Healthy balanced growth.`, type: 'positive' })
+          } else if (pe > 3 && ve <= 0) {
+            result.push({ text: `Revenue grew ${formatPercent(totalChange)}, but this is ${pricePortion.toFixed(0)}% price-driven (${formatPercent(pe)}). Volume actually ${ve < -1 ? 'declined' : 'stagnated'} (${formatPercent(ve)}). Price increases may be pushing customers away.`, type: 'warning' })
+          } else if (ve > 3 && pe <= 0) {
+            result.push({ text: `Revenue grew ${formatPercent(totalChange)}, driven ${volumePortion.toFixed(0)}% by volume (${formatPercent(ve)}). However, avg price dropped (${formatPercent(pe)}) — check for excessive discounting or mix shift to cheaper items.`, type: 'neutral' })
+          }
+        } else {
+          if (pe < -3 && ve < -3) {
+            result.push({ text: `Revenue declined ${formatPercent(totalChange)} from both lower prices (${formatPercent(pe)}) and lower volume (${formatPercent(ve)}). Requires immediate attention.`, type: 'negative' })
+          } else if (pe < -3 && ve >= 0) {
+            result.push({ text: `Revenue declined ${formatPercent(totalChange)} despite stable volume. Price decreases (${formatPercent(pe)}) are eroding revenue. Review discount strategy.`, type: 'negative' })
+          } else if (ve < -3 && pe >= 0) {
+            result.push({ text: `Revenue declined ${formatPercent(totalChange)} due to volume drop (${formatPercent(ve)}) despite higher prices (${formatPercent(pe)}). Price increases may have reduced demand.`, type: 'warning' })
+          }
+        }
+      }
+    } else {
+      // Fallback to simple price vs volume divergence
+      const qtyBasis = metrics.rollingQuantityChange ?? metrics.quantityChangePercent
+      const revBasis = metrics.rollingAmountChange ?? metrics.amountChangePercent
+      if (qtyBasis < -5 && revBasis > 0) {
+        result.push({ text: 'Volume is declining while revenue grows — likely driven by price increases. Monitor customer retention.', type: 'warning' })
+      } else if (qtyBasis > 5 && revBasis < 0) {
+        result.push({ text: 'Volume is growing but revenue is down — possible heavy discounting.', type: 'negative' })
+      }
     }
 
-    // 4. Data sufficiency warnings
+    // 4. Avg price trend
+    if (Math.abs(metrics.priceChangePercent) > 5) {
+      const dir = metrics.priceChangePercent > 0 ? 'increased' : 'decreased'
+      result.push({ text: `Average price ${dir} ${formatPercent(Math.abs(metrics.priceChangePercent))} (${formatCurrency(workspace.currency, metrics.firstPeriodAvgPrice)} → ${formatCurrency(workspace.currency, metrics.lastPeriodAvgPrice)}). ${metrics.priceChangePercent > 0 ? 'May reflect pricing adjustments or premium product shift.' : 'Possible discounting or mix shift to value items.'}`, type: metrics.priceChangePercent > 0 ? 'neutral' : 'warning' })
+    }
+
+    // 5. Data sufficiency warnings
     if (metrics.periodsCount <= 2) {
       result.push({ text: `Only ${metrics.periodsCount} period(s) of data available. Trends may not be statistically meaningful. Upload more reports for reliable analysis.`, type: 'warning' })
     }
@@ -723,7 +801,7 @@ export function PerformanceReportPage() {
       {/* KPI Cards */}
       {metrics && (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
               <div className="flex items-center justify-between">
                 <div>
@@ -787,6 +865,54 @@ export function PerformanceReportPage() {
                 </div>
               </div>
             </div>
+
+            {/* Price Change KPI */}
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Avg Price Change</p>
+                  <div className="mt-2 flex items-center gap-2">
+                    <p className={`text-2xl font-bold ${metrics.priceChangePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatPercent(metrics.priceChangePercent)}
+                    </p>
+                    {metrics.priceChangePercent >= 0 ? <TrendingUp className="h-5 w-5 text-emerald-600" /> : <TrendingDown className="h-5 w-5 text-red-600" />}
+                  </div>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {formatCurrency(workspace.currency, metrics.firstPeriodAvgPrice)} → {formatCurrency(workspace.currency, metrics.lastPeriodAvgPrice)}
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                  <DollarSign className="h-5 w-5" />
+                </div>
+              </div>
+            </div>
+
+            {/* Revenue Decomposition — if available */}
+            {metrics.priceEffect !== undefined && metrics.volumeEffect !== undefined && (
+              <div className="rounded-lg border border-gray-200 p-5 sm:col-span-2 lg:col-span-1">
+                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-3">Revenue Breakdown</p>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Price effect</span>
+                    <span className={`font-medium ${metrics.priceEffect >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatPercent(metrics.priceEffect)}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600">Volume effect</span>
+                    <span className={`font-medium ${metrics.volumeEffect >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatPercent(metrics.volumeEffect)}
+                    </span>
+                  </div>
+                  <div className="border-t border-gray-100 pt-2 flex items-center justify-between text-sm">
+                    <span className="text-gray-900 font-medium">Total change</span>
+                    <span className={`font-bold ${metrics.amountChangePercent >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      {formatPercent(metrics.amountChangePercent)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Insights */}
