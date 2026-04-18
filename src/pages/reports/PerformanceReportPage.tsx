@@ -38,6 +38,12 @@ type PerformanceMetrics = {
   quantityChangePercent: number
   trendDirection: 'up' | 'down' | 'stable'
   periodsCount: number
+  // Rolling average comparison (first 3 months avg vs last 3 months avg)
+  rollingAmountChange?: number
+  rollingQuantityChange?: number
+  rollingFirstLabel?: string
+  rollingLastLabel?: string
+  hasYoYData: boolean
 }
 
 type ProductPeriodData = {
@@ -154,9 +160,36 @@ export function PerformanceReportPage() {
             ? ((lastPeriod[1].quantity - firstPeriod[1].quantity) / firstPeriod[1].quantity) * 100
             : 0
 
+          // Rolling average: first 3 months avg vs last 3 months avg (more reliable than single month)
+          const n = sortedPeriods.length
+          const windowSize = Math.min(3, Math.floor(n / 2)) // at least 2 periods needed
+          let rollingAmountChange: number | undefined
+          let rollingQuantityChange: number | undefined
+          let rollingFirstLabel: string | undefined
+          let rollingLastLabel: string | undefined
+
+          if (n >= 4 && windowSize >= 2) {
+            const firstWindow = sortedPeriods.slice(0, windowSize)
+            const lastWindow = sortedPeriods.slice(n - windowSize)
+            const firstAvgAmt = firstWindow.reduce((s, [, p]) => s + p.amount, 0) / windowSize
+            const lastAvgAmt = lastWindow.reduce((s, [, p]) => s + p.amount, 0) / windowSize
+            const firstAvgQty = firstWindow.reduce((s, [, p]) => s + p.quantity, 0) / windowSize
+            const lastAvgQty = lastWindow.reduce((s, [, p]) => s + p.quantity, 0) / windowSize
+
+            if (firstAvgAmt > 0) rollingAmountChange = ((lastAvgAmt - firstAvgAmt) / firstAvgAmt) * 100
+            if (firstAvgQty > 0) rollingQuantityChange = ((lastAvgQty - firstAvgQty) / firstAvgQty) * 100
+            rollingFirstLabel = `${firstWindow[0][1].label}–${firstWindow[windowSize - 1][1].label}`
+            rollingLastLabel = `${lastWindow[0][1].label}–${lastWindow[windowSize - 1][1].label}`
+          }
+
+          // Use rolling average for trend direction (more reliable)
+          const trendBasis = rollingAmountChange ?? amountChangePercent
           let trendDirection: 'up' | 'down' | 'stable' = 'stable'
-          if (amountChangePercent > 5) trendDirection = 'up'
-          else if (amountChangePercent < -5) trendDirection = 'down'
+          if (trendBasis > 5) trendDirection = 'up'
+          else if (trendBasis < -5) trendDirection = 'down'
+
+          // Check if YoY data exists in quarter comparison
+          const hasYoYData = n >= 13 // at least 13 months means we have same-quarter prior year
 
           setMetrics({
             totalAmount,
@@ -172,6 +205,11 @@ export function PerformanceReportPage() {
             quantityChangePercent,
             trendDirection,
             periodsCount: sortedPeriods.length,
+            rollingAmountChange,
+            rollingQuantityChange,
+            rollingFirstLabel,
+            rollingLastLabel,
+            hasYoYData,
           })
         } else {
           setMetrics(null)
@@ -457,32 +495,72 @@ export function PerformanceReportPage() {
     return 'All Categories'
   }
 
-  // Generate smart insights based on metrics
+  // Generate smart insights based on metrics + quarter data
   const insights = useMemo(() => {
     if (!metrics) return []
-    const result: Array<{ text: string; type: 'positive' | 'negative' | 'neutral' }> = []
+    const result: Array<{ text: string; type: 'positive' | 'negative' | 'neutral' | 'warning' }> = []
 
-    if (metrics.amountChangePercent > 10) {
-      result.push({ text: `Revenue grew ${formatPercent(metrics.amountChangePercent)} from ${metrics.firstPeriodLabel} to ${metrics.lastPeriodLabel}. Strong upward momentum.`, type: 'positive' })
-    } else if (metrics.amountChangePercent < -10) {
-      result.push({ text: `Revenue declined ${Math.abs(metrics.amountChangePercent).toFixed(1)}% from ${metrics.firstPeriodLabel} to ${metrics.lastPeriodLabel}. Investigate root causes.`, type: 'negative' })
+    // 1. Primary trend — prefer rolling average over single-month comparison
+    if (metrics.rollingAmountChange !== undefined && metrics.rollingFirstLabel && metrics.rollingLastLabel) {
+      const rc = metrics.rollingAmountChange
+      if (rc > 10) {
+        result.push({ text: `Rolling average revenue grew ${formatPercent(rc)} (${metrics.rollingFirstLabel} avg → ${metrics.rollingLastLabel} avg). Consistent upward trend.`, type: 'positive' })
+      } else if (rc < -10) {
+        result.push({ text: `Rolling average revenue declined ${Math.abs(rc).toFixed(1)}% (${metrics.rollingFirstLabel} avg → ${metrics.rollingLastLabel} avg). Investigate root causes.`, type: 'negative' })
+      } else {
+        result.push({ text: `Rolling average revenue is stable (${formatPercent(rc)}) between ${metrics.rollingFirstLabel} and ${metrics.rollingLastLabel}.`, type: 'neutral' })
+      }
+
+      // Warn if single-month comparison diverges significantly from rolling
+      const diff = Math.abs(metrics.amountChangePercent - rc)
+      if (diff > 15) {
+        result.push({ text: `Note: Single-month comparison (${metrics.firstPeriodLabel} vs ${metrics.lastPeriodLabel}) shows ${formatPercent(metrics.amountChangePercent)}, but this may be skewed by outlier months. The rolling average (${formatPercent(rc)}) is more reliable.`, type: 'warning' })
+      }
     } else {
-      result.push({ text: `Revenue remained stable between ${metrics.firstPeriodLabel} and ${metrics.lastPeriodLabel}.`, type: 'neutral' })
+      // Fallback to single-month if not enough data for rolling
+      if (metrics.amountChangePercent > 10) {
+        result.push({ text: `Revenue grew ${formatPercent(metrics.amountChangePercent)} from ${metrics.firstPeriodLabel} to ${metrics.lastPeriodLabel}.`, type: 'positive' })
+      } else if (metrics.amountChangePercent < -10) {
+        result.push({ text: `Revenue declined ${Math.abs(metrics.amountChangePercent).toFixed(1)}% from ${metrics.firstPeriodLabel} to ${metrics.lastPeriodLabel}.`, type: 'negative' })
+      } else {
+        result.push({ text: `Revenue stable between ${metrics.firstPeriodLabel} and ${metrics.lastPeriodLabel}.`, type: 'neutral' })
+      }
     }
 
-    // Price vs Volume insight
-    if (metrics.quantityChangePercent < -5 && metrics.amountChangePercent > 0) {
-      result.push({ text: 'Volume is declining but revenue is up — likely driven by price increases. Monitor customer retention.', type: 'neutral' })
-    } else if (metrics.quantityChangePercent > 5 && metrics.amountChangePercent < 0) {
-      result.push({ text: 'Volume is growing but revenue is down — possible heavy discounting or mix shift to cheaper items.', type: 'negative' })
+    // 2. YoY insight from quarter data
+    if (quarterComparison) {
+      const yoyQuarters = quarterComparison.filter(q => q.yoyAmountChange !== undefined)
+      if (yoyQuarters.length > 0) {
+        const lastYoY = yoyQuarters[yoyQuarters.length - 1]
+        const yoyChange = lastYoY.yoyAmountChange!
+        if (yoyChange > 5) {
+          result.push({ text: `Year-over-year: ${lastYoY.label} revenue is ${formatPercent(yoyChange)} above the same quarter last year. This confirms real growth beyond seasonality.`, type: 'positive' })
+        } else if (yoyChange < -5) {
+          result.push({ text: `Year-over-year: ${lastYoY.label} revenue is ${Math.abs(yoyChange).toFixed(1)}% below the same quarter last year. This suggests a structural decline, not just seasonal variation.`, type: 'negative' })
+        }
+      } else if (metrics.periodsCount >= 4) {
+        result.push({ text: 'No year-over-year comparison available yet. Sequential quarter changes may reflect seasonality rather than real growth. At least 13 months of data needed for YoY.', type: 'warning' })
+      }
     }
 
+    // 3. Price vs Volume divergence
+    const qtyBasis = metrics.rollingQuantityChange ?? metrics.quantityChangePercent
+    const revBasis = metrics.rollingAmountChange ?? metrics.amountChangePercent
+    if (qtyBasis < -5 && revBasis > 0) {
+      result.push({ text: 'Volume is declining while revenue grows — likely driven by price increases or mix shift to premium items. Monitor customer retention.', type: 'warning' })
+    } else if (qtyBasis > 5 && revBasis < 0) {
+      result.push({ text: 'Volume is growing but revenue is down — possible heavy discounting or shift toward lower-priced items. Review pricing strategy.', type: 'negative' })
+    } else if (qtyBasis > 10 && revBasis > 10) {
+      result.push({ text: 'Both volume and revenue are growing strongly — healthy scaling across both dimensions.', type: 'positive' })
+    }
+
+    // 4. Data sufficiency warnings
     if (metrics.periodsCount <= 2) {
-      result.push({ text: `Only ${metrics.periodsCount} period(s) of data. Upload more reports for meaningful trend analysis.`, type: 'neutral' })
+      result.push({ text: `Only ${metrics.periodsCount} period(s) of data available. Trends may not be statistically meaningful. Upload more reports for reliable analysis.`, type: 'warning' })
     }
 
     return result
-  }, [metrics])
+  }, [metrics, quarterComparison])
 
   const handleExportPDF = async () => {
     if (!metrics || !chartRef.current) return
@@ -723,9 +801,10 @@ export function PerformanceReportPage() {
                   <div key={i} className={`flex items-start gap-2 rounded-lg px-3 py-2 text-sm ${
                     insight.type === 'positive' ? 'bg-emerald-50 text-emerald-800' :
                     insight.type === 'negative' ? 'bg-red-50 text-red-800' :
+                    insight.type === 'warning' ? 'bg-amber-50 text-amber-800' :
                     'bg-slate-50 text-slate-700'
                   }`}>
-                    <span className="mt-0.5">{insight.type === 'positive' ? '↑' : insight.type === 'negative' ? '↓' : '→'}</span>
+                    <span className="mt-0.5 flex-shrink-0">{insight.type === 'positive' ? '↑' : insight.type === 'negative' ? '↓' : insight.type === 'warning' ? '⚠' : '→'}</span>
                     <span>{insight.text}</span>
                   </div>
                 ))}
@@ -736,8 +815,28 @@ export function PerformanceReportPage() {
           {/* Period Comparison */}
           <div className="app-card p-6">
             <h3 className="mb-4 text-base font-semibold text-slate-900">Period Comparison</h3>
+
+            {/* Rolling average comparison (more reliable) */}
+            {metrics.rollingAmountChange !== undefined && metrics.rollingFirstLabel && metrics.rollingLastLabel && (
+              <div className="mb-4 rounded-lg border border-blue-100 bg-blue-50/50 px-4 py-3">
+                <p className="text-xs font-semibold text-blue-800 mb-1">Rolling Average (recommended)</p>
+                <p className="text-sm text-blue-700">
+                  {metrics.rollingFirstLabel} avg → {metrics.rollingLastLabel} avg:{' '}
+                  <span className={`font-bold ${metrics.rollingAmountChange >= 0 ? 'text-emerald-700' : 'text-red-700'}`}>
+                    {formatPercent(metrics.rollingAmountChange)} revenue
+                  </span>
+                  {metrics.rollingQuantityChange !== undefined && (
+                    <span className={`ml-2 ${metrics.rollingQuantityChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                      / {formatPercent(metrics.rollingQuantityChange)} volume
+                    </span>
+                  )}
+                </p>
+              </div>
+            )}
+
+            <p className="text-[11px] text-gray-400 mb-3">Single-month endpoints (may be affected by outliers)</p>
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{metrics.firstPeriodLabel}</p>
                 <p className="text-xl font-bold text-slate-900">{formatCurrency(workspace.currency, metrics.firstPeriodAmount)}</p>
                 <p className="text-sm text-slate-600">{metrics.firstPeriodQuantity.toLocaleString()} units</p>
@@ -750,7 +849,7 @@ export function PerformanceReportPage() {
                   </span>
                 </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
                 <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 mb-2">{metrics.lastPeriodLabel}</p>
                 <p className="text-xl font-bold text-slate-900">{formatCurrency(workspace.currency, metrics.lastPeriodAmount)}</p>
                 <p className="text-sm text-slate-600">{metrics.lastPeriodQuantity.toLocaleString()} units</p>
@@ -831,7 +930,7 @@ export function PerformanceReportPage() {
                               )}
                             </div>
                           ) : (
-                            <span className="text-gray-300 text-[10px]">no prior year</span>
+                            <span className="text-gray-300 text-[10px]">no prior year data</span>
                           )}
                         </td>
                       </tr>
@@ -874,6 +973,9 @@ export function PerformanceReportPage() {
                   formatter={(value: number) => formatCurrency(workspace.currency, value)}
                 />
               </div>
+              {reportType === 'product' && (
+                <p className="mt-2 text-[11px] text-gray-400">* Dual axes — left scale (Revenue) and right scale (Quantity) are independent. Visual proximity of lines does not imply proportional change.</p>
+              )}
             </div>
           )}
 
