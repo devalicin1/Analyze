@@ -8,11 +8,14 @@ import { ProductCorrelation } from './ProductCorrelation'
 import { CategoryMomentum } from './CategoryMomentum'
 import { SalesForecast } from './SalesForecast'
 import { CategoryMixTrends } from './CategoryMixTrends'
+import { MenuEngineering } from './MenuEngineering'
+import { RevenueConcentration } from './RevenueConcentration'
+import { SeasonalPatterns } from './SeasonalPatterns'
 import { DateRangePopover } from '../../components/forms/DateRangePopover'
 import { startOfMonth, subMonths, endOfMonth } from 'date-fns'
 
 export function AnalyticsPage() {
-    const [activeTab, setActiveTab] = useState<'overview' | 'matrix' | 'movers' | 'pareto' | 'correlation' | 'mix' | 'associations' | 'forecast' | 'momentum'>('momentum')
+    const [activeTab, setActiveTab] = useState<'overview' | 'matrix' | 'movers' | 'pareto' | 'correlation' | 'mix' | 'associations' | 'forecast' | 'momentum' | 'engineering' | 'concentration' | 'seasonal'>('momentum')
     const [dateRange, setDateRange] = useState<{ start: Date; end: Date; label: string }>({
         start: startOfMonth(subMonths(new Date(), 11)), // Last 12 months by default
         end: endOfMonth(new Date()),
@@ -29,6 +32,9 @@ export function AnalyticsPage() {
         { id: 'forecast', label: 'Sales Forecast' },
         { id: 'momentum', label: 'Category Momentum' },
         { id: 'correlation', label: 'Hist. Correlation' },
+        { id: 'engineering', label: 'Menu Engineering' },
+        { id: 'concentration', label: 'Revenue Risk' },
+        { id: 'seasonal', label: 'Seasonal Patterns' },
     ] as const
 
     return (
@@ -79,6 +85,9 @@ export function AnalyticsPage() {
                     {activeTab === 'forecast' && <SalesForecast />}
                     {activeTab === 'momentum' && <CategoryMomentum dateRange={dateRange} />}
                     {activeTab === 'correlation' && <CategoryCorrelation dateRange={dateRange} />}
+                    {activeTab === 'engineering' && <MenuEngineering dateRange={dateRange} />}
+                    {activeTab === 'concentration' && <RevenueConcentration dateRange={dateRange} />}
+                    {activeTab === 'seasonal' && <SeasonalPatterns dateRange={dateRange} />}
                 </div>
             </div>
         </div>
