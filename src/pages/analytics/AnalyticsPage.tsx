@@ -11,11 +11,12 @@ import { CategoryMixTrends } from './CategoryMixTrends'
 import { MenuEngineering } from './MenuEngineering'
 import { RevenueConcentration } from './RevenueConcentration'
 import { SeasonalPatterns } from './SeasonalPatterns'
+import { CategoryReport } from './CategoryReport'
 import { DateRangePopover } from '../../components/forms/DateRangePopover'
 import { startOfMonth, subMonths, endOfMonth } from 'date-fns'
 
 export function AnalyticsPage() {
-    const [activeTab, setActiveTab] = useState<'overview' | 'matrix' | 'movers' | 'pareto' | 'correlation' | 'mix' | 'associations' | 'forecast' | 'momentum' | 'engineering' | 'concentration' | 'seasonal'>('momentum')
+    const [activeTab, setActiveTab] = useState<'overview' | 'matrix' | 'movers' | 'pareto' | 'correlation' | 'mix' | 'associations' | 'forecast' | 'momentum' | 'engineering' | 'concentration' | 'seasonal' | 'categories'>('categories')
     const [dateRange, setDateRange] = useState<{ start: Date; end: Date; label: string }>({
         start: startOfMonth(subMonths(new Date(), 11)), // Last 12 months by default
         end: endOfMonth(new Date()),
@@ -23,6 +24,7 @@ export function AnalyticsPage() {
     })
 
     const tabs = [
+        { id: 'categories', label: 'Category Report' },
         { id: 'overview', label: 'Monthly Overview' },
         { id: 'mix', label: 'Category Mix' },
         { id: 'matrix', label: 'Performance Matrix' },
@@ -76,6 +78,7 @@ export function AnalyticsPage() {
                         </nav>
                     </div>
 
+                    {activeTab === 'categories' && <CategoryReport dateRange={dateRange} />}
                     {activeTab === 'overview' && <MonthlyOverview dateRange={dateRange} />}
                     {activeTab === 'matrix' && <PerformanceMatrix dateRange={dateRange} />}
                     {activeTab === 'movers' && <MoversShakers />}
