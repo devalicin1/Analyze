@@ -54,8 +54,9 @@ export function CategoryReport({ dateRange }: { dateRange: { start: Date; end: D
                     getMenuGroups(workspace),
                 ])
 
+                // Map by ID for lookups
                 const menuGroupMap = new Map<string, MenuGroup>()
-                menuGroups.forEach((mg) => menuGroupMap.set(mg.label, mg))
+                menuGroups.forEach((mg) => menuGroupMap.set(mg.id, mg))
 
                 // Build nested aggregation: category -> subcategory -> product
                 const catMap = new Map<
@@ -137,9 +138,13 @@ export function CategoryReport({ dateRange }: { dateRange: { start: Date; end: D
                                     .sort((a, b) => b.revenue - a.revenue)
                                     .slice(0, 20)
 
+                                // Resolve subcategory label from menu group
+                                const parentMg = menuGroupMap.get(name) // name = category ID
+                                const subLabel = parentMg?.subGroups?.find(sg => sg.id === subName)?.label || subName
+
                                 return {
                                     id: subName,
-                                    name: subName,
+                                    name: subLabel,
                                     revenue: subData.revenue,
                                     quantity: subData.quantity,
                                     avgPrice:
@@ -153,10 +158,10 @@ export function CategoryReport({ dateRange }: { dateRange: { start: Date; end: D
                             })
                             .sort((a, b) => b.revenue - a.revenue)
 
-                        const mg = menuGroupMap.get(name)
+                        const mg = menuGroupMap.get(name) // name here is the category ID from SalesLine
                         return {
-                            id: mg?.id || name,
-                            name,
+                            id: name,
+                            name: mg?.label || name,
                             color: data.color,
                             revenue: data.revenue,
                             quantity: data.quantity,
