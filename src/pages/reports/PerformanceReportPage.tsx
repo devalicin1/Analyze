@@ -308,8 +308,8 @@ export function PerformanceReportPage() {
   const chartSeries = useMemo(() => {
     if (reportType === 'product') {
       return [
-        { dataKey: 'amount', label: 'Revenue', color: '#2563eb' },
-        { dataKey: 'quantity', label: 'Quantity', color: '#7c3aed' },
+        { dataKey: 'amount', label: 'Revenue', color: '#2563eb', yAxisId: 'left' as const },
+        { dataKey: 'quantity', label: 'Quantity', color: '#7c3aed', yAxisId: 'right' as const },
       ]
     } else if (reportType === 'category') {
       const categoryTrends = trendData as CategoryTrendPoint[]
@@ -668,6 +668,7 @@ export function PerformanceReportPage() {
                   xKey="label"
                   series={chartSeries}
                   height={384}
+                  dualAxis={reportType === 'product'}
                   formatter={(value: number) => formatCurrency(workspace.currency, value)}
                 />
               </div>

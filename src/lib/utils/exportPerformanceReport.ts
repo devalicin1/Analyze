@@ -122,8 +122,8 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
     const kpis = [
       { label: 'Total Revenue', value: formatCurrency(currency, metrics.totalAmount), sub: `${metrics.totalQuantity.toLocaleString()} items` },
       { label: 'Avg. Price', value: formatCurrency(currency, metrics.averagePrice), sub: 'per item sold' },
-      { label: 'Revenue Change', value: `${metrics.amountChangePercent >= 0 ? '+' : ''}${formatPercent(metrics.amountChangePercent)}`, sub: `${firstLabel} → ${lastLabel}` },
-      { label: 'Volume Change', value: `${metrics.quantityChangePercent >= 0 ? '+' : ''}${formatPercent(metrics.quantityChangePercent)}`, sub: `${firstLabel} → ${lastLabel}` },
+      { label: 'Revenue Change', value: `${formatPercent(metrics.amountChangePercent)}`, sub: `${firstLabel} → ${lastLabel}` },
+      { label: 'Volume Change', value: `${formatPercent(metrics.quantityChangePercent)}`, sub: `${firstLabel} → ${lastLabel}` },
     ]
 
     const boxW = (cw - 6) / 2
@@ -190,7 +190,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
     doc.setFontSize(9)
     const changeColor = metrics.amountChangePercent >= 0 ? [22, 163, 74] : [220, 38, 38]
     doc.setTextColor(changeColor[0], changeColor[1], changeColor[2])
-    doc.text(`→ ${metrics.amountChangePercent >= 0 ? '+' : ''}${formatPercent(metrics.amountChangePercent)}`, arrowX, y + 11, { align: 'center' })
+    doc.text(`→ ${formatPercent(metrics.amountChangePercent)}`, arrowX, y + 11, { align: 'center' })
 
     // Last period
     const lastX = m + compBoxW + 20
@@ -228,7 +228,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
     } else if (metrics.amountChangePercent > 5) {
       insights.push(`Moderate revenue growth of ${formatPercent(metrics.amountChangePercent)} from ${firstLabel} to ${lastLabel}. Performance is trending positively.`)
     } else if (metrics.amountChangePercent > -5) {
-      insights.push(`Revenue remained relatively stable (${metrics.amountChangePercent >= 0 ? '+' : ''}${formatPercent(metrics.amountChangePercent)}) between ${firstLabel} and ${lastLabel}.`)
+      insights.push(`Revenue remained relatively stable (${formatPercent(metrics.amountChangePercent)}) between ${firstLabel} and ${lastLabel}.`)
     } else if (metrics.amountChangePercent > -15) {
       insights.push(`Revenue declined by ${formatPercent(Math.abs(metrics.amountChangePercent))} from ${firstLabel} to ${lastLabel}. Monitor contributing factors.`)
     } else {
@@ -400,7 +400,7 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
           const cc = period.amountChange >= 0 ? [22, 163, 74] : [220, 38, 38]
           doc.setTextColor(cc[0], cc[1], cc[2])
           doc.setFontSize(5.5)
-          doc.text(`${period.amountChange >= 0 ? '+' : ''}${formatPercent(period.amountChange)}`, cx, y + 11.5, { align: 'center' })
+          doc.text(`${formatPercent(period.amountChange)}`, cx, y + 11.5, { align: 'center' })
         }
       }
 
