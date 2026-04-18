@@ -260,6 +260,56 @@ export function PerformanceReportPage() {
     fetchData()
   }, [workspace, reportType, dateRange, categoryId, subcategoryId, productId, products])
 
+  // Quarter comparison data
+  type QuarterData = { key: string; label: string; amount: number; quantity: number; avgPrice: number }
+  const quarterComparison = useMemo(() => {
+    if (trendData.length === 0) return null
+
+    // Group periods into quarters
+    const quarterMap = new Map<string, { amount: number; quantity: number }>()
+    const sortedData = [...trendData].sort((a, b) => a.periodKey.localeCompare(b.periodKey))
+
+    sortedData.forEach(item => {
+      const [yearStr, monthStr] = item.periodKey.split('-')
+      const year = parseInt(yearStr)
+      const month = parseInt(monthStr)
+      const q = Math.ceil(month / 3)
+      const qKey = `${year}-Q${q}`
+      const existing = quarterMap.get(qKey) ?? { amount: 0, quantity: 0 }
+      existing.amount += item.amount
+      existing.quantity += item.quantity
+      quarterMap.set(qKey, existing)
+    })
+
+    const quarters: QuarterData[] = Array.from(quarterMap.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([key, data]) => {
+        const [year, q] = key.split('-')
+        return {
+          key,
+          label: `${q} ${year}`,
+          amount: data.amount,
+          quantity: data.quantity,
+          avgPrice: data.quantity > 0 ? data.amount / data.quantity : 0,
+        }
+      })
+
+    if (quarters.length < 2) return null
+
+    // Calculate QoQ changes
+    const comparisons = quarters.map((q, i) => {
+      if (i === 0) return { ...q, amountChange: undefined as number | undefined, quantityChange: undefined as number | undefined }
+      const prev = quarters[i - 1]
+      return {
+        ...q,
+        amountChange: prev.amount > 0 ? ((q.amount - prev.amount) / prev.amount) * 100 : undefined,
+        quantityChange: prev.quantity > 0 ? ((q.quantity - prev.quantity) / prev.quantity) * 100 : undefined,
+      }
+    })
+
+    return comparisons
+  }, [trendData])
+
   const availableSubcategories = useMemo(() => {
     if (!categoryId) return []
     return menuGroups.find((g) => g.id === categoryId)?.subGroups || []
@@ -436,7 +486,7 @@ export function PerformanceReportPage() {
                 {dateRange.end instanceof Date && !isNaN(dateRange.end.getTime()) ? format(dateRange.end, 'd MMM yyyy') : '—'}
               </span>
               <span className="mx-1">|</span>
-              <span className="capitalize">{reportType}: {getSelectedLabel()}</span>
+              <span>{reportType === 'category' ? 'Category' : reportType === 'subcategory' ? 'Subcategory' : 'Product'}: {getSelectedLabel()}</span>
             </div>
           </div>
           {metrics && (
@@ -650,6 +700,58 @@ export function PerformanceReportPage() {
               </div>
             </div>
           </div>
+
+          {/* Quarter Comparison */}
+          {quarterComparison && quarterComparison.length >= 2 && (
+            <div className="app-card p-6">
+              <h3 className="mb-1 text-base font-semibold text-gray-900">Quarter-over-Quarter</h3>
+              <p className="mb-4 text-sm text-gray-500">
+                {reportType === 'category' ? 'Category' : reportType === 'subcategory' ? 'Subcategory' : 'Product'}: {getSelectedLabel()}
+              </p>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="py-2 pr-4 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400">Quarter</th>
+                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Revenue</th>
+                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">QoQ Rev.</th>
+                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Volume</th>
+                      <th className="py-2 px-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">QoQ Vol.</th>
+                      <th className="py-2 pl-4 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400">Avg. Price</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {quarterComparison.map((q) => (
+                      <tr key={q.key} className="hover:bg-gray-50 transition-colors">
+                        <td className="py-2.5 pr-4 font-medium text-gray-900">{q.label}</td>
+                        <td className="py-2.5 px-4 text-right font-semibold text-gray-900">{formatCurrency(workspace.currency, q.amount)}</td>
+                        <td className="py-2.5 px-4 text-right">
+                          {q.amountChange !== undefined ? (
+                            <span className={`font-medium ${q.amountChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                              {formatPercent(q.amountChange)}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300">—</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 px-4 text-right text-gray-600">{q.quantity.toLocaleString()}</td>
+                        <td className="py-2.5 px-4 text-right">
+                          {q.quantityChange !== undefined ? (
+                            <span className={`font-medium ${q.quantityChange >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+                              {formatPercent(q.quantityChange)}
+                            </span>
+                          ) : (
+                            <span className="text-gray-300">—</span>
+                          )}
+                        </td>
+                        <td className="py-2.5 pl-4 text-right text-gray-600">{formatCurrency(workspace.currency, q.avgPrice)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* Trend Chart */}
           {chartData.length > 0 && chartSeries.length > 0 && (

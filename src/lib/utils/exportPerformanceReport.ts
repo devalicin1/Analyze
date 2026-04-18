@@ -305,6 +305,111 @@ export async function exportPerformanceReportToPDF(options: ExportOptions): Prom
 
     y += 4
     line()
+
+    // ===== QUARTER COMPARISON =====
+    if (metrics && productBreakdown.length > 0) {
+      // Build quarter data from product breakdown periods
+      const allPeriods = productBreakdown[0]?.periods || []
+      if (allPeriods.length >= 3) {
+        const quarterMap = new Map<string, { amount: number; quantity: number }>()
+
+        for (const product of productBreakdown) {
+          for (const period of product.periods) {
+            const [yearStr, monthStr] = period.periodKey.split('-')
+            const yr = parseInt(yearStr)
+            const mo = parseInt(monthStr)
+            const q = Math.ceil(mo / 3)
+            const qKey = `${yr}-Q${q}`
+            const ex = quarterMap.get(qKey) ?? { amount: 0, quantity: 0 }
+            ex.amount += period.amount
+            ex.quantity += period.quantity
+            quarterMap.set(qKey, ex)
+          }
+        }
+
+        const quarters = Array.from(quarterMap.entries())
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([key, data]) => {
+            const [yr, q] = key.split('-')
+            return { key, label: `${q} ${yr}`, amount: data.amount, quantity: data.quantity, avgPrice: data.quantity > 0 ? data.amount / data.quantity : 0 }
+          })
+
+        if (quarters.length >= 2) {
+          needsPage(30)
+          heading('Quarter-over-Quarter')
+
+          // Table header
+          doc.setFillColor(245, 245, 245)
+          doc.rect(m, y - 1, cw, 8, 'F')
+          doc.setFont('helvetica', 'bold')
+          doc.setFontSize(6.5)
+          doc.setTextColor(100, 100, 100)
+
+          const colW = cw / 6
+          const headers = ['QUARTER', 'REVENUE', 'QOQ REV.', 'VOLUME', 'QOQ VOL.', 'AVG. PRICE']
+          headers.forEach((h, i) => {
+            doc.text(h, m + i * colW + (i === 0 ? 2 : colW / 2), y + 4, i === 0 ? undefined : { align: 'center' })
+          })
+          y += 10
+
+          for (let i = 0; i < quarters.length; i++) {
+            const q = quarters[i]
+            needsPage(10)
+
+            doc.setFont('helvetica', 'bold')
+            doc.setFontSize(8)
+            doc.setTextColor(30, 30, 30)
+            doc.text(q.label, m + 2, y + 4)
+
+            doc.text(formatCurrency(currency, q.amount), m + colW + colW / 2, y + 4, { align: 'center' })
+
+            // QoQ revenue change
+            if (i > 0) {
+              const prev = quarters[i - 1]
+              const revChange = prev.amount > 0 ? ((q.amount - prev.amount) / prev.amount) * 100 : 0
+              const qtyChange = prev.quantity > 0 ? ((q.quantity - prev.quantity) / prev.quantity) * 100 : 0
+
+              const revColor = revChange >= 0 ? [22, 163, 74] : [220, 38, 38]
+              doc.setTextColor(revColor[0], revColor[1], revColor[2])
+              doc.setFontSize(7.5)
+              doc.text(formatPercent(revChange), m + 2 * colW + colW / 2, y + 4, { align: 'center' })
+
+              doc.setTextColor(30, 30, 30)
+              doc.setFontSize(8)
+              doc.text(q.quantity.toLocaleString(), m + 3 * colW + colW / 2, y + 4, { align: 'center' })
+
+              const qtyColor = qtyChange >= 0 ? [22, 163, 74] : [220, 38, 38]
+              doc.setTextColor(qtyColor[0], qtyColor[1], qtyColor[2])
+              doc.setFontSize(7.5)
+              doc.text(formatPercent(qtyChange), m + 4 * colW + colW / 2, y + 4, { align: 'center' })
+            } else {
+              doc.setTextColor(180, 180, 180)
+              doc.setFontSize(7.5)
+              doc.text('—', m + 2 * colW + colW / 2, y + 4, { align: 'center' })
+
+              doc.setTextColor(30, 30, 30)
+              doc.setFontSize(8)
+              doc.text(q.quantity.toLocaleString(), m + 3 * colW + colW / 2, y + 4, { align: 'center' })
+
+              doc.setTextColor(180, 180, 180)
+              doc.setFontSize(7.5)
+              doc.text('—', m + 4 * colW + colW / 2, y + 4, { align: 'center' })
+            }
+
+            doc.setTextColor(80, 80, 80)
+            doc.setFontSize(8)
+            doc.text(formatCurrency(currency, q.avgPrice), m + 5 * colW + colW / 2, y + 4, { align: 'center' })
+
+            y += 10
+            doc.setDrawColor(240, 240, 240)
+            doc.line(m, y - 2, pw - m, y - 2)
+          }
+
+          y += 4
+          line()
+        }
+      }
+    }
   }
 
   // ===== CHART =====
