@@ -1,22 +1,43 @@
 import { useEffect, useMemo, useState } from 'react'
-import { format } from 'date-fns'
-import { Select } from '../../components/forms/Select'
-import { fetchOverview } from '../../lib/api/analytics'
-import type { CategoryBreakdown, MenuGroup, ProductPerformance } from '../../lib/types'
+import { differenceInDays, subDays, format } from 'date-fns'
+import { TrendingUp, TrendingDown, AlertTriangle, CheckCircle } from 'lucide-react'
 import { useWorkspace } from '../../context/WorkspaceContext'
+import { fetchSalesLines } from '../../lib/api/analytics'
 import { getMenuGroups } from '../../lib/api/menuGroups'
-import { formatCurrency } from '../../lib/utils/formatting'
+import { formatCurrency, formatPercent } from '../../lib/utils/formatting'
+import type { SalesLine, MenuGroup } from '../../lib/types'
 
-type OverviewData = {
-  metrics: {
-    totalAmount: number
-    totalQuantity: number
-    averageSellingPrice: number
-    activeProducts: number
-  }
-  topProductsByQty: ProductPerformance[]
-  topProductsByAmount: ProductPerformance[]
-  categories: CategoryBreakdown[]
+/* ---------- types ---------- */
+
+type ProductDelta = {
+  productId: string
+  productName: string
+  menuGroup: string
+  currentAmount: number
+  previousAmount: number
+  currentQty: number
+  previousQty: number
+  delta: number
+  deltaPercent: number
+}
+
+type CategoryDelta = {
+  menuGroupId: string
+  label: string
+  color: string
+  currentAmount: number
+  previousAmount: number
+  currentQty: number
+  previousQty: number
+  delta: number
+  deltaPercent: number
+  share: number
+}
+
+type AttentionItem = {
+  type: 'decline' | 'concentration' | 'dropout'
+  severity: 'red' | 'amber'
+  message: string
 }
 
 /* ---------- helpers ---------- */
@@ -26,179 +47,52 @@ function safeDateLabel(d: Date, fmt: string): string {
   return format(d, fmt)
 }
 
-function pct(value: number): string {
-  return (value * 100).toFixed(1) + '%'
-}
-
-/* ---------- insight generator ---------- */
-
-function generateInsights(
-  data: OverviewData,
-  currency: string,
-  sortedCategories: CategoryBreakdown[],
-  topByAmount: ProductPerformance[],
-): string[] {
-  const insights: string[] = []
-
-  // Revenue concentration: top 5 share
-  if (topByAmount.length >= 5) {
-    const top5Share = topByAmount
-      .slice(0, 5)
-      .reduce((s, p) => s + p.percentOfTotal, 0)
-    insights.push(
-      `Top 5 products drive ${pct(top5Share)} of revenue`,
-    )
+function aggregateByField(
+  lines: SalesLine[],
+  field: 'productId' | 'menuGroupAtSale',
+): Map<string, { amount: number; quantity: number; name: string }> {
+  const map = new Map<string, { amount: number; quantity: number; name: string }>()
+  for (const line of lines) {
+    const key = line[field]
+    const existing = map.get(key)
+    if (existing) {
+      existing.amount += line.amount
+      existing.quantity += line.quantity
+    } else {
+      map.set(key, {
+        amount: line.amount,
+        quantity: line.quantity,
+        name: field === 'productId' ? line.productNameAtSale : line.menuGroupAtSale,
+      })
+    }
   }
-
-  // Category dominance
-  if (sortedCategories.length > 0) {
-    const leader = sortedCategories[0]
-    insights.push(
-      `${leader.label} leads with ${pct(leader.share)} market share`,
-    )
-  }
-
-  // Average basket
-  const avg = data.metrics.averageSellingPrice
-  if (avg > 0) {
-    const qualifier = avg > 8 ? 'higher' : avg < 4 ? 'lower' : 'moderate compared'
-    insights.push(
-      `Avg price is ${formatCurrency(currency, avg)} \u2014 ${qualifier} than typical`,
-    )
-  }
-
-  // Product diversity
-  insights.push(
-    `${data.metrics.activeProducts} active products across ${sortedCategories.length} categories`,
-  )
-
-  // Top performer
-  if (topByAmount.length > 0) {
-    const top = topByAmount[0]
-    insights.push(
-      `${top.productName} is the #1 revenue driver at ${formatCurrency(currency, top.amount)}`,
-    )
-  }
-
-  return insights.slice(0, 5)
+  return map
 }
 
 /* ---------- sub-components ---------- */
 
-function KpiCard({
-  label,
+function ChangeIndicator({
   value,
-  subtext,
+  suffix,
 }: {
-  label: string
-  value: string
-  subtext: string
+  value: number
+  suffix?: string
 }) {
-  return (
-    <div className="rounded-lg border border-gray-200 p-5">
-      <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
-        {label}
-      </p>
-      <p className="mt-2 text-2xl font-semibold text-gray-900">{value}</p>
-      <p className="mt-1 text-xs text-gray-400">{subtext}</p>
-    </div>
-  )
-}
+  const isPositive = value > 0
+  const isZero = value === 0
+  const color = isZero
+    ? 'text-gray-400'
+    : isPositive
+      ? 'text-emerald-600'
+      : 'text-red-600'
+  const Icon = isPositive ? TrendingUp : TrendingDown
 
-function HorizontalBar({
-  label,
-  amount,
-  share,
-  color,
-  maxShare,
-  currency,
-}: {
-  label: string
-  amount: number
-  share: number
-  color: string
-  maxShare: number
-  currency: string
-}) {
-  const widthPct = maxShare > 0 ? (share / maxShare) * 100 : 0
   return (
-    <div className="flex items-center gap-4 py-2">
-      <span className="w-36 shrink-0 truncate text-sm text-gray-900">
-        {label}
-      </span>
-      <div className="flex-1">
-        <div className="h-5 w-full rounded bg-gray-100">
-          <div
-            className="h-5 rounded"
-            style={{ width: `${widthPct}%`, backgroundColor: color }}
-          />
-        </div>
-      </div>
-      <span className="w-28 shrink-0 text-right text-sm font-medium text-gray-900">
-        {formatCurrency(currency, amount)}
-      </span>
-      <span className="w-14 shrink-0 text-right text-xs text-gray-500">
-        {pct(share)}
-      </span>
-    </div>
-  )
-}
-
-function CompactProductTable({
-  title,
-  products,
-  valueKey,
-  valueHeader,
-  formatValue,
-}: {
-  title: string
-  products: ProductPerformance[]
-  valueKey: 'amount' | 'quantity'
-  valueHeader: string
-  formatValue: (p: ProductPerformance) => string
-}) {
-  return (
-    <div className="app-card overflow-hidden">
-      <div className="border-b border-gray-200 px-5 py-4">
-        <h3 className="text-sm font-semibold text-gray-900">{title}</h3>
-      </div>
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-400">
-            <th className="py-3 pl-5 pr-2 text-left">#</th>
-            <th className="px-2 py-3 text-left">Product</th>
-            <th className="px-2 py-3 text-right">{valueHeader}</th>
-            <th className="py-3 pl-2 pr-5 text-right">Share</th>
-          </tr>
-        </thead>
-        <tbody>
-          {products.slice(0, 10).map((p, i) => (
-            <tr
-              key={p.productId}
-              className="border-b border-gray-50 last:border-0"
-            >
-              <td className="py-2.5 pl-5 pr-2 text-gray-400">{i + 1}</td>
-              <td className="truncate px-2 py-2.5 text-gray-900">
-                {p.productName}
-              </td>
-              <td className="px-2 py-2.5 text-right font-medium text-gray-900">
-                {formatValue(p)}
-              </td>
-              <td className="py-2.5 pl-2 pr-5 text-right text-gray-500">
-                {pct(p.percentOfTotal)}
-              </td>
-            </tr>
-          ))}
-          {products.length === 0 && (
-            <tr>
-              <td colSpan={4} className="px-5 py-6 text-center text-gray-400">
-                No products match filters
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+    <span className={`inline-flex items-center gap-1 text-sm font-medium ${color}`}>
+      {!isZero && <Icon className="h-3.5 w-3.5" />}
+      {formatPercent(value)}
+      {suffix && <span className="font-normal text-gray-400">{suffix}</span>}
+    </span>
   )
 }
 
@@ -206,23 +100,32 @@ function CompactProductTable({
 
 export function OverviewPage() {
   const workspace = useWorkspace()
-  const [data, setData] = useState<OverviewData | null>(null)
-  const [menuGroupId, setMenuGroupId] = useState('all')
-  const [includeExtras, setIncludeExtras] = useState(true)
-  const [menuGroups, setMenuGroups] = useState<MenuGroup[]>([])
+  const { dateRange } = workspace
+
   const [loading, setLoading] = useState(true)
+  const [currentLines, setCurrentLines] = useState<SalesLine[]>([])
+  const [previousLines, setPreviousLines] = useState<SalesLine[]>([])
+  const [menuGroups, setMenuGroups] = useState<MenuGroup[]>([])
 
   useEffect(() => {
     setLoading(true)
+
+    const days = differenceInDays(dateRange.end, dateRange.start)
+    const prevEnd = subDays(dateRange.start, 1)
+    const prevStart = subDays(prevEnd, days)
+
     Promise.all([
-      fetchOverview(workspace, {
-        start: workspace.dateRange.start,
-        end: workspace.dateRange.end,
+      fetchSalesLines(workspace, {
+        dateRange: { start: dateRange.start, end: dateRange.end },
+      }),
+      fetchSalesLines(workspace, {
+        dateRange: { start: prevStart, end: prevEnd },
       }),
       getMenuGroups(workspace),
     ])
-      .then(([overviewData, groups]) => {
-        setData(overviewData as OverviewData)
+      .then(([current, previous, groups]) => {
+        setCurrentLines(current)
+        setPreviousLines(previous)
         setMenuGroups(groups)
       })
       .catch((error) => {
@@ -231,288 +134,551 @@ export function OverviewPage() {
       .finally(() => {
         setLoading(false)
       })
-  }, [workspace, workspace.dateRange])
+  }, [workspace, workspace.dateRange]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const hasData =
-    !!data &&
-    ((data.metrics.totalAmount ?? 0) > 0 ||
-      (data.metrics.totalQuantity ?? 0) > 0)
+  /* ---------- derived metrics ---------- */
 
-  const filteredTopByQty = useMemo(
-    () =>
-      (data?.topProductsByQty ?? []).filter((product) => {
-        if (!includeExtras && product.menuGroup === 'extras') return false
-        if (menuGroupId !== 'all' && product.menuGroup !== menuGroupId) return false
-        return true
-      }),
-    [data, includeExtras, menuGroupId],
+  const currentTotal = useMemo(
+    () => currentLines.reduce((s, l) => s + l.amount, 0),
+    [currentLines],
+  )
+  const previousTotal = useMemo(
+    () => previousLines.reduce((s, l) => s + l.amount, 0),
+    [previousLines],
+  )
+  const revenueChange = useMemo(
+    () => (previousTotal > 0 ? ((currentTotal - previousTotal) / previousTotal) * 100 : 0),
+    [currentTotal, previousTotal],
   )
 
-  const filteredTopByAmount = useMemo(
-    () =>
-      (data?.topProductsByAmount ?? []).filter((product) => {
-        if (!includeExtras && product.menuGroup === 'extras') return false
-        if (menuGroupId !== 'all' && product.menuGroup !== menuGroupId) return false
-        return true
-      }),
-    [data, includeExtras, menuGroupId],
+  const currentQty = useMemo(
+    () => currentLines.reduce((s, l) => s + l.quantity, 0),
+    [currentLines],
+  )
+  const previousQty = useMemo(
+    () => previousLines.reduce((s, l) => s + l.quantity, 0),
+    [previousLines],
+  )
+  const qtyChange = useMemo(
+    () => (previousQty > 0 ? ((currentQty - previousQty) / previousQty) * 100 : 0),
+    [currentQty, previousQty],
   )
 
-  const sortedCategories = useMemo(
-    () =>
-      [...(data?.categories ?? [])].sort((a, b) => b.amount - a.amount),
-    [data],
+  const currentAvgPrice = useMemo(
+    () => (currentQty > 0 ? currentTotal / currentQty : 0),
+    [currentTotal, currentQty],
+  )
+  const previousAvgPrice = useMemo(
+    () => (previousQty > 0 ? previousTotal / previousQty : 0),
+    [previousTotal, previousQty],
+  )
+  const avgPriceChange = useMemo(
+    () => (previousAvgPrice > 0 ? ((currentAvgPrice - previousAvgPrice) / previousAvgPrice) * 100 : 0),
+    [currentAvgPrice, previousAvgPrice],
   )
 
-  const categoryColors = [
-    '#2563eb', '#7c3aed', '#059669', '#d97706', '#dc2626',
-    '#4b5563', '#ec4899', '#14b8a6', '#f59e0b', '#8b5cf6',
-    '#0891b2', '#65a30d', '#e11d48', '#6366f1', '#ca8a04',
-  ]
+  const activeProducts = useMemo(
+    () => new Set(currentLines.map((l) => l.productId)).size,
+    [currentLines],
+  )
+  const previousActiveProducts = useMemo(
+    () => new Set(previousLines.map((l) => l.productId)).size,
+    [previousLines],
+  )
+  const activeProductsDelta = activeProducts - previousActiveProducts
 
-  /* --- loading state --- */
+  /* ---------- per-product comparison ---------- */
+
+  const productDeltas = useMemo<ProductDelta[]>(() => {
+    const currentByProduct = aggregateByField(currentLines, 'productId')
+    const previousByProduct = aggregateByField(previousLines, 'productId')
+
+    const allProductIds = new Set([
+      ...currentByProduct.keys(),
+      ...previousByProduct.keys(),
+    ])
+
+    const deltas: ProductDelta[] = []
+    for (const productId of allProductIds) {
+      const curr = currentByProduct.get(productId)
+      const prev = previousByProduct.get(productId)
+      const currentAmount = curr?.amount ?? 0
+      const previousAmount = prev?.amount ?? 0
+      const delta = currentAmount - previousAmount
+      const deltaPercent = previousAmount > 0
+        ? ((currentAmount - previousAmount) / previousAmount) * 100
+        : currentAmount > 0
+          ? 100
+          : 0
+
+      deltas.push({
+        productId,
+        productName: curr?.name ?? prev?.name ?? productId,
+        menuGroup: '',
+        currentAmount,
+        previousAmount,
+        currentQty: curr?.quantity ?? 0,
+        previousQty: prev?.quantity ?? 0,
+        delta,
+        deltaPercent,
+      })
+    }
+
+    return deltas
+  }, [currentLines, previousLines])
+
+  /* ---------- per-category comparison ---------- */
+
+  const categoryDeltas = useMemo<CategoryDelta[]>(() => {
+    const currentByCat = aggregateByField(currentLines, 'menuGroupAtSale')
+    const previousByCat = aggregateByField(previousLines, 'menuGroupAtSale')
+
+    const allCatIds = new Set([
+      ...currentByCat.keys(),
+      ...previousByCat.keys(),
+    ])
+
+    const deltas: CategoryDelta[] = []
+    for (const catId of allCatIds) {
+      const curr = currentByCat.get(catId)
+      const prev = previousByCat.get(catId)
+      const currentAmount = curr?.amount ?? 0
+      const previousAmount = prev?.amount ?? 0
+      const delta = currentAmount - previousAmount
+      const deltaPercent = previousAmount > 0
+        ? ((currentAmount - previousAmount) / previousAmount) * 100
+        : currentAmount > 0
+          ? 100
+          : 0
+
+      const group = menuGroups.find((g) => g.id === catId)
+
+      deltas.push({
+        menuGroupId: catId,
+        label: group?.label ?? curr?.name ?? prev?.name ?? catId,
+        color: group?.color ?? '#6b7280',
+        currentAmount,
+        previousAmount,
+        currentQty: curr?.quantity ?? 0,
+        previousQty: prev?.quantity ?? 0,
+        delta,
+        deltaPercent,
+        share: currentTotal > 0 ? currentAmount / currentTotal : 0,
+      })
+    }
+
+    return deltas.sort((a, b) => b.currentAmount - a.currentAmount)
+  }, [currentLines, previousLines, menuGroups, currentTotal])
+
+  /* ---------- attention items ---------- */
+
+  const attentionItems = useMemo<AttentionItem[]>(() => {
+    const items: AttentionItem[] = []
+
+    // Categories with >15% revenue decline
+    for (const cat of categoryDeltas) {
+      if (cat.previousAmount > 0 && cat.deltaPercent < -15) {
+        items.push({
+          type: 'decline',
+          severity: cat.deltaPercent < -25 ? 'red' : 'amber',
+          message: `${cat.label} revenue dropped ${formatPercent(cat.deltaPercent)} vs previous period`,
+        })
+      }
+    }
+
+    // Revenue concentration — top product > 25% share
+    const sortedProducts = [...productDeltas].sort(
+      (a, b) => b.currentAmount - a.currentAmount,
+    )
+    if (sortedProducts.length > 0 && currentTotal > 0) {
+      const topShare = sortedProducts[0].currentAmount / currentTotal
+      if (topShare > 0.25) {
+        items.push({
+          type: 'concentration',
+          severity: topShare > 0.4 ? 'red' : 'amber',
+          message: `${sortedProducts[0].productName} accounts for ${(topShare * 100).toFixed(1)}% of total revenue`,
+        })
+      }
+    }
+
+    // Products that dropped out of top 10
+    const prevSorted = [...productDeltas]
+      .filter((p) => p.previousAmount > 0)
+      .sort((a, b) => b.previousAmount - a.previousAmount)
+    const prevTop10Ids = new Set(prevSorted.slice(0, 10).map((p) => p.productId))
+    const currTop10Ids = new Set(
+      sortedProducts
+        .filter((p) => p.currentAmount > 0)
+        .slice(0, 10)
+        .map((p) => p.productId),
+    )
+
+    for (const id of prevTop10Ids) {
+      if (!currTop10Ids.has(id)) {
+        const product = productDeltas.find((p) => p.productId === id)
+        if (product) {
+          items.push({
+            type: 'dropout',
+            severity: 'amber',
+            message: `${product.productName} dropped out of the top 10 products`,
+          })
+        }
+      }
+    }
+
+    return items
+  }, [categoryDeltas, productDeltas, currentTotal])
+
+  /* ---------- top movers ---------- */
+
+  const gainers = useMemo(
+    () =>
+      [...productDeltas]
+        .filter((p) => p.delta > 0 && p.previousAmount > 0)
+        .sort((a, b) => b.delta - a.delta)
+        .slice(0, 5),
+    [productDeltas],
+  )
+
+  const decliners = useMemo(
+    () =>
+      [...productDeltas]
+        .filter((p) => p.delta < 0 && p.previousAmount > 0)
+        .sort((a, b) => a.delta - b.delta)
+        .slice(0, 5),
+    [productDeltas],
+  )
+
+  /* ---------- loading state ---------- */
+
   if (loading) {
     return (
-      <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-transparent" />
-          <p className="text-sm text-gray-500">Loading overview...</p>
-        </div>
+      <div className="py-20 text-center">
+        <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-gray-900" />
+        <p className="mt-3 text-sm text-gray-400">Loading...</p>
       </div>
     )
   }
 
-  /* --- empty state --- */
-  if (!data || !hasData) {
+  /* ---------- empty state ---------- */
+
+  if (currentLines.length === 0) {
     return (
       <section className="space-y-6">
-        <div className="flex items-center justify-between border-b border-gray-200 pb-5">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">Overview</h1>
-            <p className="mt-1 text-sm text-gray-500">No data available</p>
-          </div>
+        <div className="flex items-center justify-between pb-4">
+          <h1 className="text-lg font-semibold text-gray-900">Overview</h1>
+          <p className="text-sm text-gray-400">
+            {safeDateLabel(dateRange.start, 'MMM d')} &ndash;{' '}
+            {safeDateLabel(dateRange.end, 'MMM d, yyyy')}
+          </p>
         </div>
-        <div className="flex items-center justify-center py-16">
-          <div className="max-w-sm text-center">
-            <h2 className="text-lg font-semibold text-gray-900">
-              No sales data for this period
-            </h2>
-            <p className="mt-2 text-sm text-gray-500">
-              Try expanding your date range or upload a new sales report.
-            </p>
-            <p className="mt-4 text-xs text-gray-400">
-              {safeDateLabel(workspace.dateRange.start, 'MMM d')} &ndash;{' '}
-              {safeDateLabel(workspace.dateRange.end, 'MMM d, yyyy')}
-            </p>
-          </div>
+        <div className="py-20 text-center">
+          <p className="font-medium text-gray-900">No data for this period</p>
+          <p className="mt-1 text-sm text-gray-400">
+            Expand date range or upload reports
+          </p>
         </div>
       </section>
     )
   }
 
-  const maxCategoryShare =
-    sortedCategories.length > 0
-      ? Math.max(...sortedCategories.map((c) => c.share))
-      : 1
+  /* ---------- date label ---------- */
 
-  const insights = generateInsights(
-    data,
-    workspace.currency,
-    sortedCategories,
-    filteredTopByAmount,
-  )
+  const dateLabel = `${safeDateLabel(dateRange.start, 'MMM d')} \u2013 ${safeDateLabel(dateRange.end, 'MMM d, yyyy')}`
+  const hasPreviousData = previousLines.length > 0
+  const maxCategoryShare = categoryDeltas.length > 0
+    ? Math.max(...categoryDeltas.map((c) => c.share))
+    : 1
 
-  const totalCategoryRevenue = sortedCategories.reduce(
-    (sum, c) => sum + c.amount,
-    0,
-  )
+  /* ---------- render ---------- */
 
   return (
     <section className="space-y-6 overflow-hidden">
-      {/* ---- 1. Page Header ---- */}
-      <div className="flex items-center justify-between border-b border-gray-200 pb-5">
-        <div>
-          <h1 className="text-xl font-semibold text-gray-900">Overview</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {workspace.dateRange.label} &middot; {workspace.workspaceName}
+      {/* Section 1: Header */}
+      <div className="flex items-center justify-between pb-4">
+        <h1 className="text-lg font-semibold text-gray-900">Overview</h1>
+        <p className="text-sm text-gray-400">{dateLabel}</p>
+      </div>
+
+      {/* Section 2: Hero KPI — Revenue */}
+      <div className="rounded-lg border border-gray-200 p-5">
+        <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+          Revenue
+        </p>
+        <p className="mt-2 text-3xl font-bold text-gray-900">
+          {formatCurrency(workspace.currency, currentTotal)}
+        </p>
+        <div className="mt-2 flex items-center gap-3">
+          {hasPreviousData && (
+            <ChangeIndicator value={revenueChange} suffix="vs previous period" />
+          )}
+          <span className="text-sm text-gray-400">
+            {currentQty.toLocaleString()} items
+          </span>
+        </div>
+      </div>
+
+      {/* Section 3: Supporting KPIs */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border border-gray-200 p-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+            Items Sold
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">
+            {currentQty.toLocaleString()}
+          </p>
+          {hasPreviousData && (
+            <div className="mt-1">
+              <ChangeIndicator value={qtyChange} suffix="vs prev" />
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-gray-200 p-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+            Avg. Price
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">
+            {formatCurrency(workspace.currency, currentAvgPrice)}
+          </p>
+          {hasPreviousData && (
+            <div className="mt-1">
+              <ChangeIndicator value={avgPriceChange} suffix="vs prev" />
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-gray-200 p-4">
+          <p className="text-xs font-medium uppercase tracking-wider text-gray-400">
+            Active Products
+          </p>
+          <p className="mt-2 text-2xl font-semibold text-gray-900">
+            {activeProducts}
+          </p>
+          <p className="mt-1 text-sm text-gray-400">
+            {activeProductsDelta > 0
+              ? `+${activeProductsDelta} new this period`
+              : activeProductsDelta < 0
+                ? `${activeProductsDelta} fewer this period`
+                : 'No change vs prev'}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Select
-            value={menuGroupId}
-            onChange={(e) => setMenuGroupId(e.target.value)}
-            options={[
-              { label: 'All Categories', value: 'all' },
-              ...menuGroups.map((g) => ({ label: g.label, value: g.id })),
-            ]}
-            className="w-48"
-          />
-          <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-700">
-            <input
-              type="checkbox"
-              checked={includeExtras}
-              onChange={(e) => setIncludeExtras(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            Include extras
-          </label>
+      </div>
+
+      {/* Section 4: Attention Required */}
+      {attentionItems.length > 0 ? (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-gray-900">
+            Attention Required
+          </h2>
+          {attentionItems.map((item, i) => (
+            <div
+              key={i}
+              className={`flex items-start gap-2.5 rounded-lg p-3 text-sm ${
+                item.severity === 'red'
+                  ? 'border-l-2 border-red-400 bg-red-50/50'
+                  : 'border-l-2 border-amber-400 bg-amber-50/50'
+              }`}
+            >
+              <AlertTriangle
+                className={`mt-0.5 h-4 w-4 shrink-0 ${
+                  item.severity === 'red' ? 'text-red-500' : 'text-amber-500'
+                }`}
+              />
+              <span className="text-gray-700">{item.message}</span>
+            </div>
+          ))}
         </div>
-      </div>
+      ) : hasPreviousData ? (
+        <div className="flex items-center gap-2.5 rounded-lg border border-gray-200 p-3 text-sm">
+          <CheckCircle className="h-4 w-4 shrink-0 text-emerald-500" />
+          <span className="text-gray-500">
+            All metrics within normal range
+          </span>
+        </div>
+      ) : null}
 
-      {/* ---- 2. KPI Row ---- */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard
-          label="Total Revenue"
-          value={formatCurrency(workspace.currency, data.metrics.totalAmount)}
-          subtext={`${data.metrics.totalQuantity.toLocaleString()} items sold`}
-        />
-        <KpiCard
-          label="Items Sold"
-          value={data.metrics.totalQuantity.toLocaleString()}
-          subtext="total units"
-        />
-        <KpiCard
-          label="Avg. Price"
-          value={formatCurrency(
-            workspace.currency,
-            data.metrics.averageSellingPrice || 0,
-          )}
-          subtext="per item"
-        />
-        <KpiCard
-          label="Active Products"
-          value={String(data.metrics.activeProducts)}
-          subtext={`in ${sortedCategories.length} categories`}
-        />
-      </div>
-
-      {/* ---- 3. Executive Insights ---- */}
-      {insights.length > 0 && (
-        <div className="app-card p-5">
-          <h3 className="mb-3 text-sm font-semibold text-gray-900">
-            Insights
-          </h3>
-          <ul className="space-y-2">
-            {insights.map((text, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm text-gray-600">
-                <span className="mt-1.5 block h-1.5 w-1.5 shrink-0 rounded-full bg-gray-300" />
-                {text}
-              </li>
-            ))}
-          </ul>
+      {/* Section 5: Category Performance */}
+      {categoryDeltas.length > 0 && (
+        <div className="app-card overflow-hidden">
+          <div className="border-b border-gray-200 px-5 py-4">
+            <h3 className="text-sm font-semibold text-gray-900">
+              Category Performance
+            </h3>
+          </div>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-400">
+                <th className="py-3 pl-5 pr-2 text-left">Category</th>
+                <th className="px-2 py-3 text-right">Revenue</th>
+                <th className="px-2 py-3 text-right">vs Prev</th>
+                <th className="hidden px-2 py-3 text-right sm:table-cell">Share</th>
+                <th className="hidden py-3 pl-2 pr-5 sm:table-cell">
+                  <span className="sr-only">Bar</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {categoryDeltas.map((cat) => {
+                const barWidth = maxCategoryShare > 0
+                  ? (cat.share / maxCategoryShare) * 100
+                  : 0
+                return (
+                  <tr
+                    key={cat.menuGroupId}
+                    className="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="py-2.5 pl-5 pr-2 text-gray-900">
+                      {cat.label}
+                    </td>
+                    <td className="px-2 py-2.5 text-right font-medium text-gray-900">
+                      {formatCurrency(workspace.currency, cat.currentAmount)}
+                    </td>
+                    <td className="px-2 py-2.5 text-right">
+                      {hasPreviousData && cat.previousAmount > 0 ? (
+                        <span
+                          className={`font-medium ${
+                            cat.deltaPercent >= 0 ? 'text-emerald-600' : 'text-red-600'
+                          }`}
+                        >
+                          {formatPercent(cat.deltaPercent)}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">&mdash;</span>
+                      )}
+                    </td>
+                    <td className="hidden px-2 py-2.5 text-right text-gray-500 sm:table-cell">
+                      {(cat.share * 100).toFixed(1)}%
+                    </td>
+                    <td className="hidden w-32 py-2.5 pl-2 pr-5 sm:table-cell">
+                      <div className="h-2 w-full rounded bg-gray-100">
+                        <div
+                          className="h-2 rounded"
+                          style={{
+                            width: `${barWidth}%`,
+                            backgroundColor: cat.color,
+                          }}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 
-      {/* ---- 4. Revenue by Category (horizontal bars) ---- */}
-      <div className="app-card p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900">
-            Revenue by Category
-          </h3>
-          <span className="text-xs text-gray-400">
-            {sortedCategories.length} categories &middot;{' '}
-            {formatCurrency(workspace.currency, totalCategoryRevenue)}
-          </span>
-        </div>
-        {sortedCategories.length > 0 ? (
-          <div className="space-y-0">
-            {sortedCategories.map((cat, idx) => (
-              <HorizontalBar
-                key={cat.menuGroupId}
-                label={cat.label}
-                amount={cat.amount}
-                share={cat.share}
-                color={cat.color || categoryColors[idx % categoryColors.length]}
-                maxShare={maxCategoryShare}
-                currency={workspace.currency}
-              />
-            ))}
+      {/* Section 6: Top Movers */}
+      {hasPreviousData && (gainers.length > 0 || decliners.length > 0) && (
+        <div className="grid gap-4 lg:grid-cols-2">
+          {/* Gainers */}
+          <div className="rounded-lg border border-gray-200 p-4">
+            <h3 className="mb-3 text-sm font-semibold text-gray-900">
+              Biggest Gainers
+            </h3>
+            {gainers.length > 0 ? (
+              <div className="space-y-2">
+                {gainers.map((p) => (
+                  <div
+                    key={p.productId}
+                    className="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <TrendingUp className="h-3.5 w-3.5 shrink-0 text-emerald-600" />
+                      <span className="truncate text-sm text-gray-900">
+                        {p.productName}
+                      </span>
+                    </div>
+                    <div className="ml-3 flex shrink-0 items-center gap-3">
+                      <span className="text-sm font-medium text-emerald-600">
+                        {formatPercent(p.deltaPercent)}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {formatCurrency(workspace.currency, p.delta)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">No gainers this period</p>
+            )}
           </div>
-        ) : (
-          <p className="py-8 text-center text-sm text-gray-400">
-            No category data available
-          </p>
-        )}
-      </div>
 
-      {/* ---- 5. Top Products — side-by-side ---- */}
-      <div className="grid gap-6 lg:grid-cols-2">
-        <CompactProductTable
-          title="Top Products by Revenue"
-          products={filteredTopByAmount}
-          valueKey="amount"
-          valueHeader="Revenue"
-          formatValue={(p) => formatCurrency(workspace.currency, p.amount)}
-        />
-        <CompactProductTable
-          title="Top Products by Volume"
-          products={filteredTopByQty}
-          valueKey="quantity"
-          valueHeader="Quantity"
-          formatValue={(p) => p.quantity.toLocaleString()}
-        />
-      </div>
-
-      {/* ---- 6. Category Breakdown Table ---- */}
-      <div className="app-card overflow-hidden">
-        <div className="border-b border-gray-200 px-5 py-4">
-          <h3 className="text-sm font-semibold text-gray-900">
-            Category Breakdown
-          </h3>
+          {/* Decliners */}
+          <div className="rounded-lg border border-gray-200 p-4">
+            <h3 className="mb-3 text-sm font-semibold text-gray-900">
+              Biggest Decliners
+            </h3>
+            {decliners.length > 0 ? (
+              <div className="space-y-2">
+                {decliners.map((p) => (
+                  <div
+                    key={p.productId}
+                    className="flex items-center justify-between rounded px-2 py-1.5 hover:bg-gray-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <TrendingDown className="h-3.5 w-3.5 shrink-0 text-red-600" />
+                      <span className="truncate text-sm text-gray-900">
+                        {p.productName}
+                      </span>
+                    </div>
+                    <div className="ml-3 flex shrink-0 items-center gap-3">
+                      <span className="text-sm font-medium text-red-600">
+                        {formatPercent(p.deltaPercent)}
+                      </span>
+                      <span className="text-xs text-gray-400">
+                        {formatCurrency(workspace.currency, p.delta)}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-400">No decliners this period</p>
+            )}
+          </div>
         </div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-gray-100 text-xs font-medium uppercase tracking-wider text-gray-400">
-              <th className="py-3 pl-5 pr-2 text-left">Category</th>
-              <th className="px-2 py-3 text-right">Revenue</th>
-              <th className="px-2 py-3 text-right">Qty</th>
-              <th className="px-2 py-3 text-right">Avg Price</th>
-              <th className="py-3 pl-2 pr-5 text-right">Share</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedCategories.map((cat) => {
-              // derive qty from amount / avg price, or approximate from share
-              const catQty =
-                cat.amount > 0 && data.metrics.averageSellingPrice > 0
-                  ? Math.round(cat.amount / data.metrics.averageSellingPrice)
-                  : 0
-              const catAvgPrice =
-                catQty > 0 ? cat.amount / catQty : 0
+      )}
 
+      {/* Section 7: Revenue Distribution — Compact bars */}
+      {categoryDeltas.length > 0 && (
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-gray-900">
+            Revenue Distribution
+          </h2>
+          <div className="space-y-1.5">
+            {categoryDeltas.map((cat) => {
+              const sharePercent = cat.share * 100
               return (
-                <tr
-                  key={cat.menuGroupId}
-                  className="border-b border-gray-50 last:border-0"
-                >
-                  <td className="py-2.5 pl-5 pr-2 text-gray-900">
+                <div key={cat.menuGroupId} className="flex items-center gap-3">
+                  <span className="w-36 shrink-0 truncate text-sm text-gray-700">
                     {cat.label}
-                  </td>
-                  <td className="px-2 py-2.5 text-right font-medium text-gray-900">
-                    {formatCurrency(workspace.currency, cat.amount)}
-                  </td>
-                  <td className="px-2 py-2.5 text-right text-gray-500">
-                    {catQty.toLocaleString()}
-                  </td>
-                  <td className="px-2 py-2.5 text-right text-gray-500">
-                    {formatCurrency(workspace.currency, catAvgPrice)}
-                  </td>
-                  <td className="py-2.5 pl-2 pr-5 text-right text-gray-500">
-                    {pct(cat.share)}
-                  </td>
-                </tr>
+                  </span>
+                  <div className="flex-1">
+                    <div className="h-4 w-full rounded bg-gray-100">
+                      <div
+                        className="h-4 rounded"
+                        style={{
+                          width: `${sharePercent}%`,
+                          backgroundColor: cat.color,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <span className="w-20 shrink-0 text-right text-sm font-medium text-gray-900">
+                    {formatCurrency(workspace.currency, cat.currentAmount)}
+                  </span>
+                  <span className="w-12 shrink-0 text-right text-xs text-gray-500">
+                    {sharePercent.toFixed(1)}%
+                  </span>
+                </div>
               )
             })}
-            {sortedCategories.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-5 py-6 text-center text-gray-400">
-                  No categories available
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+          </div>
+        </div>
+      )}
     </section>
   )
 }
