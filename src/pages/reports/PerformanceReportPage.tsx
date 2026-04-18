@@ -64,6 +64,7 @@ export function PerformanceReportPage() {
   const [subcategoryId, setSubcategoryId] = useState<string>('')
   const [productId, setProductId] = useState<string>('')
   const [filtersOpen, setFiltersOpen] = useState(true)
+  const [expandedQuarter, setExpandedQuarter] = useState<string | null>(null)
 
   const [menuGroups, setMenuGroups] = useState<MenuGroup[]>([])
   const [products, setProducts] = useState<Product[]>([])
@@ -261,28 +262,28 @@ export function PerformanceReportPage() {
   }, [workspace, reportType, dateRange, categoryId, subcategoryId, productId, products])
 
   // Quarter comparison data
+  type MonthDetail = { periodKey: string; label: string; amount: number; quantity: number; avgPrice: number }
   type QuarterRow = {
     key: string
     label: string
-    qNum: number // 1-4
+    qNum: number
     year: number
     amount: number
     quantity: number
     avgPrice: number
-    // Sequential QoQ (vs previous quarter)
     seqAmountChange?: number
     seqQuantityChange?: number
-    // Year-over-Year same quarter (e.g. Q1 2026 vs Q1 2025)
     yoyAmountChange?: number
     yoyQuantityChange?: number
-    yoyLabel?: string // e.g. "vs Q1 2025"
+    yoyLabel?: string
+    months: MonthDetail[]
   }
 
   const quarterComparison = useMemo(() => {
     if (trendData.length === 0) return null
 
-    // Group periods into quarters
-    const quarterMap = new Map<string, { amount: number; quantity: number }>()
+    // Group periods into quarters + collect monthly details
+    const quarterMap = new Map<string, { amount: number; quantity: number; months: Map<string, { amount: number; quantity: number }> }>()
     const sortedData = [...trendData].sort((a, b) => a.periodKey.localeCompare(b.periodKey))
 
     sortedData.forEach(item => {
@@ -291,11 +292,18 @@ export function PerformanceReportPage() {
       const month = parseInt(monthStr)
       const q = Math.ceil(month / 3)
       const qKey = `${year}-Q${q}`
-      const existing = quarterMap.get(qKey) ?? { amount: 0, quantity: 0 }
+      const existing = quarterMap.get(qKey) ?? { amount: 0, quantity: 0, months: new Map() }
       existing.amount += item.amount
       existing.quantity += item.quantity
+      // Monthly detail
+      const monthData = existing.months.get(item.periodKey) ?? { amount: 0, quantity: 0 }
+      monthData.amount += item.amount
+      monthData.quantity += item.quantity
+      existing.months.set(item.periodKey, monthData)
       quarterMap.set(qKey, existing)
     })
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
     const quarters = Array.from(quarterMap.entries())
       .sort(([a], [b]) => a.localeCompare(b))
@@ -303,6 +311,18 @@ export function PerformanceReportPage() {
         const [yearStr, qStr] = key.split('-')
         const year = parseInt(yearStr)
         const qNum = parseInt(qStr.replace('Q', ''))
+        const months: MonthDetail[] = Array.from(data.months.entries())
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([pk, md]) => {
+            const mo = parseInt(pk.split('-')[1]) - 1
+            return {
+              periodKey: pk,
+              label: `${monthNames[mo]} ${year}`,
+              amount: md.amount,
+              quantity: md.quantity,
+              avgPrice: md.quantity > 0 ? md.amount / md.quantity : 0,
+            }
+          })
         return {
           key,
           label: `Q${qNum} ${year}`,
@@ -311,6 +331,7 @@ export function PerformanceReportPage() {
           amount: data.amount,
           quantity: data.quantity,
           avgPrice: data.quantity > 0 ? data.amount / data.quantity : 0,
+          months,
         }
       })
 
@@ -762,14 +783,22 @@ export function PerformanceReportPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100">
-                    {quarterComparison.map((q) => (
-                      <tr key={q.key} className="hover:bg-gray-50 transition-colors">
-                        <td className="py-2.5 pr-4 font-medium text-gray-900">{q.label}</td>
+                  <tbody>
+                    {quarterComparison.map((q) => (<>
+                      <tr
+                        key={q.key}
+                        className="border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => setExpandedQuarter(expandedQuarter === q.key ? null : q.key)}
+                      >
+                        <td className="py-2.5 pr-4 font-medium text-gray-900">
+                          <span className="flex items-center gap-1.5">
+                            <ChevronDown className={`h-3 w-3 text-gray-400 transition-transform duration-150 ${expandedQuarter === q.key ? 'rotate-180' : ''}`} />
+                            {q.label}
+                          </span>
+                        </td>
                         <td className="py-2.5 px-3 text-right font-semibold text-gray-900">{formatCurrency(workspace.currency, q.amount)}</td>
                         <td className="py-2.5 px-3 text-right text-gray-600">{q.quantity.toLocaleString()}</td>
                         <td className="py-2.5 px-3 text-right text-gray-600">{formatCurrency(workspace.currency, q.avgPrice)}</td>
-                        {/* Sequential QoQ */}
                         <td className="py-2.5 px-3 text-right">
                           {q.seqAmountChange !== undefined ? (
                             <div>
@@ -778,7 +807,7 @@ export function PerformanceReportPage() {
                               </span>
                               {q.seqQuantityChange !== undefined && (
                                 <div className={`text-[10px] ${q.seqQuantityChange >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                                  vol {formatPercent(q.seqQuantityChange)}
+                                  qty {formatPercent(q.seqQuantityChange)}
                                 </div>
                               )}
                             </div>
@@ -786,7 +815,6 @@ export function PerformanceReportPage() {
                             <span className="text-gray-300">—</span>
                           )}
                         </td>
-                        {/* YoY same quarter */}
                         <td className="py-2.5 pl-3 text-right">
                           {q.yoyAmountChange !== undefined ? (
                             <div>
@@ -795,7 +823,7 @@ export function PerformanceReportPage() {
                               </span>
                               {q.yoyQuantityChange !== undefined && (
                                 <div className={`text-[10px] ${q.yoyQuantityChange >= 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-                                  vol {formatPercent(q.yoyQuantityChange)}
+                                  qty {formatPercent(q.yoyQuantityChange)}
                                 </div>
                               )}
                               {q.yoyLabel && (
@@ -807,7 +835,18 @@ export function PerformanceReportPage() {
                           )}
                         </td>
                       </tr>
-                    ))}
+                      {/* Monthly breakdown when expanded */}
+                      {expandedQuarter === q.key && q.months.map((m) => (
+                        <tr key={m.periodKey} className="border-b border-gray-50 bg-gray-50/50">
+                          <td className="py-2 pr-4 pl-8 text-[13px] text-gray-500">{m.label}</td>
+                          <td className="py-2 px-3 text-right text-[13px] text-gray-700">{formatCurrency(workspace.currency, m.amount)}</td>
+                          <td className="py-2 px-3 text-right text-[13px] text-gray-500">{m.quantity.toLocaleString()}</td>
+                          <td className="py-2 px-3 text-right text-[13px] text-gray-500">{formatCurrency(workspace.currency, m.avgPrice)}</td>
+                          <td className="py-2 px-3"></td>
+                          <td className="py-2 pl-3"></td>
+                        </tr>
+                      ))}
+                    </>))}
                   </tbody>
                 </table>
               </div>
