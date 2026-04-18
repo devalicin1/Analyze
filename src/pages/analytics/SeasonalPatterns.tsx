@@ -36,6 +36,7 @@ type SeasonalItem = {
 }
 
 function getHeatColor(index: number): { bg: string; text: string } {
+    if (index < 0) return { bg: '#f9fafb', text: '#d1d5db' } // no data — light gray
     if (index > 130) return { bg: '#16a34a', text: '#ffffff' }
     if (index > 115) return { bg: '#4ade80', text: '#14532d' }
     if (index > 100) return { bg: '#bbf7d0', text: '#14532d' }
@@ -106,24 +107,30 @@ function computeSeasonalData(
             const sum = values.reduce((a, b) => a + b, 0)
             totalRevenue += sum
             const avg = values.length > 0 ? sum / values.length : 0
-            monthlyAvgs.push({ month: key, avg })
+            monthlyAvgs.push({ month: key, avg, hasData: values.length > 0 })
         }
 
-        const annualAvg = monthlyAvgs.reduce((sum, m) => sum + m.avg, 0) / 12
+        // Only include months WITH data in the average calculation
+        const monthsWithData = monthlyAvgs.filter(m => m.hasData)
+        if (monthsWithData.length === 0) continue
+
+        const annualAvg = monthsWithData.reduce((sum, m) => sum + m.avg, 0) / monthsWithData.length
 
         if (annualAvg === 0) continue
 
         const months: MonthlyIndex[] = monthlyAvgs.map(m => ({
             month: m.month,
-            index: Math.round((m.avg / annualAvg) * 100),
+            // No data for this month -> index = -1 (flag for "no data")
+            index: m.hasData ? Math.round((m.avg / annualAvg) * 100) : -1,
             avgRevenue: m.avg,
         }))
 
+        // Only consider months WITH data for peak/low detection
         const peakMonths = months
             .filter(m => m.index > 120)
             .map(m => parseInt(m.month, 10) - 1)
         const lowMonths = months
-            .filter(m => m.index < 80)
+            .filter(m => m.index > 0 && m.index < 80) // index > 0 excludes no-data months
             .map(m => parseInt(m.month, 10) - 1)
 
         results.push({
@@ -197,11 +204,13 @@ export function SeasonalPatterns({ dateRange }: { dateRange: { start: Date; end:
 
     const barChartData = useMemo(() => {
         if (!selectedItem) return []
-        return selectedItem.months.map((m, i) => ({
-            month: MONTH_NAMES[i],
-            index: m.index,
-            revenue: m.avgRevenue,
-        }))
+        return selectedItem.months
+            .map((m, i) => ({
+                month: MONTH_NAMES[i],
+                index: m.index >= 0 ? m.index : null, // null = no data, won't render bar
+                revenue: m.avgRevenue,
+                hasData: m.index >= 0,
+            }))
     }, [selectedItem])
 
     const selectOptions = useMemo(() => {
@@ -304,7 +313,7 @@ export function SeasonalPatterns({ dateRange }: { dateRange: { start: Date; end:
                                                                 color: colors.text,
                                                             }}
                                                         >
-                                                            {m.index}
+                                                            {m.index >= 0 ? m.index : '—'}
                                                         </span>
                                                     </td>
                                                 )
@@ -352,7 +361,7 @@ export function SeasonalPatterns({ dateRange }: { dateRange: { start: Date; end:
                                     <ReferenceLine y={100} stroke="#9ca3af" strokeDasharray="3 3" label={{ value: 'Avg (100)', fill: '#9ca3af', fontSize: 11 }} />
                                     <Bar dataKey="index" radius={[4, 4, 0, 0]}>
                                         {barChartData.map((entry, i) => (
-                                            <Cell key={i} fill={entry.index >= 100 ? '#16a34a' : '#ef4444'} />
+                                            <Cell key={i} fill={entry.index === null ? '#e5e7eb' : entry.index >= 100 ? '#16a34a' : '#ef4444'} />
                                         ))}
                                     </Bar>
                                 </RechartsBarChart>
