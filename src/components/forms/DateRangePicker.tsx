@@ -1,9 +1,15 @@
+import { useState, useEffect } from 'react'
 import { addMonths, endOfMonth, startOfMonth, subMonths } from 'date-fns'
 import type { DateRange } from '../../context/WorkspaceContext'
 
 type DateRangePickerProps = {
   value: DateRange
   onChange: (range: DateRange) => void
+}
+
+const toInputValue = (d: Date | undefined | null): string => {
+  if (!d || !(d instanceof Date) || isNaN(d.getTime())) return ''
+  return d.toISOString().split('T')[0]
 }
 
 const presetBuilders = [
@@ -40,53 +46,62 @@ const presetBuilders = [
 ]
 
 export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, value: val } = e.target
+  // Local draft state for date inputs — only pushed to parent on blur
+  const [draftStart, setDraftStart] = useState(() => toInputValue(value.start))
+  const [draftEnd, setDraftEnd] = useState(() => toInputValue(value.end))
+
+  // Sync drafts when parent value changes (e.g. preset selected)
+  useEffect(() => {
+    setDraftStart(toInputValue(value.start))
+    setDraftEnd(toInputValue(value.end))
+  }, [value.start, value.end])
+
+  function applyDraft(field: 'start' | 'end', val: string) {
+    const date = new Date(val)
+    if (isNaN(date.getTime())) return
     onChange({
       ...value,
-      [name]: new Date(val),
+      [field]: date,
       label: 'Custom range',
     })
   }
 
   return (
-    <div className="space-y-3 rounded-2xl border border-gray-200 bg-white p-4 shadow-card">
+    <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
       <div className="flex flex-wrap gap-2">
         {presetBuilders.map((preset) => (
           <button
             key={preset.label}
             type="button"
             onClick={() => onChange(preset.compute())}
-            className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition hover:border-primary hover:text-primary"
+            className="rounded-full border border-gray-200 px-3 py-1 text-xs font-medium text-gray-600 transition-colors hover:border-gray-400 hover:text-gray-900"
           >
             {preset.label}
           </button>
         ))}
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <label className="text-xs font-semibold text-gray-500">
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
           Start date
           <input
             type="date"
-            name="start"
-            value={value.start instanceof Date && !isNaN(value.start.getTime()) ? value.start.toISOString().split('T')[0] : ''}
-            onChange={handleInputChange}
-            className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900"
+            value={draftStart}
+            onChange={(e) => setDraftStart(e.target.value)}
+            onBlur={() => applyDraft('start', draftStart)}
+            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
           />
         </label>
-        <label className="text-xs font-semibold text-gray-500">
+        <label className="text-[11px] font-semibold uppercase tracking-wider text-gray-400">
           End date
           <input
             type="date"
-            name="end"
-            value={value.end instanceof Date && !isNaN(value.end.getTime()) ? value.end.toISOString().split('T')[0] : ''}
-            onChange={handleInputChange}
-            className="mt-1 w-full rounded-xl border border-gray-200 px-3 py-2 text-sm text-gray-900"
+            value={draftEnd}
+            onChange={(e) => setDraftEnd(e.target.value)}
+            onBlur={() => applyDraft('end', draftEnd)}
+            className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
           />
         </label>
       </div>
     </div>
   )
 }
-
-
