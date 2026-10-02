@@ -1,0 +1,2678 @@
+[
+  {
+    "name": "LUNCH MENU",
+    "posCode": "LUNCH MENU",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "CHICKEN SHISH",
+    "posCode": "CHICKEN SHISH",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "JUST 2",
+    "posCode": "JUST 2",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "MIX SHISH",
+    "posCode": "MIX SHISH",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "LAMB SHISH FILLET",
+    "posCode": "LAMB SHISH FILLET",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "EFES DRAFT",
+    "posCode": "EFES DRAFT",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_draft"
+  },
+  {
+    "name": "MIXED GRILL",
+    "posCode": "MIXED GRILL",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "LAMB CHOPS",
+    "posCode": "LAMB CHOPS",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "CHUG & CHEERS WITH COCKTAILS",
+    "posCode": "CHUG & CHEERS WITH COCKTAILS",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "COKE",
+    "posCode": "COKE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "CHUG & CHEERS MENU WITH PROSECCO",
+    "posCode": "CHUG & CHEERS MENU WITH PROSECCO",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "WRAP BEYTI w/YOGHURT",
+    "posCode": "WRAP BEYTI w/YOGHURT",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_yoghurt"
+  },
+  {
+    "name": "PINOT GRIGIO ROSE",
+    "posCode": "PINOT GRIGIO ROSE",
+    "isExtra": false,
+    "menuGroupId": "cat_rose_wine"
+  },
+  {
+    "name": "MIXED FISH KEBAB",
+    "posCode": "MIXED FISH KEBAB",
+    "isExtra": false,
+    "menuGroupId": "cat_seafood",
+    "menuSubGroupId": "cat_seafood_dishes"
+  },
+  {
+    "name": "LAMB RIBS",
+    "posCode": "LAMB RIBS",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "GRILLED HALLOUMI",
+    "posCode": "GRILLED HALLOUMI",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "HOUSE SPECIAL LAMB",
+    "posCode": "HOUSE SPECIAL LAMB",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_signature"
+  },
+  {
+    "name": "CRISPY SQUID",
+    "posCode": "CRISPY SQUID",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "EFES 500ML",
+    "posCode": "EFES 500ML",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "DIET COKE",
+    "posCode": "DIET COKE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "Misc. Food",
+    "posCode": "Misc. Food",
+    "isExtra": false,
+    "menuGroupId": "cat_misc"
+  },
+  {
+    "name": "RIB EYE STEAK",
+    "posCode": "RIB EYE STEAK",
+    "isExtra": false,
+    "menuGroupId": "cat_steaks",
+    "menuSubGroupId": "cat_steaks_scottish"
+  },
+  {
+    "name": "STILL WATER",
+    "posCode": "STILL WATER",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "WAGYU BURGER",
+    "posCode": "WAGYU BURGER",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "CHICKEN WINGS",
+    "posCode": "CHICKEN WINGS",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "SALMON FISH KEBAB",
+    "posCode": "SALMON FISH KEBAB",
+    "isExtra": false,
+    "menuGroupId": "cat_seafood",
+    "menuSubGroupId": "cat_seafood_dishes"
+  },
+  {
+    "name": "ADANA KOFTE",
+    "posCode": "ADANA KOFTE",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "THICK CUT CHIPS",
+    "posCode": "THICK CUT CHIPS",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "MIXED HOT STARTERS",
+    "posCode": "MIXED HOT STARTERS",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_sharing"
+  },
+  {
+    "name": "FESTIVE LUNCH MENU",
+    "posCode": "FESTIVE LUNCH MENU",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "HUMMUS",
+    "posCode": "HUMMUS",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "FROZEN DAIQUIRI",
+    "posCode": "FROZEN DAIQUIRI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_frozen"
+  },
+  {
+    "name": "CHICKEN & VEG SHISH",
+    "posCode": "CHICKEN & VEG SHISH",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "PINOT GRIGIO",
+    "posCode": "PINOT GRIGIO",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "FILLET STEAK",
+    "posCode": "FILLET STEAK",
+    "isExtra": false,
+    "menuGroupId": "cat_steaks",
+    "menuSubGroupId": "cat_steaks_scottish"
+  },
+  {
+    "name": "MORETTI PINT",
+    "posCode": "MORETTI PINT",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_draft"
+  },
+  {
+    "name": "FILLET OF SEA BASS",
+    "posCode": "FILLET OF SEA BASS",
+    "isExtra": false,
+    "menuGroupId": "cat_seafood",
+    "menuSubGroupId": "cat_seafood_dishes"
+  },
+  {
+    "name": "CHEESY PASTRY ROLLS",
+    "posCode": "CHEESY PASTRY ROLLS",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "BAKLAVA",
+    "posCode": "BAKLAVA",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "LUNCH ADD COCKTAILS",
+    "posCode": "LUNCH ADD COCKTAILS",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "PORNSTAR MARTINI",
+    "posCode": "PORNSTAR MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "SET MENU",
+    "posCode": "SET MENU",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "CHICKEN SHISH w/YOGHURT",
+    "posCode": "CHICKEN SHISH w/YOGHURT",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_yoghurt"
+  },
+  {
+    "name": "PROSECCO DOC",
+    "posCode": "PROSECCO DOC",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "CHICKEN SHISH & ADANA",
+    "posCode": "CHICKEN SHISH & ADANA",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_combinations"
+  },
+  {
+    "name": "CHICKEN COMBINATION",
+    "posCode": "CHICKEN COMBINATION",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_combinations"
+  },
+  {
+    "name": "GRILLED OCTOPUS",
+    "posCode": "GRILLED OCTOPUS",
+    "isExtra": false,
+    "menuGroupId": "cat_seafood",
+    "menuSubGroupId": "cat_seafood_dishes"
+  },
+  {
+    "name": "PAN COOKED PRAWNS",
+    "posCode": "PAN COOKED PRAWNS",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "COKE ZERO",
+    "posCode": "COKE ZERO",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "CHICKEN WINGS STARTER",
+    "posCode": "CHICKEN WINGS STARTER",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "MONK FISH KEBAB",
+    "posCode": "MONK FISH KEBAB",
+    "isExtra": false,
+    "menuGroupId": "cat_seafood",
+    "menuSubGroupId": "cat_seafood_dishes"
+  },
+  {
+    "name": "KIDS CHICKEN SHISH",
+    "posCode": "KIDS CHICKEN SHISH",
+    "isExtra": false,
+    "menuGroupId": "cat_kids"
+  },
+  {
+    "name": "CHUG & CHEERS WITH BEER",
+    "posCode": "CHUG & CHEERS WITH BEER",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "VEGETABLE GRILL HALLOUMI",
+    "posCode": "VEGETABLE GRILL HALLOUMI",
+    "isExtra": false,
+    "menuGroupId": "cat_vegetarian",
+    "menuSubGroupId": "cat_vegetarian_mains"
+  },
+  {
+    "name": "MIXED COLD STARTERS",
+    "posCode": "MIXED COLD STARTERS",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_sharing"
+  },
+  {
+    "name": "SPARKLING WATER",
+    "posCode": "SPARKLING WATER",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "KIDS CHICKEN NUGGETS",
+    "posCode": "KIDS CHICKEN NUGGETS",
+    "isExtra": false,
+    "menuGroupId": "cat_kids"
+  },
+  {
+    "name": "SPRITE",
+    "posCode": "SPRITE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "CREAMY GARLIC MUSHROOM",
+    "posCode": "CREAMY GARLIC MUSHROOM",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "HOUSE WHITE",
+    "posCode": "HOUSE WHITE",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "SPICY BEEF SAUSAGE",
+    "posCode": "SPICY BEEF SAUSAGE",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "SAUVIGNON BLANC MAKUTU",
+    "posCode": "SAUVIGNON BLANC MAKUTU",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "SMIRNOFF",
+    "posCode": "SMIRNOFF",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "MAKUTU SAUVIGNON",
+    "posCode": "MAKUTU SAUVIGNON",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "SHELL ON TIGER PRAWNS",
+    "posCode": "SHELL ON TIGER PRAWNS",
+    "isExtra": false,
+    "menuGroupId": "cat_seafood",
+    "menuSubGroupId": "cat_seafood_dishes"
+  },
+  {
+    "name": "LAMB SHISH w/YOGHURT",
+    "posCode": "LAMB SHISH w/YOGHURT",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_yoghurt"
+  },
+  {
+    "name": "CREAMY MUSHROOM CHICKEN",
+    "posCode": "CREAMY MUSHROOM CHICKEN",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_signature"
+  },
+  {
+    "name": "APEROL SPRITZ",
+    "posCode": "APEROL SPRITZ",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_fizz"
+  },
+  {
+    "name": "LAMB SHISH & ADANA",
+    "posCode": "LAMB SHISH & ADANA",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_combinations"
+  },
+  {
+    "name": "LAMB LIVER",
+    "posCode": "LAMB LIVER",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "CACIK",
+    "posCode": "CACIK",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "MOJITO",
+    "posCode": "MOJITO",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "PERONI BOTTLE",
+    "posCode": "PERONI BOTTLE",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "TARAMA",
+    "posCode": "TARAMA",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "HUGO SPRITZ",
+    "posCode": "HUGO SPRITZ",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_fizz"
+  },
+  {
+    "name": "MIXED BOARD",
+    "posCode": "MIXED BOARD",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_sharing"
+  },
+  {
+    "name": "COKERTME KEBAB",
+    "posCode": "COKERTME KEBAB",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_signature"
+  },
+  {
+    "name": "ESPRESSO MARTINI",
+    "posCode": "ESPRESSO MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "CHOCOLATE BROWNIE",
+    "posCode": "CHOCOLATE BROWNIE",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "AVOCADO PRAWN COCKTAIL",
+    "posCode": "AVOCADO PRAWN COCKTAIL",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "MERLOT",
+    "posCode": "MERLOT",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "ZINFANDEL BLUSH",
+    "posCode": "ZINFANDEL BLUSH",
+    "isExtra": false,
+    "menuGroupId": "cat_rose_wine"
+  },
+  {
+    "name": "Misc. Drink",
+    "posCode": "Misc. Drink",
+    "isExtra": false,
+    "menuGroupId": "cat_misc"
+  },
+  {
+    "name": "HUMMUS KAVURMA",
+    "posCode": "HUMMUS KAVURMA",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "LONG ISLAND ICE TEA",
+    "posCode": "LONG ISLAND ICE TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "HOUSE WHITE (ARIEN TERRA)",
+    "posCode": "HOUSE WHITE (ARIEN TERRA)",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "BREAD",
+    "posCode": "BREAD",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "PINK PROSECCO DOC",
+    "posCode": "PINK PROSECCO DOC",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "CREME BRULEE",
+    "posCode": "CREME BRULEE",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "TIRAMISU",
+    "posCode": "TIRAMISU",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "MALBEC PARA DOS",
+    "posCode": "MALBEC PARA DOS",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "MINCED CHICKEN BEYTI",
+    "posCode": "MINCED CHICKEN BEYTI",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "LYCHEE MARTINI",
+    "posCode": "LYCHEE MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "HOUSE RED",
+    "posCode": "HOUSE RED",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "ADANA KOFTE w/YOGHURT",
+    "posCode": "ADANA KOFTE w/YOGHURT",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_yoghurt"
+  },
+  {
+    "name": "JACK DANIELS",
+    "posCode": "JACK DANIELS",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_bourbon"
+  },
+  {
+    "name": "MARGHARITA",
+    "posCode": "MARGHARITA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "PERONI ZERO",
+    "posCode": "PERONI ZERO",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "CRUNCHY GOATS CHEESE",
+    "posCode": "CRUNCHY GOATS CHEESE",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "HOUSE RED (SANGIOVESE)",
+    "posCode": "HOUSE RED (SANGIOVESE)",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "APPLE JUICE",
+    "posCode": "APPLE JUICE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "MALBEC PARADOS",
+    "posCode": "MALBEC PARADOS",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "FANTA",
+    "posCode": "FANTA",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "FROZEN PINA COLADA",
+    "posCode": "FROZEN PINA COLADA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_frozen"
+  },
+  {
+    "name": "3 COURSE MEAL",
+    "posCode": "3 COURSE MEAL",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "CHICKEN CAESAR SALAD",
+    "posCode": "CHICKEN CAESAR SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_salads",
+    "menuSubGroupId": "cat_salads_all"
+  },
+  {
+    "name": "MIXED OLIVES",
+    "posCode": "MIXED OLIVES",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "CHARDONNAY",
+    "posCode": "CHARDONNAY",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "KIDS CHEESE BURGER",
+    "posCode": "KIDS CHEESE BURGER",
+    "isExtra": false,
+    "menuGroupId": "cat_kids"
+  },
+  {
+    "name": "CAPPUCCINO",
+    "posCode": "CAPPUCCINO",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "SEX ON THE BEACH",
+    "posCode": "SEX ON THE BEACH",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "SODA/LIME",
+    "posCode": "SODA/LIME",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "GORDONS PINK",
+    "posCode": "GORDONS PINK",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "STRAWBERRY CHEESECAKE",
+    "posCode": "STRAWBERRY CHEESECAKE",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "KIDS CHICKEN WINGS",
+    "posCode": "KIDS CHICKEN WINGS",
+    "isExtra": false,
+    "menuGroupId": "cat_kids"
+  },
+  {
+    "name": "STICKY TOFFEE PUDDING",
+    "posCode": "STICKY TOFFEE PUDDING",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "MADRI DRAFT",
+    "posCode": "MADRI DRAFT",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_draft"
+  },
+  {
+    "name": "FALAFEL MAIN",
+    "posCode": "FALAFEL MAIN",
+    "isExtra": false,
+    "menuGroupId": "cat_vegetarian",
+    "menuSubGroupId": "cat_vegetarian_mains"
+  },
+  {
+    "name": "SPRITZER",
+    "posCode": "SPRITZER",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_fizz"
+  },
+  {
+    "name": "CHICKEN SHISH & CHICKEN BEYTI",
+    "posCode": "CHICKEN SHISH & CHICKEN BEYTI",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_combinations"
+  },
+  {
+    "name": "MINCED LAMB BEYTI",
+    "posCode": "MINCED LAMB BEYTI",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_mains"
+  },
+  {
+    "name": "CAFE LATTE",
+    "posCode": "CAFE LATTE",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "GORDONS",
+    "posCode": "GORDONS",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "CORONA BOTTLE",
+    "posCode": "CORONA BOTTLE",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "AMERICANO",
+    "posCode": "AMERICANO",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "ORANGE JUICE",
+    "posCode": "ORANGE JUICE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "COTES DE ROSE",
+    "posCode": "COTES DE ROSE",
+    "isExtra": false,
+    "menuGroupId": "cat_rose_wine"
+  },
+  {
+    "name": "MONTEPULCIANO",
+    "posCode": "MONTEPULCIANO",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "PADRON PEPPER SEA SALT",
+    "posCode": "PADRON PEPPER SEA SALT",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "LAMB CHOPS & LAMB RIBS",
+    "posCode": "LAMB CHOPS & LAMB RIBS",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_combinations"
+  },
+  {
+    "name": "VIRGIN STRAWBERRY DAIQUIRI",
+    "posCode": "VIRGIN STRAWBERRY DAIQUIRI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_virgin"
+  },
+  {
+    "name": "CHOCOLATE CHEESECAKE",
+    "posCode": "CHOCOLATE CHEESECAKE",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "FALAFEL (STR)",
+    "posCode": "FALAFEL (STR)",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "GREY GOOSE",
+    "posCode": "GREY GOOSE",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "MUSHROOM & HALLOUMI",
+    "posCode": "MUSHROOM & HALLOUMI",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "KAVAKLIDERE YAKUT",
+    "posCode": "KAVAKLIDERE YAKUT",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "J20",
+    "posCode": "J20",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "DOLMA",
+    "posCode": "DOLMA",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "KAVAKLIDERE CANKAYA",
+    "posCode": "KAVAKLIDERE CANKAYA",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "FERRERO ROCHER",
+    "posCode": "FERRERO ROCHER",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "LAMB SHISH & CHICKEN BEYTI",
+    "posCode": "LAMB SHISH & CHICKEN BEYTI",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_combinations"
+  },
+  {
+    "name": "IRISH COFFEE",
+    "posCode": "IRISH COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueur_coffees"
+  },
+  {
+    "name": "PATLICAN SOSLU",
+    "posCode": "PATLICAN SOSLU",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "PRIMITIVO",
+    "posCode": "PRIMITIVO",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "MUSSELS CREAMY",
+    "posCode": "MUSSELS CREAMY",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "VIRGIN MOJITO",
+    "posCode": "VIRGIN MOJITO",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_virgin"
+  },
+  {
+    "name": "CADBURYS FLAKE",
+    "posCode": "CADBURYS FLAKE",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "CASAL MENDES ROSE",
+    "posCode": "CASAL MENDES ROSE",
+    "isExtra": false,
+    "menuGroupId": "cat_rose_wine"
+  },
+  {
+    "name": "COSMOPOLITAN",
+    "posCode": "COSMOPOLITAN",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "RAKI",
+    "posCode": "RAKI",
+    "isExtra": false,
+    "menuGroupId": "cat_aperitifs"
+  },
+  {
+    "name": "CARABBEAN CRUSH COCKTAIL",
+    "posCode": "CARABBEAN CRUSH COCKTAIL",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_signature"
+  },
+  {
+    "name": "KOPPARBERG BOTTLE",
+    "posCode": "KOPPARBERG BOTTLE",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "GAVI DI GAVI",
+    "posCode": "GAVI DI GAVI",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "DISARRONO",
+    "posCode": "DISARRONO",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "PURPLE RAIN",
+    "posCode": "PURPLE RAIN",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "KIDS CHICKEN BURGER",
+    "posCode": "KIDS CHICKEN BURGER",
+    "isExtra": false,
+    "menuGroupId": "cat_kids"
+  },
+  {
+    "name": "ROAST BEEF SIRLOIN",
+    "posCode": "ROAST BEEF SIRLOIN",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "ZOMBIE",
+    "posCode": "ZOMBIE",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "FLAT WHITE",
+    "posCode": "FLAT WHITE",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "VIRGIN PINA COLADA",
+    "posCode": "VIRGIN PINA COLADA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_virgin"
+  },
+  {
+    "name": "APPLETISER",
+    "posCode": "APPLETISER",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "FETA CHEESE SALAD",
+    "posCode": "FETA CHEESE SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_salads",
+    "menuSubGroupId": "cat_salads_all"
+  },
+  {
+    "name": "SHIRAZ",
+    "posCode": "SHIRAZ",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "MORGON SPICED",
+    "posCode": "MORGON SPICED",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "BELLINI",
+    "posCode": "BELLINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_fizz"
+  },
+  {
+    "name": "ICE CREAM COCKTAIL",
+    "posCode": "ICE CREAM COCKTAIL",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "EZME SALAD",
+    "posCode": "EZME SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "LAMB BEYTI & CHICKEN BEYTI",
+    "posCode": "LAMB BEYTI & CHICKEN BEYTI",
+    "isExtra": false,
+    "menuGroupId": "cat_grill",
+    "menuSubGroupId": "cat_grill_combinations"
+  },
+  {
+    "name": "SET MENU ADD DESSERT",
+    "posCode": "SET MENU ADD DESSERT",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "AMARETTO SOUR",
+    "posCode": "AMARETTO SOUR",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "TRUFFLE CHIPS",
+    "posCode": "TRUFFLE CHIPS",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "SORBET",
+    "posCode": "SORBET",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "MONKEY 47 GIN",
+    "posCode": "MONKEY 47 GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "ROSE SANGRIA",
+    "posCode": "ROSE SANGRIA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_signature"
+  },
+  {
+    "name": "FRENCH MARTINI",
+    "posCode": "FRENCH MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "RASPBERRY BOMB",
+    "posCode": "RASPBERRY BOMB",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_gin"
+  },
+  {
+    "name": "TRIO ROAST",
+    "posCode": "TRIO ROAST",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "PINEAPPLE JUICE",
+    "posCode": "PINEAPPLE JUICE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "MAGNERS ORIJINAL BOTTLE",
+    "posCode": "MAGNERS ORIJINAL BOTTLE",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "COURVOISSER",
+    "posCode": "COURVOISSER",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "TURKISH TEA",
+    "posCode": "TURKISH TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "OLD FASHIONED",
+    "posCode": "OLD FASHIONED",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "MIDNIGHT MINT",
+    "posCode": "MIDNIGHT MINT",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "COCONUT SUPREME",
+    "posCode": "COCONUT SUPREME",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "SPICY EZME SALAD",
+    "posCode": "SPICY EZME SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "TONIC WATER",
+    "posCode": "TONIC WATER",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "PINOT NOIR",
+    "posCode": "PINOT NOIR",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "BELGIAN APPLE PIE",
+    "posCode": "BELGIAN APPLE PIE",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_desserts"
+  },
+  {
+    "name": "FROZEN BUBBLE GUM",
+    "posCode": "FROZEN BUBBLE GUM",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_signature"
+  },
+  {
+    "name": "ENGLISH TEA",
+    "posCode": "ENGLISH TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "BAILEYS COFFEE",
+    "posCode": "BAILEYS COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueur_coffees"
+  },
+  {
+    "name": "CARAMEL OLD FASHIONED",
+    "posCode": "CARAMEL OLD FASHIONED",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "MUSSELS TOMATO",
+    "posCode": "MUSSELS TOMATO",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "TURKISH COFFEE",
+    "posCode": "TURKISH COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "WHISPERING ANGEL",
+    "posCode": "WHISPERING ANGEL",
+    "isExtra": false,
+    "menuGroupId": "cat_rose_wine"
+  },
+  {
+    "name": "SANCERRE",
+    "posCode": "SANCERRE",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "FROZEN PORNSTAR MARTINI",
+    "posCode": "FROZEN PORNSTAR MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_frozen"
+  },
+  {
+    "name": "HALLOUMI SALAD",
+    "posCode": "HALLOUMI SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_salads",
+    "menuSubGroupId": "cat_salads_all"
+  },
+  {
+    "name": "BROCCOLI & ALMOND",
+    "posCode": "BROCCOLI & ALMOND",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "DOUBLE ESPRESSO",
+    "posCode": "DOUBLE ESPRESSO",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "ROAST LAMB",
+    "posCode": "ROAST LAMB",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "FRESH MINT TEA",
+    "posCode": "FRESH MINT TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "LAURENT PERRIER ROSE",
+    "posCode": "LAURENT PERRIER ROSE",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "GORDONS PINK FIZZ",
+    "posCode": "GORDONS PINK FIZZ",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_gin"
+  },
+  {
+    "name": "CALYPSO COFFEE",
+    "posCode": "CALYPSO COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueur_coffees"
+  },
+  {
+    "name": "RICE",
+    "posCode": "RICE",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "MALIBU",
+    "posCode": "MALIBU",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "NEGRONI",
+    "posCode": "NEGRONI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_gin"
+  },
+  {
+    "name": "WHISKEY SOUR",
+    "posCode": "WHISKEY SOUR",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "RHUBARD GINGER GIN",
+    "posCode": "RHUBARD GINGER GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "CREAMY MASH",
+    "posCode": "CREAMY MASH",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "GINGER ALE",
+    "posCode": "GINGER ALE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "PETIT CHABLIS",
+    "posCode": "PETIT CHABLIS",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "VIRGIN PORN STAR MARTINI",
+    "posCode": "VIRGIN PORN STAR MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_virgin"
+  },
+  {
+    "name": "HENDRICKS GIN",
+    "posCode": "HENDRICKS GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "MORETTI HALF PINT",
+    "posCode": "MORETTI HALF PINT",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_draft"
+  },
+  {
+    "name": "SAUTEED VEGETABLES",
+    "posCode": "SAUTEED VEGETABLES",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "PASSION LOVE",
+    "posCode": "PASSION LOVE",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_signature"
+  },
+  {
+    "name": "AVOCADO SALAD",
+    "posCode": "AVOCADO SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_salads",
+    "menuSubGroupId": "cat_salads_all"
+  },
+  {
+    "name": "ROAST CORNFED CHICKEN",
+    "posCode": "ROAST CORNFED CHICKEN",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "PIMMS SPRITZ",
+    "posCode": "PIMMS SPRITZ",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_fizz"
+  },
+  {
+    "name": "CRANBERRY JUICE",
+    "posCode": "CRANBERRY JUICE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "RIESLING 1636 MOSEL",
+    "posCode": "RIESLING 1636 MOSEL",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "SAUTEED NEW POTATOES",
+    "posCode": "SAUTEED NEW POTATOES",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "BOMBAY SAPPHIRE",
+    "posCode": "BOMBAY SAPPHIRE",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "SPARKS SECRET",
+    "posCode": "SPARKS SECRET",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_signature"
+  },
+  {
+    "name": "KRUDITE",
+    "posCode": "KRUDITE",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_cold"
+  },
+  {
+    "name": "BACARDI BLANCO",
+    "posCode": "BACARDI BLANCO",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "ORANGE LEMONADE",
+    "posCode": "ORANGE LEMONADE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "CHANDON BRUT",
+    "posCode": "CHANDON BRUT",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "GRILLED MUSHROOMS",
+    "posCode": "GRILLED MUSHROOMS",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "KIR ROYAL",
+    "posCode": "KIR ROYAL",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_fizz"
+  },
+  {
+    "name": "SAUTEED BABY SPINACH",
+    "posCode": "SAUTEED BABY SPINACH",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "KIDS ADANA KOFTE",
+    "posCode": "KIDS ADANA KOFTE",
+    "isExtra": false,
+    "menuGroupId": "cat_kids"
+  },
+  {
+    "name": "GRILLED ONIONS",
+    "posCode": "GRILLED ONIONS",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "NO FROZEN PINA COLADA",
+    "posCode": "NO FROZEN PINA COLADA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "JAMESON",
+    "posCode": "JAMESON",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_irish"
+  },
+  {
+    "name": "VEUVE CLICQUOT",
+    "posCode": "VEUVE CLICQUOT",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "BAILEYS",
+    "posCode": "BAILEYS",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "FLOATER COFFEE",
+    "posCode": "FLOATER COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueur_coffees"
+  },
+  {
+    "name": "ASAHI",
+    "posCode": "ASAHI",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "TANQUERAY NO10",
+    "posCode": "TANQUERAY NO10",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "RIOJA CRIANZA",
+    "posCode": "RIOJA CRIANZA",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "BABY GUINNESS",
+    "posCode": "BABY GUINNESS",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "SODA WATER",
+    "posCode": "SODA WATER",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "GINGER MARTINI",
+    "posCode": "GINGER MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "COUSCOUS",
+    "posCode": "COUSCOUS",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "PUNKY",
+    "posCode": "PUNKY",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "SINGLE ESPRESSO",
+    "posCode": "SINGLE ESPRESSO",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "HENNESSY",
+    "posCode": "HENNESSY",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "CHICKEN & LAMB ROAST",
+    "posCode": "CHICKEN & LAMB ROAST",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "LIMONCELLO ICE CREAM",
+    "posCode": "LIMONCELLO ICE CREAM",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "SILVER TEQUILA",
+    "posCode": "SILVER TEQUILA",
+    "isExtra": false,
+    "menuGroupId": "cat_tequila"
+  },
+  {
+    "name": "BLACK LABEL",
+    "posCode": "BLACK LABEL",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "BLOOD ORANGE GIN",
+    "posCode": "BLOOD ORANGE GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "ICE TEA",
+    "posCode": "ICE TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "CHICKEN & SIRLOIN ROAST",
+    "posCode": "CHICKEN & SIRLOIN ROAST",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "VIRGIN LYCHEE MARTINI",
+    "posCode": "VIRGIN LYCHEE MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_virgin"
+  },
+  {
+    "name": "CAULIFLOWER CHEESE",
+    "posCode": "CAULIFLOWER CHEESE",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "HOT CHOCOLATE",
+    "posCode": "HOT CHOCOLATE",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "RASPBERRY GIN",
+    "posCode": "RASPBERRY GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "ALBARINO",
+    "posCode": "ALBARINO",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "BUTTERSCOTCH MARTINI",
+    "posCode": "BUTTERSCOTCH MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "WHITE RUSSIAN MARTINI",
+    "posCode": "WHITE RUSSIAN MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "BEETROOT FETA SALAD",
+    "posCode": "BEETROOT FETA SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_salads",
+    "menuSubGroupId": "cat_salads_all"
+  },
+  {
+    "name": "TIA MARIA",
+    "posCode": "TIA MARIA",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "VINHO VERDE",
+    "posCode": "VINHO VERDE",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "RIOJA RESERVE",
+    "posCode": "RIOJA RESERVE",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "MACCHIATO",
+    "posCode": "MACCHIATO",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "ITALIAN COFFEE",
+    "posCode": "ITALIAN COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueur_coffees"
+  },
+  {
+    "name": "LEMONCELLO",
+    "posCode": "LEMONCELLO",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "SMOKE HOUSE",
+    "posCode": "SMOKE HOUSE",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_signature"
+  },
+  {
+    "name": "PORT",
+    "posCode": "PORT",
+    "isExtra": false,
+    "menuGroupId": "cat_dessert_wine"
+  },
+  {
+    "name": "TEQUILA ROSE",
+    "posCode": "TEQUILA ROSE",
+    "isExtra": false,
+    "menuGroupId": "cat_tequila"
+  },
+  {
+    "name": "BUDWEISER",
+    "posCode": "BUDWEISER",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "SOUTHERN COMFORT",
+    "posCode": "SOUTHERN COMFORT",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "VIRGIN RASPBERRY DAIQUIRI",
+    "posCode": "VIRGIN RASPBERRY DAIQUIRI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_virgin"
+  },
+  {
+    "name": "PEPPERMINT TEA",
+    "posCode": "PEPPERMINT TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "TANQUERAY SEVILLA",
+    "posCode": "TANQUERAY SEVILLA",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "MIXED SALAD",
+    "posCode": "MIXED SALAD",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "AUTREAU ROSE BRUT",
+    "posCode": "AUTREAU ROSE BRUT",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "BAROLO DOCG",
+    "posCode": "BAROLO DOCG",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "ALCOHOL FREE GIN",
+    "posCode": "ALCOHOL FREE GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "CHOCOLATE MARTINI",
+    "posCode": "CHOCOLATE MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "PARMA VIOLET GIN",
+    "posCode": "PARMA VIOLET GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "YOGHURT",
+    "posCode": "YOGHURT",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "LIME CORDIAL",
+    "posCode": "LIME CORDIAL",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "AUTREAU BRUT",
+    "posCode": "AUTREAU BRUT",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "PINK GRAPEFRUIT GIN",
+    "posCode": "PINK GRAPEFRUIT GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "WATERMELON KIWI GIN",
+    "posCode": "WATERMELON KIWI GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "CAMDEN PALE ALE",
+    "posCode": "CAMDEN PALE ALE",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "CLASSIC SHOT DEAL",
+    "posCode": "CLASSIC SHOT DEAL",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "FRENCH COFFEE",
+    "posCode": "FRENCH COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueur_coffees"
+  },
+  {
+    "name": "WHITE SAMBUCA",
+    "posCode": "WHITE SAMBUCA",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "REMY MARTIN VSOP",
+    "posCode": "REMY MARTIN VSOP",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "BACARDI GOLD",
+    "posCode": "BACARDI GOLD",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "LIMONCELLO",
+    "posCode": "LIMONCELLO",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "LIME GIN",
+    "posCode": "LIME GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "BITTER LEMON",
+    "posCode": "BITTER LEMON",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "MARTELL",
+    "posCode": "MARTELL",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "PIMMS",
+    "posCode": "PIMMS",
+    "isExtra": false,
+    "menuGroupId": "cat_aperitifs"
+  },
+  {
+    "name": "AMARONE DELLA",
+    "posCode": "AMARONE DELLA",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "ARCHERS",
+    "posCode": "ARCHERS",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "ABSOLUT",
+    "posCode": "ABSOLUT",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "GREEN TEA",
+    "posCode": "GREEN TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "BOLLINGER SPECIAL",
+    "posCode": "BOLLINGER SPECIAL",
+    "isExtra": false,
+    "menuGroupId": "cat_sparkling"
+  },
+  {
+    "name": "MONBAZILLAC WHITE",
+    "posCode": "MONBAZILLAC WHITE",
+    "isExtra": false,
+    "menuGroupId": "cat_dessert_wine"
+  },
+  {
+    "name": "HOXTON",
+    "posCode": "HOXTON",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "CAMPARI",
+    "posCode": "CAMPARI",
+    "isExtra": false,
+    "menuGroupId": "cat_aperitifs"
+  },
+  {
+    "name": "HOUSE SHOT DEAL",
+    "posCode": "HOUSE SHOT DEAL",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "CAPTAIN MORGAN",
+    "posCode": "CAPTAIN MORGAN",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "PINA COLADA",
+    "posCode": "PINA COLADA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "BELVEDERE",
+    "posCode": "BELVEDERE",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "SHOT ROULETTE",
+    "posCode": "SHOT ROULETTE",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "CAFE MOCHA",
+    "posCode": "CAFE MOCHA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "VEGETARIAN ROAST",
+    "posCode": "VEGETARIAN ROAST",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "FAMOUS GROUSE",
+    "posCode": "FAMOUS GROUSE",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "LEMONADE",
+    "posCode": "LEMONADE",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "PERONI GLUTEN FREE",
+    "posCode": "PERONI GLUTEN FREE",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "CHIVAS REGAL",
+    "posCode": "CHIVAS REGAL",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "JAGERBOMB",
+    "posCode": "JAGERBOMB",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "MACORON MARTINI",
+    "posCode": "MACORON MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_martini"
+  },
+  {
+    "name": "PEPSI",
+    "posCode": "PEPSI",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "JOSE CUERVO SILVER",
+    "posCode": "JOSE CUERVO SILVER",
+    "isExtra": false,
+    "menuGroupId": "cat_tequila"
+  },
+  {
+    "name": "STELLA",
+    "posCode": "STELLA",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "APEROL",
+    "posCode": "APEROL",
+    "isExtra": false,
+    "menuGroupId": "cat_aperitifs"
+  },
+  {
+    "name": "SARTI ROSA SPRITZ",
+    "posCode": "SARTI ROSA SPRITZ",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_fizz"
+  },
+  {
+    "name": "BAILYS",
+    "posCode": "BAILYS",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "GRAND MARNIER",
+    "posCode": "GRAND MARNIER",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "RUSTY NAIL",
+    "posCode": "RUSTY NAIL",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "FANTASTICA",
+    "posCode": "FANTASTICA",
+    "isExtra": false,
+    "menuGroupId": "cat_misc"
+  },
+  {
+    "name": "RED BULL",
+    "posCode": "RED BULL",
+    "isExtra": false,
+    "menuGroupId": "cat_soft_drinks"
+  },
+  {
+    "name": "MONKEY SHOULDER",
+    "posCode": "MONKEY SHOULDER",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "WRAY & NEPHEW",
+    "posCode": "WRAY & NEPHEW",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "Unlimited BEER",
+    "posCode": "Unlimited BEER",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "VIRGIN MARGARITA",
+    "posCode": "VIRGIN MARGARITA",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_virgin"
+  },
+  {
+    "name": "CHENIN BLANC",
+    "posCode": "CHENIN BLANC",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "RICH BLUSH COLLINS",
+    "posCode": "RICH BLUSH COLLINS",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "DIPLOMATICO",
+    "posCode": "DIPLOMATICO",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "TALISKER 10YRS",
+    "posCode": "TALISKER 10YRS",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "COINTREAU",
+    "posCode": "COINTREAU",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "GLENFIDDICH",
+    "posCode": "GLENFIDDICH",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "EARL GREY TEA",
+    "posCode": "EARL GREY TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "DRY MARTINI",
+    "posCode": "DRY MARTINI",
+    "isExtra": false,
+    "menuGroupId": "cat_aperitifs"
+  },
+  {
+    "name": "CAZCABEL COFFEE",
+    "posCode": "CAZCABEL COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_tequila"
+  },
+  {
+    "name": "HENNESSY XO",
+    "posCode": "HENNESSY XO",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "GLUTEN FREE",
+    "posCode": "GLUTEN FREE",
+    "isExtra": false,
+    "menuGroupId": "cat_misc"
+  },
+  {
+    "name": "HAVANA",
+    "posCode": "HAVANA",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "TEQUILA PATRON SILVER",
+    "posCode": "TEQUILA PATRON SILVER",
+    "isExtra": false,
+    "menuGroupId": "cat_tequila"
+  },
+  {
+    "name": "HAIG CLUB",
+    "posCode": "HAIG CLUB",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "LEMON GINGER TEA",
+    "posCode": "LEMON GINGER TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "MINT SAUCE",
+    "posCode": "MINT SAUCE",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "SAUVIGNON",
+    "posCode": "SAUVIGNON",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "GLENMORANGIE",
+    "posCode": "GLENMORANGIE",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "PERNOD",
+    "posCode": "PERNOD",
+    "isExtra": false,
+    "menuGroupId": "cat_aperitifs"
+  },
+  {
+    "name": "HORSERADISH CREAM",
+    "posCode": "HORSERADISH CREAM",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "ERYTHROS",
+    "posCode": "ERYTHROS",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "CHAMBORD",
+    "posCode": "CHAMBORD",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "FRANGELICO",
+    "posCode": "FRANGELICO",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "HALLOUMI & SUCUK",
+    "posCode": "HALLOUMI & SUCUK",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "JOSE CUERVO GOLD",
+    "posCode": "JOSE CUERVO GOLD",
+    "isExtra": false,
+    "menuGroupId": "cat_tequila"
+  },
+  {
+    "name": "HOT TODDY",
+    "posCode": "HOT TODDY",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueur_coffees"
+  },
+  {
+    "name": "SOAVE CLASSICO",
+    "posCode": "SOAVE CLASSICO",
+    "isExtra": false,
+    "menuGroupId": "cat_white_wine"
+  },
+  {
+    "name": "ROAST POTATO",
+    "posCode": "ROAST POTATO",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "JEREMY XO",
+    "posCode": "JEREMY XO",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "SQUID",
+    "posCode": "SQUID",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "HAVANA CLUB 7YRS",
+    "posCode": "HAVANA CLUB 7YRS",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "WOODFORD RESERVE",
+    "posCode": "WOODFORD RESERVE",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_bourbon"
+  },
+  {
+    "name": "DOMAINE RED",
+    "posCode": "DOMAINE RED",
+    "isExtra": false,
+    "menuGroupId": "cat_red_wine"
+  },
+  {
+    "name": "ENGINE ORGANIC GIN",
+    "posCode": "ENGINE ORGANIC GIN",
+    "isExtra": false,
+    "menuGroupId": "cat_gin"
+  },
+  {
+    "name": "MARTINI ROSSO",
+    "posCode": "MARTINI ROSSO",
+    "isExtra": false,
+    "menuGroupId": "cat_aperitifs"
+  },
+  {
+    "name": "REMY MARTIN XO",
+    "posCode": "REMY MARTIN XO",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "SLIPPERY NIPPLE",
+    "posCode": "SLIPPERY NIPPLE",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "DRAMBUIE",
+    "posCode": "DRAMBUIE",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "CHAMOMILE TEA",
+    "posCode": "CHAMOMILE TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "BOMB SHOT DEAL",
+    "posCode": "BOMB SHOT DEAL",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "ARTIC MIRAGE",
+    "posCode": "ARTIC MIRAGE",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_gin"
+  },
+  {
+    "name": "BELUGA",
+    "posCode": "BELUGA",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "GUINNESS DRAFT",
+    "posCode": "GUINNESS DRAFT",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_draft"
+  },
+  {
+    "name": "CHERRY SOURZ",
+    "posCode": "CHERRY SOURZ",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "HARLEY WALLBANGER",
+    "posCode": "HARLEY WALLBANGER",
+    "isExtra": false,
+    "menuGroupId": "cat_cocktails",
+    "menuSubGroupId": "cat_cocktails_classic"
+  },
+  {
+    "name": "CIROC APPLE",
+    "posCode": "CIROC APPLE",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "CHUG & CHEERS ADD EXTRA STARTER",
+    "posCode": "CHUG & CHEERS ADD EXTRA STARTER",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "JIM BEAM",
+    "posCode": "JIM BEAM",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_bourbon"
+  },
+  {
+    "name": "CHICKEN & VEG ROAST",
+    "posCode": "CHICKEN & VEG ROAST",
+    "isExtra": false,
+    "menuGroupId": "cat_roasts"
+  },
+  {
+    "name": "BUSH MILLS",
+    "posCode": "BUSH MILLS",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_irish"
+  },
+  {
+    "name": "JW RED",
+    "posCode": "JW RED",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "STOLICHNAYA",
+    "posCode": "STOLICHNAYA",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "CHATEAU BEAULON",
+    "posCode": "CHATEAU BEAULON",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "PATRON SLIVER",
+    "posCode": "PATRON SLIVER",
+    "isExtra": false,
+    "menuGroupId": "cat_tequila"
+  },
+  {
+    "name": "CRYSTAL HEAD",
+    "posCode": "CRYSTAL HEAD",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "LAGAVULIN 16YRS",
+    "posCode": "LAGAVULIN 16YRS",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_scotch"
+  },
+  {
+    "name": "BREWDOG 330ML",
+    "posCode": "BREWDOG 330ML",
+    "isExtra": false,
+    "menuGroupId": "cat_beer_bottled"
+  },
+  {
+    "name": "BLACK SAMBUCA",
+    "posCode": "BLACK SAMBUCA",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "JAGERMEISTER",
+    "posCode": "JAGERMEISTER",
+    "isExtra": false,
+    "menuGroupId": "cat_liqueurs"
+  },
+  {
+    "name": "YAMAZAKI",
+    "posCode": "YAMAZAKI",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_japanese"
+  },
+  {
+    "name": "TESSERON LOT NO 9",
+    "posCode": "TESSERON LOT NO 9",
+    "isExtra": false,
+    "menuGroupId": "cat_cognac"
+  },
+  {
+    "name": "JASMINE GREEN TEA",
+    "posCode": "JASMINE GREEN TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "HERBAL TEA",
+    "posCode": "HERBAL TEA",
+    "isExtra": false,
+    "menuGroupId": "cat_hot_drinks"
+  },
+  {
+    "name": "MARKERS MARK",
+    "posCode": "MARKERS MARK",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_bourbon"
+  },
+  {
+    "name": "PADRON PEPPER",
+    "posCode": "PADRON PEPPER",
+    "isExtra": false,
+    "menuGroupId": "cat_starters",
+    "menuSubGroupId": "cat_starters_hot"
+  },
+  {
+    "name": "CIROC",
+    "posCode": "CIROC",
+    "isExtra": false,
+    "menuGroupId": "cat_vodka"
+  },
+  {
+    "name": "BULLEIT",
+    "posCode": "BULLEIT",
+    "isExtra": false,
+    "menuGroupId": "cat_whisky",
+    "menuSubGroupId": "cat_whisky_bourbon"
+  },
+  {
+    "name": "HAVANA CLUB 3YRS",
+    "posCode": "HAVANA CLUB 3YRS",
+    "isExtra": false,
+    "menuGroupId": "cat_rum"
+  },
+  {
+    "name": "PREMIUM SHOT DEAL",
+    "posCode": "PREMIUM SHOT DEAL",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "KIDS ICECREAM",
+    "posCode": "KIDS ICECREAM",
+    "isExtra": false,
+    "menuGroupId": "cat_kids"
+  },
+  {
+    "name": "LAUVIA ARMAGNAC",
+    "posCode": "LAUVIA ARMAGNAC",
+    "isExtra": false,
+    "menuGroupId": "cat_armagnac"
+  },
+  {
+    "name": "ICE CREAM",
+    "posCode": "ICE CREAM",
+    "isExtra": false,
+    "menuGroupId": "cat_desserts",
+    "menuSubGroupId": "cat_desserts_icecream"
+  },
+  {
+    "name": "APPLE SOURZ",
+    "posCode": "APPLE SOURZ",
+    "isExtra": false,
+    "menuGroupId": "cat_shots"
+  },
+  {
+    "name": "BUTTERED COURGETTE",
+    "posCode": "BUTTERED COURGETTE",
+    "isExtra": false,
+    "menuGroupId": "cat_sides",
+    "menuSubGroupId": "cat_sides_all"
+  },
+  {
+    "name": "GIFT BY SPARK",
+    "posCode": "GIFT BY SPARK",
+    "isExtra": false,
+    "menuGroupId": "cat_misc"
+  },
+  {
+    "name": "TAP WATER",
+    "posCode": "TAP WATER",
+    "isExtra": false,
+    "menuGroupId": "cat_misc"
+  },
+  {
+    "name": "Unlimited COCKTAILS",
+    "posCode": "Unlimited COCKTAILS",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "Unlimited PROSECCO",
+    "posCode": "Unlimited PROSECCO",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "CHUG CHEERS UNLIMITED DRINK",
+    "posCode": "CHUG CHEERS UNLIMITED DRINK",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  },
+  {
+    "name": "GLASS OF ICE",
+    "posCode": "GLASS OF ICE",
+    "isExtra": false,
+    "menuGroupId": "cat_misc"
+  },
+  {
+    "name": "SET MENU COFFEE",
+    "posCode": "SET MENU COFFEE",
+    "isExtra": false,
+    "menuGroupId": "cat_packages"
+  }
+]

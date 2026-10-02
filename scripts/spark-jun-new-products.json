@@ -1,0 +1,7 @@
+[
+  { "name": "GUINNESS ZERO", "menuGroupId": "cat_beer_bottled" },
+  { "name": "GIN MARE", "menuGroupId": "cat_gin" },
+  { "name": "MIRORI", "menuGroupId": "cat_aperitifs" },
+  { "name": "SALSA VERDE", "menuGroupId": "cat_roasts" },
+  { "name": "JELLY FISH", "menuGroupId": "cat_shots" }
+]

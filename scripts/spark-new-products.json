@@ -1,0 +1,23 @@
+[
+  { "name": "B52", "menuGroupId": "cat_shots" },
+  { "name": "BECKS BLUE BOTTLE", "menuGroupId": "cat_beer_bottled" },
+  { "name": "CHIANTI", "menuGroupId": "cat_red_wine" },
+  { "name": "FRASCATI", "menuGroupId": "cat_white_wine" },
+  { "name": "FRESH RIVER FOWEY MUSSELS", "menuGroupId": "cat_starters", "menuSubGroupId": "cat_starters_hot" },
+  { "name": "GIN STAR MARTINI", "menuGroupId": "cat_cocktails", "menuSubGroupId": "cat_cocktails_martini" },
+  { "name": "JACK DANIELS GENTLEMEN", "menuGroupId": "cat_whisky", "menuSubGroupId": "cat_whisky_bourbon" },
+  { "name": "MALBEC RESERVE", "menuGroupId": "cat_red_wine" },
+  { "name": "MALBEC", "menuGroupId": "cat_red_wine" },
+  { "name": "PICPOUL DE PINET", "menuGroupId": "cat_white_wine" },
+  { "name": "REKORDERLIG", "menuGroupId": "cat_beer_bottled" },
+  { "name": "ROCKET PARMESAN SALAD", "menuGroupId": "cat_sides", "menuSubGroupId": "cat_sides_all" },
+  { "name": "SAMBUCA", "menuGroupId": "cat_shots" },
+  { "name": "SIRLOIN STEAK", "menuGroupId": "cat_steaks", "menuSubGroupId": "cat_steaks_scottish" },
+  { "name": "SKIRTLEBOMB", "menuGroupId": "cat_shots" },
+  { "name": "SOURZ", "menuGroupId": "cat_shots" },
+  { "name": "SPARK SIGNATURE", "menuGroupId": "cat_cocktails", "menuSubGroupId": "cat_cocktails_signature" },
+  { "name": "STEAK CUT CHIPS", "menuGroupId": "cat_sides", "menuSubGroupId": "cat_sides_all" },
+  { "name": "TEQUILA SILVER", "menuGroupId": "cat_tequila" },
+  { "name": "VIRGIN COCKTAILS", "menuGroupId": "cat_cocktails", "menuSubGroupId": "cat_cocktails_virgin" },
+  { "name": "WHISKEY AMARETTO", "menuGroupId": "cat_cocktails", "menuSubGroupId": "cat_cocktails_classic" }
+]

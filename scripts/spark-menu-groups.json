@@ -1,0 +1,236 @@
+[
+  {
+    "id": "cat_starters",
+    "label": "Starters",
+    "color": "#F59E0B",
+    "subGroups": [
+      { "id": "cat_starters_cold", "label": "Cold Starters" },
+      { "id": "cat_starters_hot", "label": "Hot Starters" },
+      { "id": "cat_starters_sharing", "label": "Sharing Boards" }
+    ]
+  },
+  {
+    "id": "cat_grill",
+    "label": "Grill & Kebabs",
+    "color": "#DC2626",
+    "subGroups": [
+      { "id": "cat_grill_mains", "label": "Main Courses" },
+      { "id": "cat_grill_signature", "label": "Spark Signature" },
+      { "id": "cat_grill_yoghurt", "label": "Kebabs with Yoghurt Sauce" },
+      { "id": "cat_grill_combinations", "label": "Combinations" }
+    ]
+  },
+  {
+    "id": "cat_seafood",
+    "label": "Seafood",
+    "color": "#0EA5E9",
+    "subGroups": [
+      { "id": "cat_seafood_dishes", "label": "Seafood Dishes" }
+    ]
+  },
+  {
+    "id": "cat_steaks",
+    "label": "Steaks",
+    "color": "#7C2D12",
+    "subGroups": [
+      { "id": "cat_steaks_scottish", "label": "Scottish Steaks" }
+    ]
+  },
+  {
+    "id": "cat_vegetarian",
+    "label": "Vegetarian",
+    "color": "#16A34A",
+    "subGroups": [
+      { "id": "cat_vegetarian_mains", "label": "Vegetarian" }
+    ]
+  },
+  {
+    "id": "cat_salads",
+    "label": "Salads",
+    "color": "#84CC16",
+    "subGroups": [
+      { "id": "cat_salads_all", "label": "Salads" }
+    ]
+  },
+  {
+    "id": "cat_sides",
+    "label": "Sides",
+    "color": "#6B7280",
+    "subGroups": [
+      { "id": "cat_sides_all", "label": "Side Orders" }
+    ]
+  },
+  {
+    "id": "cat_desserts",
+    "label": "Desserts",
+    "color": "#DB2777",
+    "subGroups": [
+      { "id": "cat_desserts_desserts", "label": "Desserts" },
+      { "id": "cat_desserts_icecream", "label": "Ice Cream" }
+    ]
+  },
+  {
+    "id": "cat_sparkling",
+    "label": "Sparkling & Champagne",
+    "color": "#D4AF37",
+    "subGroups": []
+  },
+  {
+    "id": "cat_white_wine",
+    "label": "White Wines",
+    "color": "#E3C76F",
+    "subGroups": []
+  },
+  {
+    "id": "cat_red_wine",
+    "label": "Red Wines",
+    "color": "#7F1D1D",
+    "subGroups": []
+  },
+  {
+    "id": "cat_rose_wine",
+    "label": "Rosé Wines",
+    "color": "#F472B6",
+    "subGroups": []
+  },
+  {
+    "id": "cat_dessert_wine",
+    "label": "Dessert Wine & Port",
+    "color": "#9D174D",
+    "subGroups": []
+  },
+  {
+    "id": "cat_beer_bottled",
+    "label": "Bottled Beers",
+    "color": "#B45309",
+    "subGroups": []
+  },
+  {
+    "id": "cat_beer_draft",
+    "label": "Draft Beers",
+    "color": "#D97706",
+    "subGroups": []
+  },
+  {
+    "id": "cat_gin",
+    "label": "Gins",
+    "color": "#14B8A6",
+    "subGroups": []
+  },
+  {
+    "id": "cat_vodka",
+    "label": "Vodka",
+    "color": "#64748B",
+    "subGroups": []
+  },
+  {
+    "id": "cat_rum",
+    "label": "Rum",
+    "color": "#92400E",
+    "subGroups": []
+  },
+  {
+    "id": "cat_tequila",
+    "label": "Tequila",
+    "color": "#65A30D",
+    "subGroups": []
+  },
+  {
+    "id": "cat_aperitifs",
+    "label": "Aperitifs",
+    "color": "#EA580C",
+    "subGroups": []
+  },
+  {
+    "id": "cat_cognac",
+    "label": "Cognac",
+    "color": "#A16207",
+    "subGroups": []
+  },
+  {
+    "id": "cat_liqueurs",
+    "label": "Liqueurs",
+    "color": "#CA8A04",
+    "subGroups": []
+  },
+  {
+    "id": "cat_armagnac",
+    "label": "Armagnac & Calvados",
+    "color": "#78350F",
+    "subGroups": []
+  },
+  {
+    "id": "cat_whisky",
+    "label": "Whisky",
+    "color": "#854D0E",
+    "subGroups": [
+      { "id": "cat_whisky_irish", "label": "Irish" },
+      { "id": "cat_whisky_scotch", "label": "Scotch" },
+      { "id": "cat_whisky_bourbon", "label": "Bourbon" },
+      { "id": "cat_whisky_malt", "label": "Malt" },
+      { "id": "cat_whisky_japanese", "label": "Japanese" }
+    ]
+  },
+  {
+    "id": "cat_cocktails",
+    "label": "Cocktails",
+    "color": "#9333EA",
+    "subGroups": [
+      { "id": "cat_cocktails_signature", "label": "Signature Cocktails" },
+      { "id": "cat_cocktails_fizz", "label": "Fizz Cocktails" },
+      { "id": "cat_cocktails_gin", "label": "Gin Cocktails" },
+      { "id": "cat_cocktails_classic", "label": "Classic Cocktails" },
+      { "id": "cat_cocktails_martini", "label": "Martini Cocktails" },
+      { "id": "cat_cocktails_frozen", "label": "Frozen Cocktails" },
+      { "id": "cat_cocktails_virgin", "label": "Virgin Cocktails" }
+    ]
+  },
+  {
+    "id": "cat_soft_drinks",
+    "label": "Soft Drinks",
+    "color": "#0284C7",
+    "subGroups": []
+  },
+  {
+    "id": "cat_hot_drinks",
+    "label": "Hot Drinks",
+    "color": "#6D4C41",
+    "subGroups": []
+  },
+  {
+    "id": "cat_liqueur_coffees",
+    "label": "Liqueur Coffees",
+    "color": "#4E342E",
+    "subGroups": []
+  },
+  {
+    "id": "cat_roasts",
+    "label": "Roasts",
+    "color": "#C2410C",
+    "subGroups": []
+  },
+  {
+    "id": "cat_kids",
+    "label": "Kids",
+    "color": "#2563EB",
+    "subGroups": []
+  },
+  {
+    "id": "cat_packages",
+    "label": "Set Menus & Packages",
+    "color": "#7C3AED",
+    "subGroups": []
+  },
+  {
+    "id": "cat_shots",
+    "label": "Shots",
+    "color": "#E11D48",
+    "subGroups": []
+  },
+  {
+    "id": "cat_misc",
+    "label": "Other / Misc",
+    "color": "#475569",
+    "subGroups": []
+  }
+]
