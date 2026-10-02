@@ -3,7 +3,7 @@ import { Download, Upload, X } from 'lucide-react'
 import { FileUpload } from '../forms/FileUpload'
 import { Modal } from '../forms/Modal'
 import { downloadProductTemplate, parseProductExcel } from '../../lib/utils/excelTemplate'
-import { saveProduct } from '../../lib/api/products'
+import { listProducts, saveProduct } from '../../lib/api/products'
 import type { MenuGroup, WorkspaceScope } from '../../lib/types'
 
 type BulkUploadModalProps = {
@@ -27,6 +27,8 @@ export function BulkUploadModal({
     total: number
     processed: number
     success: number
+    created: number
+    updated: number
     errors: number
     errorsList: Array<{ row: number; name: string; error: string }>
   } | null>(null)
@@ -103,6 +105,8 @@ export function BulkUploadModal({
       total: 0,
       processed: 0,
       success: 0,
+      created: 0,
+      updated: 0,
       errors: 0,
       errorsList: [],
     })
@@ -114,6 +118,27 @@ export function BulkUploadModal({
 
       if (result.errors.length > 0) {
         console.warn('Upload errors:', result.errors)
+      }
+
+      // Load existing products once so re-uploads update the same doc instead
+      // of creating duplicates. Match by POS code first, then by normalized name.
+      const existing = await listProducts(workspace)
+      const idByKey = new Map<string, string>()
+      const posKey = (code: string) => `pos:${code.trim().toLowerCase()}`
+      const nameKey = (n: string) => `name:${n.trim().toLowerCase()}`
+      existing.forEach((p) => {
+        if (p.posCode && p.posCode.trim()) idByKey.set(posKey(p.posCode), p.id)
+        if (p.name && p.name.trim()) idByKey.set(nameKey(p.name), p.id)
+      })
+      const findExistingId = (
+        code: string | undefined,
+        n: string,
+      ): string | undefined => {
+        if (code && code.trim()) {
+          const hit = idByKey.get(posKey(code))
+          if (hit) return hit
+        }
+        return idByKey.get(nameKey(n))
       }
 
       const errorsList: Array<{ row: number; name: string; error: string }> = []
@@ -160,7 +185,9 @@ export function BulkUploadModal({
             }
           }
 
-          await saveProduct(workspace, {
+          const existingId = findExistingId(product.posCode, product.name)
+          const saved = await saveProduct(workspace, {
+            id: existingId,
             name: product.name,
             menuGroupId: product.menuGroupId,
             menuSubGroupId: product.menuSubGroupId,
@@ -171,8 +198,24 @@ export function BulkUploadModal({
             activeTo: product.activeTo || undefined,
           })
 
+          // Register the saved id so later rows with the same key in this same
+          // file update it instead of inserting a second copy.
+          if (saved && saved.id) {
+            if (product.posCode && product.posCode.trim())
+              idByKey.set(posKey(product.posCode), saved.id)
+            if (product.name && product.name.trim())
+              idByKey.set(nameKey(product.name), saved.id)
+          }
+
           setProgress((prev) =>
-            prev ? { ...prev, success: prev.success + 1 } : null,
+            prev
+              ? {
+                ...prev,
+                success: prev.success + 1,
+                created: existingId ? prev.created : prev.created + 1,
+                updated: existingId ? prev.updated + 1 : prev.updated,
+              }
+              : null,
           )
         } catch (error) {
           errorsList.push({
@@ -206,11 +249,22 @@ export function BulkUploadModal({
     }
   }
 
-  const canUpload = file && preview && preview.length > 0 && !uploading && !progress
+  const noMenuGroups = menuGroups.length === 0
+  const canUpload =
+    file && preview && preview.length > 0 && !uploading && !progress && !noMenuGroups
 
   return (
     <Modal open={isOpen} onClose={handleClose} title="Bulk Upload Products">
       <div className="space-y-6">
+        {noMenuGroups && (
+          <div className="rounded-xl border border-amber-200 bg-amber-50 p-4">
+            <p className="text-sm font-semibold text-amber-900">No menu groups defined</p>
+            <p className="mt-1 text-xs text-amber-700">
+              Create menu groups first in Settings → Menu Groups. Products must
+              reference an existing category, so bulk upload is disabled until then.
+            </p>
+          </div>
+        )}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <p className="text-sm text-gray-600">
@@ -382,7 +436,8 @@ export function BulkUploadModal({
                       Upload completed!
                     </p>
                     <p className="mt-1 text-xs text-emerald-700">
-                      {progress.success} product(s) uploaded successfully.
+                      {progress.success} product(s) saved — {progress.created} new,{' '}
+                      {progress.updated} updated.
                       {progress.errors > 0 && ` ${progress.errors} error(s) occurred.`}
                     </p>
                   </div>

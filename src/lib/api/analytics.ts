@@ -6,7 +6,7 @@ import {
   type QueryConstraint,
   where,
 } from 'firebase/firestore'
-import { format, eachMonthOfInterval } from 'date-fns'
+import { format, eachMonthOfInterval, startOfMonth, endOfMonth } from 'date-fns'
 import { db } from '../firebase'
 import { USE_MOCK_DATA } from './dataSource'
 import { getMenuGroups } from './menuGroups'
@@ -48,6 +48,29 @@ function convertTimestampToDate(timestamp: unknown): Date {
 function getPeriodKeysFromDateRange(start: Date, end: Date): string[] {
   const months = eachMonthOfInterval({ start, end })
   return months.map((month) => format(month, 'yyyy-MM'))
+}
+
+// Determine the date span actually covered by a workspace's data, derived from
+// its sales reports. Returns null if the workspace has no reports yet. Used to
+// default the dashboard date range to where the data actually is.
+export async function fetchDataDateRange(
+  scope: WorkspaceScope,
+): Promise<{ start: Date; end: Date } | null> {
+  const reports = await listSalesReports(scope)
+  if (!reports || reports.length === 0) return null
+  let min = Infinity
+  let max = -Infinity
+  for (const r of reports) {
+    const d = convertTimestampToDate(r.reportDate).getTime()
+    if (!Number.isNaN(d)) {
+      if (d < min) min = d
+      if (d > max) max = d
+    }
+  }
+  if (min === Infinity) return null
+  // Reports are usually dated to the start of their month; widen to whole months
+  // so monthly periodKeys are fully covered.
+  return { start: startOfMonth(new Date(min)), end: endOfMonth(new Date(max)) }
 }
 
 // Fetch salesLines from Firestore

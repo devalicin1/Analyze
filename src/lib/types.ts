@@ -120,6 +120,13 @@ export type WorkspaceScope = {
   workspaceId: string
 }
 
+export type Workspace = {
+  id: string
+  name: string
+  currency: string
+  timezone: string
+}
+
 export type OverviewFilters = {
   includeExtras: boolean
   menuGroupId?: string

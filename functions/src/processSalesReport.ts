@@ -5,6 +5,7 @@ import * as os from 'node:os'
 import * as path from 'node:path'
 import Papa from 'papaparse'
 import ExcelJS from 'exceljs'
+import JSZip from 'jszip'
 
 type ReportDoc = {
   status: string
@@ -614,13 +615,43 @@ async function parseReportFile(filePath: string): Promise<ParsedRow[]> {
   }
 
   const buffer = fs.readFileSync(filePath)
-  const workbook = new ExcelJS.Workbook()
-  // Convert Buffer to ArrayBuffer for exceljs
-  const arrayBuffer = buffer.buffer.slice(
+
+  // ExcelJS's browser build emits XLSX with x: namespace prefix on workbook/sheets/sst etc,
+  // but its own parser (used here in node too) only recognizes unprefixed tags. Strip any
+  // x: prefix from every XML/rels part so files produced by our browser-side template
+  // generator can be read here. No-op for files without the prefix.
+  let normalizedArrayBuffer: ArrayBuffer = buffer.buffer.slice(
     buffer.byteOffset,
     buffer.byteOffset + buffer.byteLength,
   )
-  await workbook.xlsx.load(arrayBuffer)
+  try {
+    const zip = await JSZip.loadAsync(buffer)
+    let mutated = false
+    const xmlPaths: string[] = []
+    zip.forEach((p) => {
+      if (p.endsWith('.xml') || p.endsWith('.rels')) xmlPaths.push(p)
+    })
+    for (const partName of xmlPaths) {
+      const part = zip.file(partName)
+      if (!part) continue
+      const xml = await part.async('string')
+      const stripped = xml
+        .replace(/<\/?x:/g, (m) => m.replace('x:', ''))
+        .replace(/\sxmlns:x="/g, ' xmlns="')
+      if (stripped !== xml) {
+        zip.file(partName, stripped)
+        mutated = true
+      }
+    }
+    if (mutated) {
+      normalizedArrayBuffer = (await zip.generateAsync({ type: 'arraybuffer' })) as ArrayBuffer
+    }
+  } catch (err) {
+    console.warn('[parseReportFile] xlsx normalization skipped:', err)
+  }
+
+  const workbook = new ExcelJS.Workbook()
+  await workbook.xlsx.load(normalizedArrayBuffer)
   const worksheet = workbook.worksheets[0]
   if (!worksheet) return []
 

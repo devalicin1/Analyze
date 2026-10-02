@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { format, startOfMonth } from 'date-fns'
 import Papa from 'papaparse'
 import ExcelJS from 'exceljs'
+import JSZip from 'jszip'
 import { Link } from 'react-router-dom'
 import { Filter, Trash2 } from 'lucide-react'
 import { FileUpload } from '../../components/forms/FileUpload'
@@ -107,15 +108,30 @@ export function UploadReportPage() {
   }
 
   async function handleFileSelected(file: File) {
-    setFile(file)
-    const rows = await parseFile(file)
-    setPreviewRows(rows.slice(0, 20))
-    setColumnMapping({
-      productName: Object.keys(rows[0] ?? {})[0] ?? 'Product',
-      quantity: Object.keys(rows[0] ?? {})[1] ?? 'Qty',
-      amount: Object.keys(rows[0] ?? {})[2] ?? 'Amount',
-    })
-    setCurrentStep(1)
+    setStatusMessage(null)
+    try {
+      const rows = await parseFile(file)
+      if (rows.length === 0) {
+        setStatusMessage(
+          'Dosya boş ya da okunabilir satır içermiyor. Lütfen şablonu kullanın veya CSV olarak kaydedip tekrar deneyin.',
+        )
+        return
+      }
+      setFile(file)
+      setPreviewRows(rows.slice(0, 20))
+      setColumnMapping({
+        productName: Object.keys(rows[0] ?? {})[0] ?? 'Product',
+        quantity: Object.keys(rows[0] ?? {})[1] ?? 'Qty',
+        amount: Object.keys(rows[0] ?? {})[2] ?? 'Amount',
+      })
+      setCurrentStep(1)
+    } catch (error) {
+      console.error('Failed to parse file:', error)
+      const msg = error instanceof Error ? error.message : 'Bilinmeyen hata'
+      setStatusMessage(
+        `Dosya okunamadı: ${msg}. Lütfen dosyanın .xlsx (Excel 2007+) veya .csv olduğundan emin olun. Eski .xls formatı desteklenmiyor — Excel'de "Farklı Kaydet → .xlsx" ile yeniden kaydedin.`,
+      )
+    }
   }
 
   async function handleProcessReport() {
@@ -509,10 +525,13 @@ export function UploadReportPage() {
 }
 
 async function parseFile(file: File): Promise<ParsedRow[]> {
-  if (file.name.endsWith('.csv')) {
+  const lowerName = file.name.toLowerCase()
+
+  if (lowerName.endsWith('.csv')) {
     return new Promise((resolve, reject) => {
       Papa.parse<ParsedRow>(file, {
         header: true,
+        skipEmptyLines: true,
         complete: (result: Papa.ParseResult<ParsedRow>) =>
           resolve(result.data.filter((row) => Object.keys(row).length > 0)),
         error: reject,
@@ -521,8 +540,57 @@ async function parseFile(file: File): Promise<ParsedRow[]> {
   }
 
   const buffer = await file.arrayBuffer()
+
+  // Validate file signature: XLSX is a ZIP (PK\x03\x04). Old XLS starts with D0 CF 11 E0.
+  const sig = new Uint8Array(buffer.slice(0, 4))
+  const isZip = sig[0] === 0x50 && sig[1] === 0x4b && sig[2] === 0x03 && sig[3] === 0x04
+  const isOldXls = sig[0] === 0xd0 && sig[1] === 0xcf && sig[2] === 0x11 && sig[3] === 0xe0
+  if (isOldXls) {
+    throw new Error('Eski .xls formatı desteklenmiyor. Excel\'de "Farklı Kaydet → .xlsx" ile kaydedin')
+  }
+  if (!isZip) {
+    throw new Error('Geçersiz Excel dosyası (XLSX/ZIP imzası bulunamadı). CSV olarak kaydetmeyi deneyin')
+  }
+
+  // ExcelJS in browser writes XLSX with x: namespace prefix on <workbook>/<sheets>/<sheet>,
+  // but its own parser only recognizes unprefixed tags. Strip the prefix from xl/workbook.xml
+  // (and a few related parts) so ExcelJS can read its own output and similarly-prefixed files.
+  let normalizedBuffer: ArrayBuffer = buffer
+  try {
+    const zip = await JSZip.loadAsync(buffer)
+    let mutated = false
+    const xmlPaths: string[] = []
+    zip.forEach((path) => {
+      if (path.endsWith('.xml') || path.endsWith('.rels')) xmlPaths.push(path)
+    })
+    for (const partName of xmlPaths) {
+      const part = zip.file(partName)
+      if (!part) continue
+      const xml = await part.async('string')
+      const stripped = xml
+        .replace(/<\/?x:/g, (m) => m.replace('x:', ''))
+        .replace(/\sxmlns:x="/g, ' xmlns="')
+      if (stripped !== xml) {
+        zip.file(partName, stripped)
+        mutated = true
+      }
+    }
+    if (mutated) {
+      const out = await zip.generateAsync({ type: 'arraybuffer' })
+      normalizedBuffer = out
+    }
+  } catch {
+    // If normalization fails, fall through and let ExcelJS try the original buffer.
+  }
+
   const workbook = new ExcelJS.Workbook()
-  await workbook.xlsx.load(buffer)
+  try {
+    await workbook.xlsx.load(normalizedBuffer)
+  } catch (err) {
+    throw new Error(
+      `Excel dosyası ayrıştırılamadı (${err instanceof Error ? err.message : 'okuma hatası'}). Dosyayı Excel'de açıp tekrar .xlsx olarak kaydetmeyi deneyin`,
+    )
+  }
   const worksheet = workbook.worksheets[0]
   if (!worksheet) return []
 

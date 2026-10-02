@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState, useRef } from 'react'
 import { format } from 'date-fns'
 import { LineChart } from '../../components/charts/LineChart'
-import { DateRangePicker } from '../../components/forms/DateRangePicker'
 import { Select } from '../../components/forms/Select'
-import { SearchableSelect } from '../../components/forms/SearchableSelect'
+import { MultiSearchableSelect } from '../../components/forms/MultiSearchableSelect'
+import { DateRangePopover } from '../../components/forms/DateRangePopover'
 import {
   fetchProductTrends,
   fetchCategoryTrends,
@@ -14,9 +14,9 @@ import {
 } from '../../lib/api/analytics'
 import { getMenuGroups } from '../../lib/api/menuGroups'
 import { listProducts } from '../../lib/api/products'
-import { useWorkspace, type DateRange } from '../../context/WorkspaceContext'
+import { useWorkspace } from '../../context/WorkspaceContext'
 import type { MenuGroup, Product, TrendPoint } from '../../lib/types'
-import { TrendingUp, TrendingDown, Minus, Download, DollarSign, BarChart3, Activity, Package, ArrowRight, Lightbulb, ChevronDown, ChevronUp } from 'lucide-react'
+import { TrendingUp, TrendingDown, Minus, Download, DollarSign, BarChart3, Activity, Package, ArrowRight, Lightbulb, ChevronDown, CalendarDays, FileSpreadsheet } from 'lucide-react'
 import { exportPerformanceReportToPDF } from '../../lib/utils/exportPerformanceReport'
 import { SalesLinesModal } from '../../components/reports/SalesLinesModal'
 import type { SalesLine } from '../../lib/types'
@@ -72,11 +72,12 @@ export function PerformanceReportPage() {
   const workspace = useWorkspace()
   const [loading, setLoading] = useState(true)
   const [reportType, setReportType] = useState<ReportType>('category')
-  const [dateRange, setDateRange] = useState<DateRange>(workspace.dateRange)
-  const [categoryId, setCategoryId] = useState<string>('')
+  const dateRange = workspace.dateRange
+  const setDateRange = workspace.setDateRange
+  const [categoryId, setCategoryId] = useState<string>('') // single — used by the Subcategory tab
+  const [categoryIds, setCategoryIds] = useState<string[]>([]) // multi — used by the Category tab
   const [subcategoryId, setSubcategoryId] = useState<string>('')
-  const [productId, setProductId] = useState<string>('')
-  const [filtersOpen, setFiltersOpen] = useState(true)
+  const [productIds, setProductIds] = useState<string[]>([])
   const [expandedQuarter, setExpandedQuarter] = useState<string | null>(null)
 
   const [menuGroups, setMenuGroups] = useState<MenuGroup[]>([])
@@ -85,6 +86,7 @@ export function PerformanceReportPage() {
   const [metrics, setMetrics] = useState<PerformanceMetrics | null>(null)
   const [productBreakdown, setProductBreakdown] = useState<ProductPeriodData[]>([])
   const [exportingPDF, setExportingPDF] = useState(false)
+  const [exportingCSV, setExportingCSV] = useState(false)
   const chartRef = useRef<HTMLDivElement>(null)
 
   // Drill-down state
@@ -116,8 +118,8 @@ export function PerformanceReportPage() {
       try {
         let data: TrendPoint[] | CategoryTrendPoint[] | SubcategoryTrendPoint[]
 
-        if (reportType === 'product' && productId) {
-          data = await fetchProductTrends(workspace, [productId], {
+        if (reportType === 'product' && productIds.length > 0) {
+          data = await fetchProductTrends(workspace, productIds, {
             start: dateRange.start,
             end: dateRange.end,
           })
@@ -133,7 +135,9 @@ export function PerformanceReportPage() {
             start: dateRange.start,
             end: dateRange.end,
           })
-          data = categoryId ? categoryTrends.filter((t) => t.menuGroup === categoryId) : categoryTrends
+          data = categoryIds.length > 0
+            ? categoryTrends.filter((t) => categoryIds.includes(t.menuGroup))
+            : categoryTrends
         }
 
         setTrendData(data)
@@ -260,7 +264,7 @@ export function PerformanceReportPage() {
         }
 
         // Fetch product breakdown if viewing a category or subcategory
-        if ((reportType === 'category' && categoryId) || (reportType === 'subcategory' && subcategoryId)) {
+        if ((reportType === 'category' && categoryIds.length > 0) || (reportType === 'subcategory' && subcategoryId)) {
           const salesLines = await fetchSalesLines(workspace, {
             dateRange: { start: dateRange.start, end: dateRange.end },
           })
@@ -268,7 +272,7 @@ export function PerformanceReportPage() {
 
           let filteredLines = salesLines
           if (reportType === 'category') {
-            filteredLines = salesLines.filter((line) => line.menuGroupAtSale === categoryId)
+            filteredLines = salesLines.filter((line) => categoryIds.includes(line.menuGroupAtSale))
           } else if (reportType === 'subcategory') {
             filteredLines = salesLines.filter((line) => line.menuSubGroupAtSale === subcategoryId)
           }
@@ -341,7 +345,7 @@ export function PerformanceReportPage() {
     }
 
     fetchData()
-  }, [workspace, reportType, dateRange, categoryId, subcategoryId, productId, products])
+  }, [workspace, reportType, dateRange, categoryId, categoryIds, subcategoryId, productIds, products])
 
   // Quarter comparison data
   type MonthDetail = { periodKey: string; label: string; amount: number; quantity: number; avgPrice: number }
@@ -522,20 +526,49 @@ export function PerformanceReportPage() {
     }
   }, [trendData, reportType, menuGroups])
 
+  // Selection total per month (works for every report type) — used for CSV export.
+  const monthlyRows = useMemo(() => {
+    const map = new Map<string, { label: string; amount: number; quantity: number }>()
+    trendData.forEach((t) => {
+      const e = map.get(t.periodKey) ?? { label: t.label, amount: 0, quantity: 0 }
+      e.amount += t.amount
+      e.quantity += t.quantity
+      map.set(t.periodKey, e)
+    })
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([periodKey, v]) => ({
+        periodKey,
+        label: v.label,
+        amount: v.amount,
+        quantity: v.quantity,
+        avgPrice: v.quantity > 0 ? v.amount / v.quantity : 0,
+      }))
+  }, [trendData])
+
   const handleReportTypeChange = (type: ReportType) => {
     setReportType(type)
     setCategoryId('')
+    setCategoryIds([])
     setSubcategoryId('')
-    setProductId('')
+    setProductIds([])
   }
 
   const getSelectedLabel = () => {
-    if (reportType === 'product' && productId) return products.find((p) => p.id === productId)?.name || 'Selected Product'
+    if (reportType === 'product') {
+      if (productIds.length === 0) return 'No products selected'
+      if (productIds.length === 1) return products.find((p) => p.id === productIds[0])?.name || 'Selected Product'
+      return `${productIds.length} products`
+    }
     if (reportType === 'subcategory' && subcategoryId) {
       const category = menuGroups.find((g) => g.id === categoryId)
       return category?.subGroups.find((sg) => sg.id === subcategoryId)?.label || 'Selected Subcategory'
     }
-    if (reportType === 'category' && categoryId) return menuGroups.find((g) => g.id === categoryId)?.label || 'Selected Category'
+    if (reportType === 'category') {
+      if (categoryIds.length === 0) return 'All Categories'
+      if (categoryIds.length === 1) return menuGroups.find((g) => g.id === categoryIds[0])?.label || 'Selected Category'
+      return `${categoryIds.length} categories`
+    }
     return 'All Categories'
   }
 
@@ -661,6 +694,121 @@ export function PerformanceReportPage() {
     }
   }
 
+  // CSV export reflecting the current filters: metadata + summary + monthly trend
+  // (+ per-product breakdown when a category/subcategory is selected).
+  const handleExportCSV = async () => {
+    if (!metrics) return
+    setExportingCSV(true)
+    try {
+    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`
+    const r2 = (n: number) => Math.round(n * 100) / 100
+    const pct = (x: number) => `${(x * 100).toFixed(1)}%`
+    const rows: (string | number)[][] = []
+
+    const rangeText = `${dateRange.start instanceof Date && !isNaN(dateRange.start.getTime()) ? format(dateRange.start, 'd MMM yyyy') : ''} - ${dateRange.end instanceof Date && !isNaN(dateRange.end.getTime()) ? format(dateRange.end, 'd MMM yyyy') : ''}`
+    rows.push(['Performance Report'])
+    rows.push(['Restaurant', workspace.workspaceName])
+    rows.push(['View', reportType])
+    rows.push(['Selection', getSelectedLabel()])
+    rows.push(['Date range', rangeText])
+    rows.push(['Currency', workspace.currency])
+    rows.push([])
+
+    rows.push(['Summary'])
+    rows.push(['Total revenue', r2(metrics.totalAmount)])
+    rows.push(['Total quantity', metrics.totalQuantity])
+    rows.push(['Average price', r2(metrics.averagePrice)])
+    rows.push(['Monthly avg revenue', r2(metrics.periodsCount > 0 ? metrics.totalAmount / metrics.periodsCount : 0)])
+    rows.push(['Monthly avg quantity', metrics.periodsCount > 0 ? Math.round(metrics.totalQuantity / metrics.periodsCount) : 0])
+    rows.push(['Revenue change %', r2(metrics.amountChangePercent)])
+    rows.push(['Volume change %', r2(metrics.quantityChangePercent)])
+    rows.push([])
+
+    rows.push(['Monthly Trend'])
+    rows.push(['Period', 'Revenue', 'Quantity', 'Avg Price'])
+    monthlyRows.forEach((m) => rows.push([m.label, r2(m.amount), m.quantity, r2(m.avgPrice)]))
+
+    if (productBreakdown.length > 0) {
+      rows.push([])
+      rows.push(['Product Breakdown'])
+      const periods = productBreakdown[0].periods
+      rows.push(['Product', 'Total Revenue', 'Total Quantity', ...periods.flatMap((p) => [`${p.label} Revenue`, `${p.label} Qty`])])
+      productBreakdown.forEach((pb) =>
+        rows.push([pb.productName, r2(pb.totalAmount), pb.totalQuantity, ...pb.periods.flatMap((p) => [r2(p.amount), p.quantity])]),
+      )
+    }
+
+    // All products in the date range, grouped by category & subcategory
+    const allLines = await fetchSalesLines(workspace, { dateRange: { start: dateRange.start, end: dateRange.end } })
+    const gLabel = (id: string) => menuGroups.find((g) => g.id === id)?.label || id
+    const sLabel = (gid: string, sid: string) => menuGroups.find((g) => g.id === gid)?.subGroups.find((s) => s.id === sid)?.label || sid || ''
+    const prodAgg = new Map<string, { name: string; gid: string; sid: string; qty: number; amount: number }>()
+    allLines.forEach((l) => {
+      const e = prodAgg.get(l.productId) ?? { name: l.productNameAtSale, gid: l.menuGroupAtSale, sid: l.menuSubGroupAtSale || '', qty: 0, amount: 0 }
+      e.qty += l.quantity
+      e.amount += l.amount
+      prodAgg.set(l.productId, e)
+    })
+    const allProducts = Array.from(prodAgg.values())
+    const grand = allProducts.reduce((s, p) => s + p.amount, 0) || 1
+    const catT = new Map<string, { qty: number; amount: number }>()
+    const subT = new Map<string, { qty: number; amount: number }>()
+    allProducts.forEach((p) => {
+      const c = catT.get(p.gid) ?? { qty: 0, amount: 0 }
+      c.qty += p.qty; c.amount += p.amount; catT.set(p.gid, c)
+      const k = `${p.gid}||${p.sid}`
+      const s = subT.get(k) ?? { qty: 0, amount: 0 }
+      s.qty += p.qty; s.amount += p.amount; subT.set(k, s)
+    })
+    const orderedCats = Array.from(catT.entries()).sort((a, b) => b[1].amount - a[1].amount).map(([id]) => id)
+    const catIdx = new Map(orderedCats.map((id, i) => [id, i] as const))
+    const subAmt = (gid: string, sid: string) => subT.get(`${gid}||${sid}`)?.amount ?? 0
+
+    rows.push([])
+    rows.push(['Sales by Category (all products, in date range)'])
+    rows.push(['Category', 'Subcategory', 'Quantity', 'Amount', '% of Total'])
+    orderedCats.forEach((gid) => {
+      const c = catT.get(gid)!
+      rows.push([gLabel(gid), '', c.qty, r2(c.amount), pct(c.amount / grand)])
+      Array.from(subT.entries())
+        .filter(([k]) => k.startsWith(`${gid}||`) && k.slice(gid.length + 2) !== '')
+        .sort((a, b) => b[1].amount - a[1].amount)
+        .forEach(([k, v]) => rows.push([gLabel(gid), sLabel(gid, k.slice(gid.length + 2)), v.qty, r2(v.amount), pct(v.amount / grand)]))
+    })
+
+    rows.push([])
+    rows.push(['All Products (totals, in date range)'])
+    rows.push(['Category', 'Subcategory', 'Product', 'Quantity', 'Amount', 'Avg Price', '% of Total'])
+    allProducts
+      .slice()
+      .sort((a, b) => {
+        const ci = (catIdx.get(a.gid) ?? 999) - (catIdx.get(b.gid) ?? 999)
+        if (ci !== 0) return ci
+        const si = subAmt(b.gid, b.sid) - subAmt(a.gid, a.sid)
+        if (si !== 0) return si
+        return b.amount - a.amount
+      })
+      .forEach((p) => rows.push([gLabel(p.gid), sLabel(p.gid, p.sid), p.name, p.qty, r2(p.amount), r2(p.qty > 0 ? p.amount / p.qty : 0), pct(p.amount / grand)]))
+
+    const csv = rows.map((row) => row.map(esc).join(',')).join('\r\n')
+    // BOM so Excel reads UTF-8 (£, category names) correctly
+    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    const stamp = (d: Date) => (d instanceof Date && !isNaN(d.getTime()) ? format(d, 'yyyyMMdd') : 'na')
+    a.href = url
+    a.download = `performance-${reportType}-${stamp(dateRange.start)}-${stamp(dateRange.end)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    } catch (error) {
+      console.error('Error exporting CSV:', error)
+    } finally {
+      setExportingCSV(false)
+    }
+  }
+
   const handleCellClick = (pid: string, periodKey: string, productName: string, periodLabel: string) => {
     const lines = allSalesLines.filter((line) => line.productId === pid && line.periodKey === periodKey)
     if (lines.length > 0) {
@@ -703,100 +851,171 @@ export function PerformanceReportPage() {
             </div>
           </div>
           {metrics && (
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleExportCSV}
+                disabled={exportingCSV}
+                className="btn-secondary disabled:opacity-50"
+              >
+                <FileSpreadsheet className="h-4 w-4" />
+                {exportingCSV ? 'Exporting...' : 'Export CSV'}
+              </button>
+              <button
+                type="button"
+                onClick={handleExportPDF}
+                disabled={exportingPDF}
+                className="btn-secondary disabled:opacity-50"
+              >
+                <Download className="h-4 w-4" />
+                {exportingPDF ? 'Exporting...' : 'Export PDF'}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Filters — compact horizontal toolbar */}
+      <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-sm">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Segmented control: Report Type */}
+          <div className="inline-flex rounded-lg bg-slate-100 p-1">
+            {(['category', 'subcategory', 'product'] as ReportType[]).map((type) => {
+              const active = reportType === type
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => handleReportTypeChange(type)}
+                  className={`rounded-md px-3 py-1.5 text-sm font-medium transition ${
+                    active
+                      ? 'bg-white text-blue-600 shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  {type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="h-6 w-px bg-slate-200" aria-hidden />
+
+          {/* Date Range */}
+          <DateRangePopover value={dateRange} onChange={setDateRange} />
+
+          {/* Divider — hidden when target row wraps */}
+          {(reportType === 'category' || reportType === 'subcategory' || reportType === 'product') && (
+            <div className="h-6 w-px bg-slate-200" aria-hidden />
+          )}
+
+          {/* Target selectors — adapt to report type */}
+          {reportType === 'category' && (
+            <div className="min-w-[260px] flex-1">
+              <MultiSearchableSelect
+                values={categoryIds}
+                onChange={setCategoryIds}
+                options={menuGroups.map((g) => ({ label: g.label, value: g.id }))}
+                placeholder="All categories"
+                searchPlaceholder="Search categories..."
+                emptyText="No categories found"
+              />
+            </div>
+          )}
+
+          {reportType === 'subcategory' && (
+            <div className="flex flex-1 flex-wrap items-center gap-2 min-w-[300px]">
+              <div className="min-w-[180px] flex-1">
+                <Select
+                  value={categoryId}
+                  onChange={(e) => { setCategoryId(e.target.value); setSubcategoryId('') }}
+                  options={[
+                    { label: 'All categories', value: '' },
+                    ...menuGroups.map((g) => ({ label: g.label, value: g.id })),
+                  ]}
+                />
+              </div>
+              <div className="min-w-[180px] flex-1">
+                <Select
+                  value={subcategoryId}
+                  onChange={(e) => setSubcategoryId(e.target.value)}
+                  options={[
+                    { label: 'All subcategories', value: '' },
+                    ...availableSubcategories.map((sub) => ({ label: sub.label, value: sub.id })),
+                  ]}
+                  disabled={!categoryId || availableSubcategories.length === 0}
+                />
+              </div>
+            </div>
+          )}
+
+          {reportType === 'product' && (
+            <div className="min-w-[260px] flex-1">
+              <MultiSearchableSelect
+                values={productIds}
+                onChange={setProductIds}
+                options={availableProducts.map((p) => ({ label: p.name, value: p.id }))}
+                placeholder="Select one or more products..."
+                searchPlaceholder="Search products..."
+                emptyText="No products found"
+              />
+            </div>
+          )}
+
+          {/* Clear button — visible only when something is set */}
+          {(categoryId || categoryIds.length > 0 || subcategoryId || productIds.length > 0) && (
             <button
               type="button"
-              onClick={handleExportPDF}
-              disabled={exportingPDF}
-              className="btn-secondary disabled:opacity-50"
+              onClick={() => {
+                setCategoryId('')
+                setCategoryIds([])
+                setSubcategoryId('')
+                setProductIds([])
+              }}
+              className="ml-auto text-xs font-medium text-slate-500 hover:text-slate-900"
             >
-              <Download className="h-4 w-4" />
-              {exportingPDF ? 'Exporting...' : 'Export PDF'}
+              Clear filters
             </button>
           )}
         </div>
       </div>
 
-      {/* Filters - Collapsible */}
-      <div className="app-card overflow-hidden">
-        <button
-          type="button"
-          onClick={() => setFiltersOpen(!filtersOpen)}
-          className="flex w-full items-center justify-between px-6 py-4 text-left"
-        >
-          <h2 className="text-base font-semibold text-slate-900">Filters</h2>
-          {filtersOpen ? <ChevronUp className="h-4 w-4 text-slate-400" /> : <ChevronDown className="h-4 w-4 text-slate-400" />}
-        </button>
-
-        {filtersOpen && (
-          <div className="border-t border-slate-100 px-6 pb-6 pt-4 space-y-4">
-            {/* Report Type */}
-            <div>
-              <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Report Type</label>
-              <div className="flex gap-2">
-                {(['category', 'subcategory', 'product'] as ReportType[]).map((type) => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => handleReportTypeChange(type)}
-                    className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${reportType === type
-                      ? 'bg-blue-600 text-white shadow-md'
-                      : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                      }`}
-                  >
-                    {type.charAt(0).toUpperCase() + type.slice(1)}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Horizontal filter row */}
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              <div>
-                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Date Range</label>
-                <DateRangePicker value={dateRange} onChange={setDateRange} />
-              </div>
-
-              {reportType !== 'product' && (
-                <Select
-                  label="Category"
-                  value={categoryId}
-                  onChange={(e) => { setCategoryId(e.target.value); setSubcategoryId('') }}
-                  options={[
-                    { label: 'All Categories', value: '' },
-                    ...menuGroups.map((g) => ({ label: g.label, value: g.id })),
-                  ]}
-                />
-              )}
-
-              {reportType === 'subcategory' && (
-                <Select
-                  label="Subcategory"
-                  value={subcategoryId}
-                  onChange={(e) => setSubcategoryId(e.target.value)}
-                  options={[
-                    { label: 'All Subcategories', value: '' },
-                    ...availableSubcategories.map((sub) => ({ label: sub.label, value: sub.id })),
-                  ]}
-                  disabled={!categoryId || availableSubcategories.length === 0}
-                />
-              )}
-
-              {reportType === 'product' && (
-                <div>
-                  <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-slate-500">Product</label>
-                  <SearchableSelect
-                    value={productId}
-                    onChange={setProductId}
-                    options={availableProducts.map((p) => ({ label: p.name, value: p.id }))}
-                    placeholder="Select a product..."
-                    searchPlaceholder="Search products..."
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Empty state — no data for the current selection (prevents a blank page) */}
+      {!loading && !metrics && (
+        <div className="app-card p-12 text-center">
+          <BarChart3 className="mx-auto mb-3 h-10 w-10 text-slate-300" />
+          {reportType === 'subcategory' && categoryId && availableSubcategories.length === 0 ? (
+            <>
+              <p className="text-lg font-semibold text-slate-900">
+                {menuGroups.find((g) => g.id === categoryId)?.label ?? 'This category'} has no subcategories
+              </p>
+              <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
+                It's a flat category, so there's nothing to break down here. View its overall trend in the Category tab instead.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const cid = categoryId
+                  setReportType('category')
+                  setCategoryId('')
+                  setSubcategoryId('')
+                  setProductIds([])
+                  setCategoryIds([cid])
+                }}
+                className="btn-primary mt-4 inline-flex"
+              >
+                View in Category tab
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="text-lg font-semibold text-slate-900">No data found</p>
+              <p className="mt-1 text-sm text-slate-500">Try adjusting your filters or expanding the date range.</p>
+            </>
+          )}
+        </div>
+      )}
 
       {/* KPI Cards */}
       {metrics && (
@@ -811,6 +1030,23 @@ export function PerformanceReportPage() {
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
                   <DollarSign className="h-6 w-6" />
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-lg border border-gray-200 p-5 transition-colors duration-150 hover:border-gray-300">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Monthly Average</p>
+                  <p className="mt-2 text-2xl font-bold text-slate-900">
+                    {formatCurrency(workspace.currency, metrics.periodsCount > 0 ? metrics.totalAmount / metrics.periodsCount : 0)}
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    {(metrics.periodsCount > 0 ? Math.round(metrics.totalQuantity / metrics.periodsCount) : 0).toLocaleString()} items / month
+                  </p>
+                </div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
+                  <CalendarDays className="h-6 w-6" />
                 </div>
               </div>
             </div>

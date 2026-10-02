@@ -44,6 +44,7 @@ const os = __importStar(require("node:os"));
 const path = __importStar(require("node:path"));
 const papaparse_1 = __importDefault(require("papaparse"));
 const exceljs_1 = __importDefault(require("exceljs"));
+const jszip_1 = __importDefault(require("jszip"));
 /**
  * Parse a number from various formats and convert to standard JavaScript number format.
  * Converts formats like "2.832,79" → 2832.79 (standard format with dot as decimal separator)
@@ -548,10 +549,41 @@ async function parseReportFile(filePath) {
         return parsed.data.filter(Boolean);
     }
     const buffer = fs.readFileSync(filePath);
+    // ExcelJS's browser build emits XLSX with x: namespace prefix on workbook/sheets/sst etc,
+    // but its own parser (used here in node too) only recognizes unprefixed tags. Strip any
+    // x: prefix from every XML/rels part so files produced by our browser-side template
+    // generator can be read here. No-op for files without the prefix.
+    let normalizedArrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
+    try {
+        const zip = await jszip_1.default.loadAsync(buffer);
+        let mutated = false;
+        const xmlPaths = [];
+        zip.forEach((p) => {
+            if (p.endsWith('.xml') || p.endsWith('.rels'))
+                xmlPaths.push(p);
+        });
+        for (const partName of xmlPaths) {
+            const part = zip.file(partName);
+            if (!part)
+                continue;
+            const xml = await part.async('string');
+            const stripped = xml
+                .replace(/<\/?x:/g, (m) => m.replace('x:', ''))
+                .replace(/\sxmlns:x="/g, ' xmlns="');
+            if (stripped !== xml) {
+                zip.file(partName, stripped);
+                mutated = true;
+            }
+        }
+        if (mutated) {
+            normalizedArrayBuffer = (await zip.generateAsync({ type: 'arraybuffer' }));
+        }
+    }
+    catch (err) {
+        console.warn('[parseReportFile] xlsx normalization skipped:', err);
+    }
     const workbook = new exceljs_1.default.Workbook();
-    // Convert Buffer to ArrayBuffer for exceljs
-    const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-    await workbook.xlsx.load(arrayBuffer);
+    await workbook.xlsx.load(normalizedArrayBuffer);
     const worksheet = workbook.worksheets[0];
     if (!worksheet)
         return [];

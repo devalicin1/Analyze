@@ -47,6 +47,15 @@ function safeDateLabel(d: Date, fmt: string): string {
   return format(d, fmt)
 }
 
+// Range label that keeps the start year when the range spans multiple years,
+// so a full-history range reads "Jun 1, 2025 \u2013 Jun 30, 2026" not "Jun 1 \u2013 Jun 30, 2026".
+function rangeLabel(start: Date, end: Date): string {
+  const validStart = start instanceof Date && !isNaN(start.getTime())
+  const validEnd = end instanceof Date && !isNaN(end.getTime())
+  const sameYear = validStart && validEnd && start.getFullYear() === end.getFullYear()
+  return `${safeDateLabel(start, sameYear ? 'MMM d' : 'MMM d, yyyy')} \u2013 ${safeDateLabel(end, 'MMM d, yyyy')}`
+}
+
 function aggregateByField(
   lines: SalesLine[],
   field: 'productId' | 'menuGroupAtSale',
@@ -367,16 +376,32 @@ export function OverviewPage() {
       <section className="space-y-6">
         <div className="flex items-center justify-between pb-4">
           <h1 className="text-lg font-semibold text-gray-900">Overview</h1>
-          <p className="text-sm text-gray-400">
-            {safeDateLabel(dateRange.start, 'MMM d')} &ndash;{' '}
-            {safeDateLabel(dateRange.end, 'MMM d, yyyy')}
-          </p>
+          <p className="text-sm text-gray-400">{rangeLabel(dateRange.start, dateRange.end)}</p>
         </div>
         <div className="py-20 text-center">
-          <p className="font-medium text-gray-900">No data for this period</p>
-          <p className="mt-1 text-sm text-gray-400">
-            Expand date range or upload reports
-          </p>
+          {workspace.dataRange ? (
+            <>
+              <p className="font-medium text-gray-900">No sales in this window</p>
+              <p className="mt-1 text-sm text-gray-400">
+                Your data covers {safeDateLabel(workspace.dataRange.start, 'MMM yyyy')} &ndash;{' '}
+                {safeDateLabel(workspace.dataRange.end, 'MMM yyyy')}.
+              </p>
+              <button
+                type="button"
+                onClick={() => workspace.setDateRange(workspace.dataRange!)}
+                className="mt-4 inline-flex items-center rounded-lg bg-gray-900 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-700"
+              >
+                Show all data
+              </button>
+            </>
+          ) : (
+            <>
+              <p className="font-medium text-gray-900">No data yet</p>
+              <p className="mt-1 text-sm text-gray-400">
+                Upload sales reports to see your analytics here.
+              </p>
+            </>
+          )}
         </div>
       </section>
     )
@@ -384,7 +409,7 @@ export function OverviewPage() {
 
   /* ---------- date label ---------- */
 
-  const dateLabel = `${safeDateLabel(dateRange.start, 'MMM d')} \u2013 ${safeDateLabel(dateRange.end, 'MMM d, yyyy')}`
+  const dateLabel = rangeLabel(dateRange.start, dateRange.end)
   const hasPreviousData = previousLines.length > 0
   const maxCategoryShare = categoryDeltas.length > 0
     ? Math.max(...categoryDeltas.map((c) => c.share))

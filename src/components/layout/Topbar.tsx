@@ -4,9 +4,10 @@ import { CalendarRange, ChevronDown, Menu, X } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 import { useWorkspace } from '../../context/WorkspaceContext'
 import { DateRangePicker } from '../forms/DateRangePicker'
+import { WorkspaceSwitcher } from './WorkspaceSwitcher'
 
 export function Topbar() {
-  const { workspaceName, dateRange, setDateRange } = useWorkspace()
+  const { dateRange, setDateRange } = useWorkspace()
   const { user } = useAuth()
   const [isPickerOpen, setIsPickerOpen] = useState(false)
   const pickerRef = useRef<HTMLDivElement>(null)
@@ -40,7 +41,7 @@ export function Topbar() {
         </div>
 
         <div className="flex flex-1 items-center gap-3">
-          <span className="hidden text-[13px] font-medium text-gray-500 lg:block">{workspaceName}</span>
+          <WorkspaceSwitcher />
 
           <span className="hidden text-gray-300 lg:block">/</span>
 

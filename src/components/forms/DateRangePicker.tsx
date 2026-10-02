@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { addMonths, endOfMonth, startOfMonth, subMonths } from 'date-fns'
 import type { DateRange } from '../../context/WorkspaceContext'
+import { useWorkspace } from '../../context/WorkspaceContext'
 
 type DateRangePickerProps = {
   value: DateRange
@@ -46,6 +47,7 @@ const presetBuilders = [
 ]
 
 export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
+  const { dataRange } = useWorkspace()
   // Local draft state for date inputs — only pushed to parent on blur
   const [draftStart, setDraftStart] = useState(() => toInputValue(value.start))
   const [draftEnd, setDraftEnd] = useState(() => toInputValue(value.end))
@@ -57,7 +59,15 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
   }, [value.start, value.end])
 
   function applyDraft(field: 'start' | 'end', val: string) {
-    const date = new Date(val)
+    // Parse YYYY-MM-DD as local time so the day boundary lines up with how
+    // sales records are timestamped. Using `new Date(val)` would parse as UTC
+    // midnight, which can drop entire days near the range boundaries.
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(val)
+    if (!match) return
+    const [, y, m, d] = match
+    const date = field === 'start'
+      ? new Date(Number(y), Number(m) - 1, Number(d), 0, 0, 0, 0)
+      : new Date(Number(y), Number(m) - 1, Number(d), 23, 59, 59, 999)
     if (isNaN(date.getTime())) return
     onChange({
       ...value,
@@ -69,6 +79,15 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
   return (
     <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4">
       <div className="flex flex-wrap gap-2">
+        {dataRange && (
+          <button
+            type="button"
+            onClick={() => onChange(dataRange)}
+            className="rounded-full border border-gray-300 bg-gray-900 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-gray-700"
+          >
+            All data
+          </button>
+        )}
         {presetBuilders.map((preset) => (
           <button
             key={preset.label}
@@ -86,7 +105,10 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
           <input
             type="date"
             value={draftStart}
-            onChange={(e) => setDraftStart(e.target.value)}
+            onChange={(e) => {
+              setDraftStart(e.target.value)
+              applyDraft('start', e.target.value)
+            }}
             onBlur={() => applyDraft('start', draftStart)}
             className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
           />
@@ -96,7 +118,10 @@ export function DateRangePicker({ value, onChange }: DateRangePickerProps) {
           <input
             type="date"
             value={draftEnd}
-            onChange={(e) => setDraftEnd(e.target.value)}
+            onChange={(e) => {
+              setDraftEnd(e.target.value)
+              applyDraft('end', e.target.value)
+            }}
             onBlur={() => applyDraft('end', draftEnd)}
             className="mt-1 w-full rounded-lg border border-gray-200 px-3 py-2 text-sm text-gray-900 focus:border-gray-400 focus:outline-none"
           />

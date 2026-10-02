@@ -66,13 +66,13 @@ export function MoversShakers() {
     // Initialize periods
     useEffect(() => {
         const today = new Date()
-        const last12Months = Array.from({ length: 12 }).map((_, i) => {
+        const last13Months = Array.from({ length: 13 }).map((_, i) => {
             const d = subMonths(today, i)
             return format(d, 'yyyy-MM')
         })
-        setPeriods(last12Months)
-        setCurrentPeriod(last12Months[0])
-        setPreviousPeriod(last12Months[1])
+        setPeriods(last13Months)
+        setCurrentPeriod(last13Months[0])
+        setPreviousPeriod(last13Months[1])
     }, [])
 
     useEffect(() => {
